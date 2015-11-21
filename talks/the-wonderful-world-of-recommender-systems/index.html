@@ -1,0 +1,852 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>The wonderful world of recommender systems</title>
+
+		<meta name="description" content="">
+		<meta name="author" content="Yanir Seroussi">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/league.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+
+        <style type="text/css">
+            h1, h2, h3, h4, h5, h6 {
+                text-transform: none !important;
+            }
+
+            .reveal h2 {
+                font-size: 1.75em;
+            }
+
+            .reveal h3 {
+                font-size: 1.35em;
+            }
+
+            p {
+                text-align: left;
+            }
+
+            .center {
+                text-align: center;
+            }
+
+            .left {
+                text-align: left;
+            }
+
+            .right {
+                text-align: right;
+            }
+
+            .indent {
+                padding-left: 30px !important;
+            }
+
+            .pad-top {
+                padding-top: 30px !important;
+            }
+
+            .small {
+                font-size: .6em !important;
+                line-height: 1.2em !important;
+            }
+
+            .medium {
+                font-size: .8em !important;
+                line-height: 1.2em !important;
+            }
+
+            img {
+                border: 0 !important;
+            }
+
+            .method-example {
+                max-height: 500px !important;
+            }
+
+            .reveal ul, .reveal ol {
+                display: block;
+                padding-left: 30px;
+            }
+
+            .reveal table td {
+                border-bottom: none;
+            }
+
+            .reveal blockquote.wide {
+                width: 100%;
+            }
+
+            .img-source-caption {
+                text-align: right;
+                font-size: 14px !important;
+                line-height: 10px !important;
+                padding-bottom: 10px !important;
+            }
+
+            .no-margin {
+                margin: 0 !important;
+            }
+
+            .strikethrough {
+                text-decoration: line-through !important;
+            }
+        </style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>The wonderful world of recommender systems</h1>
+					<h4>Yanir Seroussi</h4>
+                      <h6>
+                          <a href="http://yanirseroussi.com" target="_blank">yanirseroussi.com</a> |
+                          <a href="https://twitter.com/yanirseroussi" target="_blank">@yanirseroussi</a> |
+                          <a href="https://linkedin.com/in/yanirseroussi" target="_blank">linkedin.com/in/yanirseroussi</a>
+                      </h6>
+				</section>
+
+				<section>
+					<h2>Overview</h2>
+					<ul>
+                        <li>Motivation</li>
+                        <li>What are recommender systems</li>
+                        <li>Recommendation paradigms</li>
+                        <li>Myth busting</li>
+                    </ul>
+				</section>
+
+                <section>
+                    <section>
+                        <h2>Motivation: why care about recommender systems?</h2>
+
+                        <div class="fragment">
+                            <h3>Because money</h3>
+                            <p>
+                                For companies like Amazon, Netflix, and Spotify, recommender systems drive significant
+                                engagement and revenue
+                            </p>
+                        </div>
+
+                        <div class="fragment">
+                            <h3>Because value</h3>
+                            <p>
+                                Recommender systems provide a scalable way of personalising content for users in scenarios with
+                                many items
+                            </p>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Recommender systems: a true data science problem</h2>
+
+                        <div class="fragment">
+                            ...at least according to my favourite definition of data science
+
+                            <img src="img/data-scientist-definition.png">
+
+                            <img src="img/data-skill-continuum.png">
+                        </div>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Defining recommender systems</h1>
+                    </section>
+
+                    <section>
+                        <h2>Wikipedia is wrong</h2>
+
+                        <blockquote>
+                            Recommender systems ... are a subclass of information filtering system that seek to predict the
+                            'rating' or 'preference' that a user would give to an item.
+                        </blockquote>
+                        <p class="img-source-caption">- <a href="http://en.wikipedia.org/wiki/Recommender_system" target="_blank">Wikipedia</a> (retrieved 28 September 2015)</p>
+                    </section>
+
+                    <section>
+                        <h2>There's more to it than rating prediction</h2>
+
+                        <p>
+                            <b>Recommender</b> is a misnomer &ndash; discovery assistant is better
+                        </p>
+
+                        <p>
+                            <b>System</b> means elements like presentation are important
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>My definition</h2>
+
+                        <blockquote>
+                            Recommender systems are systems that help users discover items they may like
+                        </blockquote>
+                    </section>
+
+                    <!--<section>-->
+                        <!--<h2>Predictive accuracy isn't critical</h2>-->
+
+                        <!--<blockquote>-->
+                            <!--<p>-->
+                                <!--Browsing is a comfortable and powerful paradigm (the serendipity effect).-->
+                            <!--</p>-->
+                            <!--<ul>-->
+                                <!--<li>Search results don't have to be very good.</li>-->
+                                <!--<li>Recall? Not important (as long as you get at least some good hits).</li>-->
+                                <!--<li>Precision? Not important (as long as at least some of the hits on the first page you return are good).</li>-->
+                            <!--</ul>-->
+                        <!--</blockquote>-->
+
+                        <!--<p class="img-source-caption">-->
+                            <!--- <a href="http://cgi.csc.liv.ac.uk/~wda2001/Panel_Presentations/Lopresti/Lopresti_files/v3_document.htm" target="_blank">Daniel Lopresti, WDA 2001 panel</a>-->
+
+                            <!--(speaking about web search)-->
+                        <!--</p>-->
+                    <!--</section>-->
+
+                    <!--<section>-->
+                        <!--<h2>Many things matter</h2>-->
+
+                        <!--<ul class="medium">-->
+                            <!--<li>Measured user preference</li>-->
+                            <!--<li>Offline predictive accuracy</li>-->
+                            <!--<li>User/item coverage</li>-->
+                            <!--<li>System confidence</li>-->
+                            <!--<li>User trust</li>-->
+                            <!--<li>Novelty</li>-->
+                            <!--<li>Serendipity</li>-->
+                            <!--<li>Diversity</li>-->
+                            <!--<li>Utility to provider</li>-->
+                            <!--<li>Robustness to attacks</li>-->
+                            <!--<li>Privacy</li>-->
+                            <!--<li>Adaptivity</li>-->
+                            <!--<li>Scalability</li>-->
+                            <!--<li>Explainability</li>-->
+                        <!--</ul>-->
+
+                        <!--<p class="img-source-caption">-->
+                            <!----->
+                            <!--<a href="http://www.bgu.ac.il/~shanigu/Publications/EvaluationMetrics.17.pdf" target="_blank">-->
+                                <!--<i>Evaluating recommender systems</i> (Shani and Gunawardana)-->
+                            <!--</a>-->
+                        <!--</p>-->
+                    <!--</section>-->
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Recommendation paradigms</h1>
+                    </section>
+
+                    <section>
+                        <h2>Collaborative filtering</h2>
+
+                        <p>
+                            Given a matrix of preferences by users for items, predict missing preferences and
+                            recommend items with high predictions
+                        </p>
+
+                        <div class="fragment">
+                            <h3 class="left no-margin">Advantages</h3>
+                            <ul>
+                                <li>Huge amount of research, well-understood</li>
+                                <li>Independent of item properties</li>
+                            </ul>
+                        </div>
+
+                        <div class="fragment">
+                            <h3 class="left no-margin pad-top">Limitations</h3>
+                            <ul>
+                                <li>Hard to deal with cold start, sparseness</li>
+                                <li>Often underperforms in reality</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Content-based</h2>
+
+                        <p>
+                            Given user preferences for items, recommend similar items based on item content
+                        </p>
+
+                        <div class="fragment">
+                            <h3 class="left no-margin">Advantages</h3>
+                            <ul>
+                                <li>No need for much initial user feedback</li>
+                                <li>Easy to implement when item metadata is available</li>
+                            </ul>
+                        </div>
+
+                        <div class="fragment">
+                            <h3 class="left no-margin pad-top">Limitations</h3>
+                            <ul>
+                                <li>Recommendations may be static and homogeneous</li>
+                                <li>Measuring similarity is hard for some items</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Social &amp; demographic</h2>
+
+                        <p>
+                            Recommend items that are liked by friends, friends of friends, and demographically similar
+                            people
+                        </p>
+
+                        <div class="fragment">
+                            <h3 class="left no-margin">Advantages</h3>
+                            <ul>
+                                <li>No need for any user feedback &ndash; friend list is enough</li>
+                                <li>Trivially-implemented approaches can be depressingly accurate</li>
+                            </ul>
+                        </div>
+
+                        <div class="fragment">
+                            <h3 class="left no-margin pad-top">Limitations</h3>
+                            <ul>
+                                <li>Social graph and demographic data may not be available</li>
+                                <li>Privacy and creepiness issues</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Contextual</h2>
+
+                        <p>
+                            Recommend items that match the user's current context
+                        </p>
+
+                        <div class="fragment">
+                            <h3 class="left no-margin">Advantages</h3>
+                            <ul>
+                                <li>Adaptive and flexible</li>
+                                <li>More likely to elicit a response than approaches based on historical data</li>
+                            </ul>
+                        </div>
+
+                        <div class="fragment">
+                            <h3 class="left no-margin pad-top">Limitations</h3>
+                            <ul>
+                                <li>Contextual data may not be available</li>
+                                <li>Creepiness &ndash; may not be suitable to use contextual data</li>
+                            </ul>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>In practice: all of the above (and more)</h2>
+
+                        <img src="img/nut-mix.jpg" height="550">
+
+                        <!--<p class="fragment">-->
+                            <!--Multiple methods are used to generate a single list-->
+                        <!--</p>-->
+
+                        <!--<p class="fragment">-->
+                            <!--Trivial approaches work surprisingly well, e.g., popular items, "watch it again"-->
+                        <!--</p>-->
+
+                        <!--<p class="fragment">-->
+                            <!--May need to invent new methods to solve practical problems-->
+                        <!--</p>-->
+
+                        <!--<p class="fragment">-->
+                            <!--UI/UX is king-->
+                        <!--</p>-->
+                    </section>
+                </section>
+
+                <section>
+                    <h1>Myth busting</h1>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>The accuracy myth</h1>
+                        <h2 class="fragment shrink" data-fragment-index="1">Offline optimisation of an accuracy measure is enough</h2>
+                        <div class="fragment" data-fragment-index="1">
+                            <h2 class="fragment grow" data-fragment-index="1">Reality: Users don't really care about accuracy</h2>
+                        </div>
+                    </section>
+
+                    <!--<section>-->
+                        <!--<h2>Where did the accuracy myth come from?</h2>-->
+
+                        <!--<div class="fragment">-->
+                            <!--<h3 class="left">Academia?</h3>-->
+                            <!--<p>-->
+                                <!--Easy to publish papers with infinitesimal improvements to arbitrary accuracy measures-->
+                            <!--</p>-->
+                        <!--</div>-->
+
+                        <!--<div class="fragment">-->
+                            <!--<h3 class="left">Industry?</h3>-->
+                            <!--<p>-->
+                                <!--Netflix prize focused on 10% improvement to a rating prediction algorithm that ended up being useless-->
+                            <!--</p>-->
+                        <!--</div>-->
+
+                        <!--<h2 class="pad-top fragment">Most likely: feedback loop of the above</h2>-->
+                    <!--</section>-->
+
+                    <section>
+                        <h2>Why don't users care about accuracy?</h2>
+
+                        <p class="fragment">
+                            They care, but not that much...
+                        </p>
+
+                        <ul>
+                            <li class="fragment">UI/UX is king</li>
+                            <li class="fragment">Other things matter: diversity, coverage, trust, serendipity, privacy,
+                                adaptivity, and <a href="http://www.bgu.ac.il/~shanigu/Publications/EvaluationMetrics.17.pdf" target="_blank">more</a></li>
+                            <li class="fragment">High predictive accuracy on low ratings is useless</li>
+                            <li class="fragment">Offline datasets are biased &ndash; data isn't missing at random</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Accuracy lessons from Netflix</h2>
+
+                        <blockquote class="medium wide fragment" data-fragment-index="1">
+                            <p>
+                                Our business objective is to maximize member satisfaction and month-to-month subscription
+                                retention...
+                                Now it is clear that the Netflix Prize objective, accurate prediction of a movie's
+                                rating, is just one of the many components of an effective recommendation system that
+                                optimizes our members' enjoyment.
+                            </p>
+                        </blockquote>
+
+                        <p class="img-source-caption fragment" data-fragment-index="1">
+                            - <a href="http://techblog.netflix.com/2012/04/netflix-recommendations-beyond-5-stars.html" target="_blank">Netflix blog, 2012</a>
+                        </p>
+
+                        <img src="img/netflix-rating-prediction-contribution.png" height="300" class="fragment no-margin" data-fragment-index="2">
+                    </section>
+
+                    <!--<section>-->
+                        <!--<h2>Accuracy lessons from Netflix</h2>-->
+
+                        <!--<blockquote class="medium">-->
+                            <!--<p>-->
+                                <!--You might be wondering what happened with the-->
+                                <!--final Grand Prize ensemble that won the $1M two years later...-->
+                                <!--We evaluated some of the new methods offline but the additional accuracy gains that-->
+                                <!--we measured did not seem to justify the engineering effort needed to bring them into-->
+                                <!--a production environment.<br>-->
+
+                                <!--Our business objective is to maximize member satisfaction and month-to-month subscription-->
+                                <!--retention...-->
+                                <!--Now it is clear that the Netflix Prize objective, accurate prediction of a movie's-->
+                                <!--rating, is just one of the many components of an effective recommendation system that-->
+                                <!--optimizes our members' enjoyment.-->
+                            <!--</p>-->
+                        <!--</blockquote>-->
+
+                        <!--<p class="img-source-caption">-->
+                            <!-- - <a href="http://techblog.netflix.com/2012/04/netflix-recommendations-beyond-5-stars.html" target="_blank">Netflix blog, 2012</a>-->
+                        <!--</p>-->
+                    <!--</section>-->
+
+                    <!--<section>-->
+                        <!--<h2>Netflix: Contribution of ratings to ranking performance</h2>-->
+
+                        <!--<img src="img/netflix-rating-prediction-contribution.png" height="500">-->
+
+                        <!--<p class="img-source-caption">-->
+                            <!-- - <a href="http://techblog.netflix.com/2012/06/netflix-recommendations-beyond-5-stars.html" target="_blank">Netflix blog, 2012</a>-->
+                            <!-- - <a href="http://techblog.netflix.com/2012/06/netflix-recommendations-beyond-5-stars.html" target="_blank">Netflix blog, 2012</a>-->
+                        <!--</p>-->
+                    <!--</section>-->
+                </section>
+
+                <section>
+                    <section>
+                        <h1>The black box myth</h1>
+                        <h2 class="fragment shrink" data-fragment-index="1">You can build successful recommender systems without worrying about what's being recommended and how recommendations are served</h2>
+                        <div class="fragment" data-fragment-index="1">
+                            <h2 class="fragment grow" data-fragment-index="1">Reality: UI/UX is king, item type is critical</h2>
+                        </div>
+                    </section>
+
+                    <!--<section>-->
+                        <!--<h2>No black boxes: UI/UX matters</h2>-->
+
+                        <!--<p class="fragment">Number of displayed recommendations informs the optimisation procedure</p>-->
+                        <!--<p class="fragment">Horizontal/vertical layout affects user interaction</p>-->
+                        <!--<p class="fragment">Explainability influences interactions</p>-->
+                        <!--<p class="fragment">Fast is better than slow</p>-->
+                        <!--<p class="fragment">-->
+                            <!--Item type informs many decisions: music &ne; short videos &ne; films &ne; books &ne;-->
+                            <!--news articles &ne; restaurants &ne; people &ne; &hellip;-->
+                        <!--</p>-->
+                    <!--</section>-->
+
+                    <!--<section>-->
+                        <!--<h2>Example: Bandcamp Recommender UI change</h2>-->
+
+                        <!--<img src="img/bcrecommender-screenshot.png" height="300">-->
+
+                        <!--<div class="fragment">-->
+                            <!--<p class="medium">Percentage of plays nearly doubled on introduction of clickable album covers</p>-->
+
+                            <!--<img src="img/bcrecommender-plays-uplift.png" height="125">-->
+                        <!--</div>-->
+                    <!--</section>-->
+
+                    <section>
+                        <h2>Example: Hynt recommendation widget</h2>
+
+                        <ul>
+                            <li>Above the fold is better than below</li>
+                            <li>More recommendations are better than a few</li>
+                            <li>Desktop is better than mobile</li>
+                            <li>Fast is better than slow</li>
+                        </ul>
+
+                        <img src="img/hynt.png" height="250">
+                    </section>
+
+                    <!--<section>-->
+                        <!--<h2>The right explanation can change everything</h2>-->
+
+                        <!--<p>Explanations can achieve the following</p>-->
+
+                        <!--<table class="medium">-->
+                            <!--<thead>-->
+                                <!--<tr>-->
+                                    <!--<th>Aim</th>-->
+                                    <!--<th>Definition</th>-->
+                                <!--</tr>-->
+                            <!--</thead>-->
+                            <!--<tbody>-->
+                                <!--<tr>-->
+                                    <!--<td>Transparency</td>-->
+                                    <!--<td>Explain how the system works</td>-->
+                                <!--<tr>-->
+                                <!--<tr>-->
+                                    <!--<td>Scrutability</td>-->
+                                    <!--<td>Allow users to tell the system it is wrong</td>-->
+                                <!--<tr>-->
+                                <!--<tr>-->
+                                    <!--<td>Trust</td>-->
+                                    <!--<td>Increase user confidence in the system</td>-->
+                                <!--<tr>-->
+                                <!--<tr>-->
+                                    <!--<td>Effectiveness</td>-->
+                                    <!--<td>Help users make good decisions</td>-->
+                                <!--<tr>-->
+                                <!--<tr>-->
+                                    <!--<td>Persuasiveness</td>-->
+                                    <!--<td>Convince users to try or buy</td>-->
+                                <!--<tr>-->
+                                <!--<tr>-->
+                                    <!--<td>Efficiency</td>-->
+                                    <!--<td>Help users make decisions faster</td>-->
+                                <!--<tr>-->
+                                <!--<tr>-->
+                                    <!--<td>Satisfaction</td>-->
+                                    <!--<td>Increase ease of usability or enjoyment</td>-->
+                                <!--<tr>-->
+                            <!--</tbody>-->
+                        <!--</table>-->
+
+                        <!--<p class="img-source-caption">-->
+                            <!-- - -->
+                            <!--<a href="http://homepages.abdn.ac.uk/n.tintarev/pages/papers/TintarevMasthoffICDE07.pdf" target="_blank">-->
+                                <!--<i>A survey of explanations in recommender systems</i> (Tintarev and Masthoff)-->
+                            <!--</a>-->
+                        <!--</p>-->
+                    <!--</section>-->
+
+                    <section>
+                        <h2>The right explanation can change everything</h2>
+
+                        <div class="fragment">
+                            <table class="medium">
+                                <thead>
+                                    <tr>
+                                        <th>Aim</th>
+                                        <th>Definition</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Transparency</td>
+                                        <td>Explain how the system works</td>
+                                    </tr>
+                                    <tr class="fragment">
+                                        <td>Scrutability</td>
+                                        <td>Allow users to tell the system it is wrong</td>
+                                    </tr>
+                                    <tr class="fragment">
+                                        <td>Trust</td>
+                                        <td>Increase user confidence in the system</td>
+                                    </tr>
+                                    <tr class="fragment">
+                                        <td>Effectiveness</td>
+                                        <td>Help users make good decisions</td>
+                                    </tr>
+                                    <tr class="fragment">
+                                        <td>Persuasiveness</td>
+                                        <td>Convince users to try or buy</td>
+                                    </tr>
+                                    <tr class="fragment">
+                                        <td>Efficiency</td>
+                                        <td>Help users make decisions faster</td>
+                                    </tr>
+                                    <tr class="fragment">
+                                        <td>Satisfaction</td>
+                                        <td>Increase ease of usability or enjoyment</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <p class="img-source-caption">
+                                -
+                                <a href="http://homepages.abdn.ac.uk/n.tintarev/pages/papers/TintarevMasthoffICDE07.pdf" target="_blank">
+                                    <i>A survey of explanations in recommender systems</i> (Tintarev and Masthoff)
+                                </a>
+                            </p>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Example: Amazon &amp; Netflix explanations</h2>
+
+                        <img src="img/amazon-frequently-bought-together.png" height="150">
+
+                        <img src="img/netflix-because-you-watched.jpg" height="350">
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>The solved problem myth</h1>
+                        <h2 class="fragment shrink" data-fragment-index="1">The space of recommender systems has been exhaustively explored</h2>
+                        <div class="fragment" data-fragment-index="1">
+                            <h2 class="fragment grow" data-fragment-index="1">Reality: Development of new methods is often required</h2>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Example: The original Giveable problem</h2>
+                        
+                        <img class="no-margin" src="img/giveable-logo.png" height="80">
+
+                        <p class="no-margin">
+                            Recommend gifts for Facebook friends using liked pages
+                        </p>
+
+                        <ul class="fragment pad-top">
+                            <li>Need to consider giver and receiver</li>
+                            <li>Likes are historical and sparse</li>
+                            <li>Likes are not for recommended items</li>
+                            <li>Likes not always available offline</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Example: Initial Giveable solutions</h2>
+
+                        <h3 class="left no-margin fragment" data-fragment-index="1">Offline</h3>
+                        <ul>
+                            <li class="fragment">Infer similar pages with collaborative filtering</li>
+                            <li class="fragment">Match pages to products with heuristics + Mechanical Turk + machine learning</li>
+                            <li class="fragment">Enrich page and product data with Freebase</li>
+                        </ul>
+
+                        <h3 class="left no-margin pad-top fragment" data-fragment-index="1">Online</h3>
+                        <ul>
+                            <li class="fragment">Pages + inferred likes &rarr; gift recommendations + reasons</li>
+                        </ul>
+                    </section>
+                </section>
+
+
+                <section>
+                    <section>
+                        <h1>The silver bullet myth</h1>
+                        <h2 class="fragment shrink" data-fragment-index="1">Optimising a single measure or using a single algorithm is enough</h2>
+                        <div class="fragment" data-fragment-index="1">
+                            <h2 class="fragment grow" data-fragment-index="1">Reality: Hybrids work best</h2>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Another Netflix example: list of lists</h2>
+
+                        <p>
+                            Optimising each list's ranking and list ordering, while considering device-specific UI
+                            constraints, relevance, engagement, diversity, business constraints, and more...
+                        </p>
+
+                        <img src="img/netflix-page-likelihood.png" style="background-color: #e8e8e8;">
+
+                        <p class="img-source-caption">
+                            - <a href="http://techblog.netflix.com/2015/04/learning-personalized-homepage.html" target="_blank">Netflix blog, 2015</a>
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>Giveable/Hynt: single list, many algorithms</h2>
+
+                        <p>
+                            Generated a single list by statically mixing the outputs of the following algorithms:
+                        </p>
+
+                        <ul>
+                            <li>Contextual</li>
+                            <li>Direct likes</li>
+                            <li>Inferred likes</li>
+                            <li>Content-based</li>
+                            <li>Social</li>
+                            <li>Collaborative filtering of products</li>
+                            <li>Previously viewed</li>
+                            <li>Popular interests/products</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Contextual bandits: the next logical step</h2>
+
+                        <p>
+                            A static mix of different approaches can get you very far, but there's a better way
+                        </p>
+
+                        <h3 class="fragment" data-fragment-index="1">
+                            <a href="http://engineering.richrelevance.com/bandits-recommendation-systems/" target="_blank">
+                                The RichRelevance solution
+                            </a>
+                        </h3>
+
+                        <ul>
+                            <li class="fragment" data-fragment-index="2">Train recommendation models offline, using a small number of strategies</li>
+                            <li class="fragment" data-fragment-index="3">
+                                Serve recommendations from strategies that maximise clickthrough and revenue given a
+                                context with features describing the user, merchant, and webpage
+                            </li>
+                            <li class="fragment" data-fragment-index="4">
+                                Continuously explore and improve the model
+                            </li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>The omnipresence myth</h1>
+                        <h2 class="fragment shrink" data-fragment-index="1">Every personalised system is a recommender system</h2>
+                        <div class="fragment" data-fragment-index="1">
+                            <h2 class="fragment grow" data-fragment-index="1">Reality: It's kinda true, but not necessarily useful...</h2>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Web search as a recommender system?</h2>
+
+                        <p>
+                            Web search is a recommender system for pages that gives high weight to the user's
+                            intent/query
+                        </p>
+
+                        <p class="fragment">
+                            When personalising web search, it seems sensible to use collaborative filtering techniques
+                        </p>
+
+                        <p class="fragment">
+                            My Yandex competition experience: matrix factorisation was a waste of time compared to
+                            domain-specific methods
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>Recommenders are as murky as data science</h2>
+
+                        <p class="fragment" data-fragment-index="1">
+                            Just like data science:
+                        </p>
+                        <ul>
+                            <li class="fragment" data-fragment-index="1">The bounds of recommender systems are hard to define</li>
+                            <li class="fragment">Recommender systems are sometimes over-hyped</li>
+                            <li class="fragment">There is a lot of value in recommender systems</li>
+                            <li class="fragment">
+                                Using the recommender hammer to drive every possible nail is likely to lead to poor
+                                results and dissatisfaction
+                            </li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section>
+                    <h1>Questions?</h1>
+                </section>
+
+			</div>
+
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, condition: function() { return !!document.querySelector( 'pre code' ); }, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
