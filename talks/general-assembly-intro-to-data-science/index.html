@@ -1,0 +1,830 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8">
+
+		<title>Intro to Data Science by Yanir Seroussi</title>
+
+		<meta name="description" content="An introduction to data science, including a definition of the field, an overview of common methods, and two case studies.">
+		<meta name="author" content="Yanir Seroussi">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/night.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+
+        <style type="text/css">
+            p {
+                text-align: left;
+            }
+
+            .center {
+                text-align: center;
+            }
+
+            .right {
+                text-align: right;
+            }
+
+            .indent {
+                padding-left: 300px !important;
+            }
+
+            .pad-top {
+                padding-top: 30px !important;
+            }
+
+            .small {
+                font-size: .6em !important;
+                line-height: 1.2em !important;
+            }
+
+            img {
+                border: 0 !important;
+            }
+
+            .method-example {
+                max-height: 500px !important;
+            }
+
+            .reveal ul, .reveal ol {
+                display: block;
+            }
+
+            .img-source-caption {
+                text-align: right;
+                font-size: 14px !important;
+                line-height: 10px !important;
+                padding-bottom: 10px !important;
+            }
+        </style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>Demystifying Data: An Introduction to Data Science</h1>
+					<h4>Yanir Seroussi</h4>
+          <h6>
+              <a href="http://yanirseroussi.com" target="_blank">yanirseroussi.com</a> |
+              <a href="https://twitter.com/yanirseroussi" target="_blank">@yanirseroussi</a> |
+              <a href="https://linkedin.com/in/yanirseroussi" target="_blank">linkedin.com/in/yanirseroussi</a>
+          </h6>
+          <h4>Note: Check out <a href="http://yanirseroussi.com/2015/05/02/first-steps-in-data-science-author-aware-sentiment-analysis/">First Steps in Data Science</a> for advice on how to get started in the field</h4>
+				</section>
+
+                <section>
+                    <h2>Bio</h2>
+
+                    <div class="fragment">
+                        <p>Software engineering/computer science background</p>
+
+                        <ul style="width: 924px">
+                            <li>BSc CompSci Technion</li>
+                            <li>Intel, Qualcomm, Google</li>
+                        </ul>
+                    </div>
+
+                    <div class="fragment">
+                        <p class="pad-top">Conversion to data science</p>
+
+                        <ul>
+                            <li>PhD Monash: text mining and user modelling</li>
+                            <li>Giveable: data scientist, recommender systems, and a bunch of other things</li>
+                            <li>Next Commerce: head of data science, recommender systems, even more other things</li>
+                        </ul>
+                    </div>
+
+                    <div class="fragment">
+                        <p class="pad-top">
+                            Recently joined the big scary world as an independent consultant/entrepreneur
+                        </p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Overview</h2>
+
+                    <ul>
+                        <li>Defining data science</li>
+                        <li>General approach to problems</li>
+                        <li>Key terms and tools</li>
+                        <li>Case study: Bandcamp recommender system</li>
+                        <li>Case study: Surviving the Titanic</li>
+                    </ul>
+
+
+                    <!--Title-->
+
+<!--Introduction to Data Science-->
+
+<!--Overview-->
+
+<!--Data Scientist is the "sexiest job of the 21st century", according to Harvard Business Review. This workshop will explore what's so sexy about data science, map out the knowledge and skills required to become a data scientist, and review some real-world applications of this field.-->
+
+<!--Description -->
+
+<!--"Big data lives in the cloud. It knows what we do." - Pointy-haired boss-->
+
+<!--Despite the hype surrounding big data and where it's stored, data scientists know that the size of your data doesn't matter.
+ It's all about what you do with it. This workshop represents the first step towards improving your data literacy and seeing through the hype and buzzwords.-->
+
+<!--The goal of this workshop is to give you a taste of data science.
+In addition to defining what it actually is, the main tools in the data scientist's toolbox will be introduced through examples and case studies.
+By the end of this workshop, you will be able to phrase problems in data science terms, and approach their solution in a structured and rigorous manner.-->
+
+ <!---->
+<!--Takeaways-->
+
+    <!--Definition of data science and its benefits-->
+    <!--Ability to recognise problems that can be solved by data scientists-->
+    <!--Broad familiarity with the terms and tools used in the field-->
+    <!--Understanding of the predictive modelling workflow-->
+    <!--Hopefully, a burning desire to learn more and become a data scientist-->
+
+<!--Prerequisites-->
+
+<!--As this is an introductory workshop, it won't get too technical.-->
+
+<!--To make full use of the lessons learned in this workshop and ultimately become a data scientist, some familiarity with basic programming and statistics is required.
+However, non-technical people who just want to know what all the hype is about will also benefit from this workshop.-->
+
+
+<!--Rough overview:-->
+
+<!--1. Intro/Agenda (Who you are/your background and what you'll be teaching during the class)-->
+<!--2. 60-70% presentation time-->
+<!--3. 30-40% practical exercises/case studies & Q+A.-->
+
+    <!--[5 min] Intro/Agenda/Bio-->
+    <!--[10 min] What is data science-->
+    <!--[30 min] Overview of the various things in dealing with a problem (key step: what is the question? | then: visualisation, data preprocessing,
+    regression/classification/clustering/feature reduction through the scikit learn graph + example for each problem)-->
+    <!--[30 min] Explain Kaggle, why it's a good place to start (for either side of the spectrum), and walkthrough Titanic comp-->
+    <!--[15 min] Q & A-->
+                </section>
+
+                <!--<section>-->
+                    <!--<section>-->
+                        <!--<h1>What's Kaggle?</h1>-->
+                    <!--</section>-->
+                    <!--<section data-background="img/kaggle-monster2.png">-->
+
+                    <!--</section>-->
+                    <!--&lt;!&ndash;<img src="img/kaggle-monster2.png">&ndash;&gt;-->
+                <!--</section>-->
+                <section>
+                    <section>
+                        <h1>What's a data scientist?</h1>
+                    </section>
+
+                    <section>
+                        <h2>What's a data scientist?</h2>
+
+                        <div class="fragment" style="font-size: 75%">
+                            <p>
+                                "Data Scientist: The sexiest job of the 21st century"
+                            </p>
+                            <p class="indent">
+                               - <a href="http://hbr.org/2012/10/data-scientist-the-sexiest-job-of-the-21st-century/" target="_blank">Harvard Business Review</a>
+                            </p>
+                        </div>
+
+                        <div class="fragment" style="font-size: 75%">
+                            <p>
+                                "I keep saying the sexy job in the next ten years will be statisticians. People think I'm joking, but who would've guessed that computer engineers would've been the sexy job of the 1990s?<br>
+
+                                The ability to take data &ndash; to be able to understand it, to process it, to extract value from it, to visualize it, to communicate it &ndash; that’s going to be a hugely important skill in the next decades."
+                            </p>
+                            <p class="indent">
+                               - Hal Varian, Chief Economist at Google, <a href="http://www.mckinsey.com/insights/innovation/hal_varian_on_how_the_web_challenges_managers" target="_blank">The McKinsey Quarterly</a>
+                            </p>
+                        </div>
+
+                        <div class="fragment">
+                            <!--<img src="img/bill-gates.jpg" width="350">-->
+                            <!--<img src="img/sexiest-man.jpg" height="300">-->
+                            <!--<img src="img/hal-varian.jpg" width="350">-->
+                            <img src="img/hal-varian-sexiest-man-alive.png" height="350">
+
+                            <p class="center">
+                                True, but sexy may not be the right word...
+                            </p>
+                        </div>
+                    </section>
+
+
+                    <section>
+                        <h2>What's a data scientist?</h2>
+                        <img src="img/data-scientist-definition.png">
+                    </section>
+
+                    <section>
+                        <h2>What's a data scientist?</h2>
+
+                        <p class="pad-top">Someone who sits in the middle of this continuum</p>
+
+                        <img src="img/data-skill-continuum.png" style="background-color: #ffffff">
+                        <div class="img-source-caption">
+                            <a href="http://yanirseroussi.com/2014/10/23/what-is-data-science/" target="_blank">
+                                More details on my blog
+                            </a>
+                        </div>
+
+                        <h3 class="fragment pad-top">Where do you sit?</h3>
+                    </section>
+
+                </section>
+
+                <section>
+                    <section>
+                        <h1>What can data science do for you?</h1>
+                    </section>
+
+                    <section>
+                        <h2>Data science problems</h2>
+
+                        <p>"We have all this data, what can we do with it?"</p>
+
+                        <p>"I want my data thing to be better"</p>
+
+                        <p>"Here's money and data, please generate more money and data"</p>
+
+                        <!--<img height="400" src="img/dilbert-big-data.gif">-->
+                        <img src="img/dilbert-big-data-smaller.jpg">
+                        <div class="img-source-caption">
+                            Source:
+                            <a href="http://dilbert.com/strips/comic/2012-07-29/" target="_blank">Dilbert by Scott Adams</a>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Somewhat better-defined data science problems</h2>
+
+                        <ul>
+                            <li>Build a model to predict sales of a marketing campaign</li>
+
+                            <li>Create a system that runs campaigns that automatically adapt to customer feedback</li>
+
+                            <li>Improve user satisfaction with search engine results</li>
+
+                            <li>Predict market response to large trades</li>
+
+                            <li>Detect whale calls from underwater recordings to prevent collisions</li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Steps to solving data science problems</h1>
+                    </section>
+
+                    <section>
+                        <h2>Steps to solving data science problems</h2>
+
+                        <h1>#1: Figure out what the problem is</h1>
+                    </section>
+
+                    <section>
+                        <h2>Steps to solving data science problems</h2>
+
+                        <h1>#2: Find out how the solution will be measured</h1>
+                    </section>
+
+                    <section>
+                        <h2>Steps to solving data science problems</h2>
+
+                        <h1>#3: "Solve" problem</h1>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Solve problem?</h2>
+
+                        <img src="img/build-measure-learn.jpg" height="500">
+
+                        <div class="img-source-caption">
+                            Source: <a href="http://pn.ispirt.in/practical-mantras-for-lean-startup/" target="_blank">Practical Mantras for Lean Startup</a>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Solve problem?</h2>
+
+                        <a href="img/scikit-learn-map.png">
+                            <img src="img/scikit-learn-map.png">
+                        </a>
+                        <div class="img-source-caption">
+                            Source: <a href="http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html" target="_blank">Scikit-learn user guide</a>
+                        </div>
+
+                        <!--<p><small>* Usually more complicated than this</small></p>-->
+                    </section>
+                </section>
+
+                <!--<section>-->
+                    <!--Next few slides:-->
+                    <!--- 1-3 slides for each area in the scikit learn map: define what it is, give a sexy example (e.g., image recognition)-->
+                    <!--- 1-3 slides covering stuff that's not there: VISUALISATION! NLP (parse trees, PoS tagging), generation (language, speech, etc.), gensim-like tools-->
+                    <!--- 1-2 slides in practice: combination of many things, lots of problems that aren't on the map can be reduced and phrased as data science problems,-->
+                    <!--non-sexy things such as preprocessing and getting the data to make sense are super-important but outside the scope of things like scikit-learn (hence the need to be a broad specialist ESPECIALLY BE AWARE OF STUFF)-->
+                <!--</section>-->
+
+                <section>
+                    <section>
+                        <h1>Exploring the sklearn map</h1>
+                    </section>
+
+                    <section>
+                        <h2>Exploring the sklearn map</h2>
+
+                        <ul>
+                            <li>Base assumption: you have data and a rough idea what you want to find</li>
+                            <li>All methods require <b>features</b> as input</li>
+                            <li>
+                                Four main areas:
+                                <ul>
+                                    <li>Supervised classification</li>
+                                    <li>Supervised regression</li>
+                                    <li>Unsupervised clustering</li>
+                                    <li>Dimensionality reduction</li>
+                                </ul>
+                            </li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Supervised classification</h2>
+                        <h4>Definition</h4>
+
+                        <p>
+                            <b>Supervised:</b> we have labelled data to train on
+                        </p>
+
+                        <p>
+                            <b>Classification:</b> need to predict/infer the class/category of each instance
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>Supervised classification</h2>
+                        <h4>Methods and examples</h4>
+
+                        <p>Classifying iris species using k-nearest-neighbours</p>
+
+                        <img src="img/supervised-classification-iris-knn.png" class="method-example">
+                        <div class="img-source-caption">
+                            Source: <a href="http://scikit-learn.org/stable/auto_examples/neighbors/plot_classification.html" target="_blank">Scikit-learn user guide</a>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Supervised classification</h2>
+                        <h4>Methods and examples</h4>
+
+                        <p>Classifying email as spam/non-spam using support vector machines</p>
+
+                        <img src="img/supervised-classification-svm.png" style="background-color: white" class="method-example">
+                        <div class="img-source-caption">
+                            Source: <a href="http://en.wikipedia.org/wiki/Support_vector_machine" target="_blank">Wikipedia</a>
+                        </div>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Supervised regression</h2>
+                        <h4>Definition</h4>
+
+                        <p>
+                            <b>Supervised:</b> we have labelled data to train on
+                        </p>
+
+                        <p>
+                            <b>Regression:</b> need to predict/infer a numeric quantity for each instance
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>Supervised regression</h2>
+                        <h4>Methods and examples</h4>
+
+                        <p>Linear regression to predict diabetes progression</p>
+
+                        <img src="img/supervised-regression-diabetes-linear.png" class="method-example">
+                        <div class="img-source-caption">
+                            Source: <a href="http://scikit-learn.org/stable/auto_examples/linear_model/plot_ols.html" target="_blank">Scikit-learn user guide</a>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Supervised regression</h2>
+                        <h4>Methods and examples</h4>
+
+                        <p>Predicting rent with decision trees</p>
+
+                        <img src="img/supervised-regression-rent-decision-tree.png" class="method-example">
+                        <div class="img-source-caption">
+                            Source: <a href="https://bigml.com/user/ashikiar/gallery/model/52dda1b90c0b5e2904000187/tree" target="_blank">BigML</a>
+                        </div>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Unsupervised clustering</h2>
+                        <h4>Definition</h4>
+
+                        <p>
+                            <b>Unsupervised:</b> no labelled training data
+                        </p>
+
+                        <p>
+                            <b>Clustering:</b> group together similar instances, can be soft or hard
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>Unsupervised clustering</h2>
+                        <h4>Methods and examples</h4>
+
+                        <p>Discovering topics in texts with latent Dirichlet allocation</p>
+
+                        <img src="img/unsupervised-clustering-lda.jpg" class="method-example">
+                        <div class="img-source-caption">
+                            Source: <a href="http://cacm.acm.org/magazines/2012/4/147361-probabilistic-topic-models/fulltext" target="_blank">Probabilistic Topic Models by David M. Blei</a>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Unsupervised clustering</h2>
+                        <h4>Methods and examples</h4>
+
+                        <p>Segmenting images with spectral clustering</p>
+
+                        <img src="img/unsupervised-clustering-spectral.png" class="method-example">
+                        <div class="img-source-caption">
+                            Source: <a href="http://scikit-learn.org/stable/auto_examples/cluster/plot_lena_segmentation.html" target="_blank">Scikit-learn user guide</a>
+                        </div>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Dimensionality reduction</h2>
+                        <h4>Definition</h4>
+
+                        <p>
+                            <b>Dimensionality:</b> number of different feature types
+                        </p>
+
+                        <p>
+                            <b>Reduction:</b> decreasing the feature number by selection or transformation
+                        </p>
+                    </section>
+
+                    <section>
+                        <h2>Dimensionality reduction</h2>
+                        <h4>Methods and examples</h4>
+
+                        <p>Decomposing faces with principal component analysis</p>
+
+                        <img src="img/dimensionality-reduction-original-faces.png" width="450">
+                        <img src="img/dimensionality-reduction-pca-faces.png" width="450">
+                        <div class="img-source-caption">
+                            Source: <a href="http://scikit-learn.org/stable/auto_examples/decomposition/plot_faces_decomposition.html" target="_blank">Scikit-learn user guide</a>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Dimensionality reduction</h2>
+                        <h4>Methods and examples</h4>
+
+                        <p>Discovering movie themes with matrix factorisation</p>
+
+                        <img src="img/dimensionality-reduction-matrix-factorisation.png" class="method-example">
+                        <div class="img-source-caption">
+                            Source: <a href="http://www2.research.att.com/~volinsky/papers/ieeespectrum.pdf" target="_blank">IEEE Spectrum</a>
+                        </div>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Beyond the sklearn map...</h2>
+
+                        <ul>
+                            <li>Preprocessing</li>
+
+                            <li>Visualisation</li>
+
+                            <li>Language processing: parse trees, part-of-speech tagging</li>
+
+                            <li>Generation: written language, speech, movement</li>
+
+                            <li>Active learning</li>
+
+                            <li>And much more...</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Beyond the sklearn map...</h2>
+
+                        <h1>Thinking and putting everything together</h1>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>In practice</h2>
+                        <h4>Why are data scientists needed?</h4>
+
+                        <ul>
+                            <li>Reduce and rephrase problems</li>
+
+                            <li>Choose the right tools</li>
+
+                            <li>Combine several tools</li>
+
+                            <li>Handle data drift</li>
+
+                            <li>Understand business needs</li>
+
+                            <li>Make it work in production</li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section>
+                    <h1>Case studies</h1>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Case study #1: BCRecommender</h1>
+                    </section>
+
+                    <section>
+                        <h2>BCRecommender</h2>
+
+                        <ul>
+                            <li>BC = <a href="https://bandcamp.com" target="_blank">Bandcamp</a> &ndash; an awesome music publishing platform</li>
+                            <li>My pet project</li>
+                            <li>Addressing Bandcamp discovery problems</li>
+                            <li>Some classic recommender system issues</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>Recommender systems</h2>
+                        <h4>Some charactersitics</h4>
+
+                        <ul>
+                            <li>The key word is <b>system</b></li>
+                            <li>Classic data science problem</li>
+                            <li>Key revenue generator for companies such as Amazon, Netflix, Spotify</li>
+                            <li>End-user exposure means UI/UX is important</li>
+                            <li>Many conflicting requirements</li>
+                            <li>Measurement is hard</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>BCRecommender requirements</h2>
+
+                        <ol class="pad-top" style="display: inline-block">
+                            <li class="fragment">Help me find music I like</li>
+
+                            <li class="fragment">See 1</li>
+                        </ol>
+                    </section>
+
+                    <section>
+                        <h2>BCRecommender requirements</h2>
+
+                        <p>As usual, the client is useless at generating actionable requirements, but some things are clear</p>
+
+                        <ul>
+                            <li class="fragment">UI/UX is critical: easy to play music, intuitive navigation, mobile-friendly, etc.</li>
+
+                            <li class="fragment">Personalisation is important</li>
+
+                            <li class="fragment">Context and mood should be taken into account</li>
+
+                            <li class="fragment">Oh, and it should be cheap</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>BCRecommender architecture</h2>
+
+                        <img src="img/bcrecommender-architecture.png">
+                        <div class="img-source-caption">
+                            More details on <a href="http://yanirseroussi.com/2014/09/07/building-a-recommender-system-on-a-shoestring-budget/" target="_blank">my blog</a>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>BCRecommender algorithms</h2>
+                        <h4>AKA the fun part</h4>
+
+                        <ul>
+                            <li>Classic collaborative filtering (only ratings): poor results</li>
+
+                            <li>Clustering based on ratings &amp; tags: much better</li>
+
+                            <li>
+                                Personalisation is not enough:
+
+                                <ul>
+                                    <li>Similar music discovery &ndash; we can't know your mood</li>
+
+                                    <li>Cluster-based discovery &ndash; surprisingly-useful content generation game</li>
+                                </ul>
+                            </li>
+
+                            <li>
+                                Can do better with more data, users and time
+                            </li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h1><a href="http://www.bcrecommender.com" target="_blank">BCRecommender demo</a></h1>
+                    </section>
+                </section>
+
+                <!--<section>-->
+                    <!--Case study: BCRecommender-->
+                    <!--- my pet project-->
+                    <!--- importance of UI (not quite there yet)-->
+                    <!--- algorithms-->
+                    <!--- link to it! (blog posts and actual website)-->
+                    <!--- spend about 10 minutes giving a high level overview-->
+                    <!--- importance of marketing-->
+                <!--</section>-->
+
+                <section>
+                    <section>
+                        <h1>Case study #2: Surviving the Titanic</h1>
+                    </section>
+
+                    <section>
+                        <h2>Surviving the Titanic</h2>
+
+                        <ul>
+                            <li>Goal: "predict" who would survive the Titanic</li>
+                            <!--<ul>-->
+                                <!--<li>As in many other cases, the word <i>predict</i> is misused</li>-->
+                            <!--</ul>-->
+                            <li>Good toy problem for beginners</li>
+                            <li>Hosted on Kaggle</li>
+                        </ul>
+                    </section>
+
+                    <section>
+                        <h2>What is Kaggle?</h2>
+
+                        <img src="img/kaggle-monster2.png">
+                        <div class="img-source-caption">
+                            Source: <a href="http://jessireel.wordpress.com/design/kaggle-monster2/" target="_blank">Jessi Reel</a>
+                        </div>
+                    </section>
+
+                    <section>
+                        <h2>Data science with a simple spreadsheet</h2>
+
+                        <ul>
+                            <li>Based on <a href="http://www.kaggle.com/c/titanic-gettingStarted/details/getting-started-with-excel" target="_blank">Kaggle's tutorial</a></li>
+                            <li>Programming is just a tool, what's important is intuition</li>
+                            <li>
+                                Steps:
+                                <ol>
+                                    <li><a href="http://www.kaggle.com/c/titanic-gettingStarted/data" target="_blank">Get the data</a></li>
+                                    <li><a href="http://www.kaggle.com/c/titanic-gettingStarted/details/evaluation" target="_blank">Understand the evaluation measure</a></li>
+                                    <li><a href="http://www.kaggle.com/c/titanic-gettingStarted/prospector" target="_blank">Find patterns in the data</a></li>
+                                    <li>Model useful patterns</li>
+                                    <li><a href="http://www.kaggle.com/c/titanic-gettingStarted/details/submission-instructions" target="_blank">Make a submission</a></li>
+                                    <li>Repeat 3-5</li>
+                                </ol>
+                            </li>
+                        </ul>
+                    </section>
+                </section>
+
+                <!--<section>-->
+                    <!--Case study: Titanic-->
+                    <!--- more of a closed problem-->
+                    <!--- Explain Kaggle, why it's a good place to start (for either side of the spectrum)-->
+                    <!--- walk through Titanic comp with the excel tutorial-->
+                <!--</section>-->
+
+                <section>
+                    <h2>Where to from here?</h2>
+
+                    <ul>
+                        <li>
+                            Complement your skills:
+                            <ul>
+                                <li>Software engineers: learn predictive modelling</li>
+                                <li>
+                                    Analysts: learn how to program
+                                    <a href="http://www.talyarkoni.org/blog/2013/11/18/the-homogenization-of-scientific-computing-or-why-python-is-steadily-eating-other-languages-lunch/" target="_blank">Python</a>
+                                </li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            Read/watch free online resources
+                        </li>
+
+                        <li>
+                            Get your hands dirty on Kaggle
+                        </li>
+
+                        <li>
+                            Come to the data science meetup
+                        </li>
+
+                        <li>
+                            Do the full-length course
+                        </li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h1>Questions?</h1>
+                </section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+                width: 1000,
+                height: 760,
+
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                slideNumber: true,
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
