@@ -1,0 +1,555 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>How to (almost) win Kaggle competitions</title>
+
+		<meta name="description" content="Ten steps that you should follow to do well in Kaggle competitions (and possibly win).">
+		<meta name="author" content="Yanir Seroussi">
+
+		<meta name="apple-mobile-web-app-capable" content="yes" />
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<link rel="stylesheet" href="css/reveal.min.css">
+		<link rel="stylesheet" href="css/theme/sky.css" id="theme">
+
+		<!-- For syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- If the query includes 'print-pdf', include the PDF print sheet -->
+		<script>
+			if( window.location.search.match( /print-pdf/gi ) ) {
+				var link = document.createElement( 'link' );
+				link.rel = 'stylesheet';
+				link.type = 'text/css';
+				link.href = 'css/print/pdf.css';
+				document.getElementsByTagName( 'head' )[0].appendChild( link );
+			}
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+
+        <style type="text/css">
+            p {
+                text-align: left;
+            }
+
+            .pad-top {
+                padding-top: 30px !important;
+            }
+
+            .small {
+                font-size: .6em !important;
+                line-height: 1.2em !important;
+            }
+
+            img {
+                border: 0 !important;
+            }
+
+            .reveal ul, .reveal ol {
+                display: block;
+            }
+        </style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>How to <small>(almost)</small> win Kaggle competitions</h1>
+          <h6><small>
+              <a href="http://yanirseroussi.com" target="_blank">yanirseroussi.com</a> |
+              <a href="https://twitter.com/yanirseroussi" target="_blank">@yanirseroussi</a> |
+              <a href="https://linkedin.com/in/yanirseroussi" target="_blank">linkedin.com/in/yanirseroussi</a>
+          </small></h6>
+          <h4>Note: This talk is also available as a <a href="http://yanirseroussi.com/2014/08/24/how-to-almost-win-kaggle-competitions/">blog post</a>.</h4>
+				</section>
+
+                <section>
+                    <h2>Bio</h2>
+
+                    <div class="fragment">
+                        <p>Software engineering/computer science background</p>
+
+                        <ul style="width: 924px">
+                            <li>BSc CompSci Technion</li>
+                            <li>Intel, Qualcomm, Google</li>
+                        </ul>
+                    </div>
+
+                    <div class="fragment">
+                        <p class="pad-top">Conversion to data science</p>
+
+                        <ul>
+                            <li>PhD Monash: text mining and user modelling</li>
+                            <li>Giveable: data scientist, recommender systems, and a bunch of other things</li>
+                            <li>Next Commerce: head of data science, recommender systems, even more other things</li>
+                        </ul>
+                    </div>
+
+                    <div class="fragment">
+                        <p class="pad-top">
+                            Recently joined the big scary world as an independent consultant/entrepreneur: leads and
+                            invitations to connect are welcome
+                        </p>
+                    </div>
+                </section>
+
+                <section>
+                    <h2>Overview</h2>
+
+                    <ul>
+                        <li>Preliminaries: on Kaggle, data science, and my experience</li>
+                        <li>Ten tips</li>
+                        <li>General advice and ramblings</li>
+                        <li>Question time (but feel free to interrupt anytime)</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>What's Kaggle?</h1>
+                    </section>
+                    <section data-background="img/kaggle-monster2.png">
+
+                    </section>
+                    <!--<img src="img/kaggle-monster2.png">-->
+                </section>
+
+                <section>
+                    <section>
+                        <h1>What's a data scientist?</h1>
+                    </section>
+
+                    <section>
+                        <h2>What's a data scientist?</h2>
+                        <img src="img/data-scientist-definition.png">
+                    </section>
+
+                    <section>
+                        <h2>What's a data scientist?</h2>
+
+                        <p class="pad-top">Someone who sits in the middle of this continuum</p>
+
+                        <img src="img/data-science-continuum.png" style="background-color: #ffffff">
+                        <div style="text-align: right; font-size: 14px; line-height: 10px; padding-bottom: 10px">
+                            Source:
+                            <a href="http://hortonworks.com/blog/hortonworks-hadoop-data-science" target="_blank">
+                                Ofer Mendelevitch, How to build a Hadoop data science team
+                            </a>
+                        </div>
+
+                        <p class="pad-top">
+                            <small>
+                                Note: can replace <i>applied scientist</i> with <i>data analyst</i>, and
+                                <i>research scientist</i> with <i>statistician</i>
+                            </small>
+                        </p>
+
+                        <p style="text-align: center" class="fragment pad-top">Where do you sit?</p>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h2>Why should data scientists kaggle?</h2>
+                        <!--<h3>(yeah, I verbed it)</h3>-->
+
+                        <h4>Isn't it just free work?</h4>
+
+                        <p class="fragment">
+                            Great training lab
+                        </p>
+
+                        <p class="fragment">
+                            No cheating: can't pick a friendly baseline (unlike academia)
+                        </p>
+
+                        <p class="fragment">
+                            No maintenance: write throwaway code (unlike industry)
+                        </p>
+
+                        <p class="fragment">
+                            Reputation building
+                        </p>
+                    </section>
+
+                    <section data-background="img/party-wallpaper.jpg">
+                        <h2>Why should data scientists kaggle?</h2>
+
+                        <img src="img/computer-party.jpg">
+
+                        <h3 style="color: #ffffff">Nerdy fun!</h3>
+                    </section>
+                </section>
+
+                <section>
+                    <h2>My Kaggle experience</h2>
+
+                    <div class="fragment">
+                        <p>Results so far:</p>
+                        <ul class="small">
+                            <li>3rd/42 in <a href="https://www.kaggle.com/c/awic2012" target="_blank">ICFHR 2012: Arabic writer identification</a> (solo)</li>
+                            <li>6th/110 in <a href="https://www.kaggle.com/c/dsg-hackathon" target="_blank">EMC Data Science Global Hackathon: air quality prediction</a> (team)</li>
+                            <li>9th/476 in <a href="https://www.kaggle.com/c/bluebook-for-bulldozers" target="_blank">Blue Book for Bulldozers: auction sale price prediction</a> (solo)</li>
+                            <li>9th/194 in <a href="https://www.kaggle.com/c/yandex-personalized-web-search-challenge" target="_blank">Yandex Personalized Web Search Challenge</a> (team)</li>
+                            <li>6th/121 in <a href="https://www.kaggle.com/c/wise-2014" target="_blank">WISE 2014: Multi-label classification of Greek printed media articles</a> (solo)</li>
+                        </ul>
+                    </div>
+
+                    <p class="fragment pad-top">
+                        Would do more, but it's addictive and hard to timebox
+                    </p>
+
+                    <p class="fragment pad-top">
+                        Learned a few things in the process...
+                    </p>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Tip 1: RTFM</h1>
+
+                        <img src="img/bart-rtfm.gif">
+                    </section>
+
+                    <section>
+                        <h3>Tip 1: RTFM</h3>
+
+                        <ul>
+                            <li>Understand the competition timeline</li>
+                            <li>
+                                Tick required boxes, even inexistent ones
+                                <ul>
+                                    <li>Example: <a href="http://www.gequest.com/c/flight/forums/t/4284/acknowledging-two-more-great-competitors" target="_blank">$30K mistake</a></li>
+                                </ul>
+                            </li>
+                            <li>Submit using the correct format, reproduce benchmarks</li>
+                            <li>Know the measure and data</li>
+                        </ul>
+
+                    </section>
+               </section>
+
+                <section>
+                    <section>
+                        <h1>Tip 2: Know your measure</h1>
+                        
+                        <img src="img/measure.jpg">
+                    </section>
+
+                    <section>
+                        <h3>Tip 2: Know your measure</h3>
+
+                        <ul>
+                            <li>Understand how the measure works</li>
+                            <li>Use a suitable optimisation approach
+                                <ul>
+                                    <li>Often easy to achieve</li>
+                                    <li>Can make a huge difference</li>
+                                </ul>
+                            </li>
+                        </ul>
+
+                        <p class="pad-top">Example: Hackathon MAE versus MSE</p>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Tip 3: Know your data</h1>
+
+                        <img src="img/doge-big-data.jpg" height="500px">
+                        <!--<img src="img/big-data-doge-3.png">-->
+                    </section>
+
+                    <section>
+                        <h3>Tip 3: Know your data</h3>
+
+                        <p>Overspecialisation is a good thing</p>
+
+                        <p class="pad-top">Examples:</p>
+                        <ul>
+                            <li>Hackathon: how was the data obtained?</li>
+                            <li>Multi-label Greek: connected components</li>
+                            <li>Arabic writers: histograms</li>
+                        </ul>
+
+                        <p class="pad-top">Beyond Kaggle:</p>
+                        <p style="text-align: center">Custom solutions win, the world needs data scientists!*</p>
+
+                        <p class="pad-top small">* <a href="http://www.datarobot.com/" target="_blank">Until we are replaced by robots</a></p>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Tip 4: What before how</h1>
+                        <img src="img/be-the-cheese.jpg" height="500px">
+                    </section>
+
+                    <section>
+                        <h3>Tip 4: What before how</h3>
+
+                        <p>Know <i>what</i> you want to model before figuring out <i>how</i> to model it</p>
+
+                        <p class="pad-top">Example: John's Yandex visualisations</p>
+
+                        <p class="pad-top">Generally applicable for people coming from either side of the data science continuum</p>
+                    </section>
+
+                    <section>
+                        <h3>Tip 4: What before how</h3>
+                        <h4>Become one with the data</h4>
+
+                        <img src="img/zen-corgi.jpg">
+                    </section>
+                </section>
+
+				<section>
+                    <section>
+                        <h1>Tip 5: Do local validation</h1>
+
+                        <img src="img/validation.jpg">
+                    </section>
+
+                    <section>
+                        <h3>Tip 5: Do local validation</h3>
+
+                        <p>Faster and more reliable than relying on the leaderboard</p>
+
+                        <p class="pad-top">Recommendations:</p>
+                        <ul>
+                            <li>Mimic the competition setup</li>
+                            <li>
+                                Prefer single split to cross validation:
+                                <ul>
+                                    <li>Faster</li>
+                                    <li>Cross validation may be unsuitable (e.g., time series)</li>
+                                    <li>Public leaderboard is extra validation</li>
+                                </ul>
+                            </li>
+                            <li>Make exceptions for small data or when there's no time</li>
+                        </ul>
+
+                        <p class="pad-top">Analogy for software engineers:</p>
+                        <ul style="display: block">
+                            <li>Development: local validation</li>
+                            <li>Staging: public leaderboard</li>
+                            <li>Production: private leaderboard</li>
+                        </ul>
+
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Tip 6: Make fewer submissions</h1>
+
+                        <img src="img/less-is-more.jpg">
+                    </section>
+
+                    <section>
+                        <h3>Tip 6: Make fewer submissions</h3>
+                        <h4 style="text-transform: lowercase;">(But not too few)</h4>
+
+                        <ul class="pad-top">
+                            <li>Look better</li>
+                            <li>
+                                Avoid overfitting the leaderboard
+                                <ul>
+                                    <li><a href="https://www.kaggle.com/c/stumbleupon" target="_blank">StumbleUpon</a>: Public #1 became private #283</li>
+                                    <li><a href="https://www.kaggle.com/c/battlefin-s-big-data-combine-forecasting-challenge" target="_blank">Big Data Combine</a>: Public #1 became private #377</li>
+                                </ul>
+                            </li>
+                            <li>Don't join bidding wars and give away your competitive advantage</li>
+                            <li>Use local validation to reduce the need for many submissions</li>
+                        </ul>
+
+                        <!--<p class="pad-top">Beyond Kaggle:</p>-->
+                        <!--<p style="text-align: center">Data drifts, offline testing is limited, hire a data scientist!</p>-->
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Tip 7: Do your research</h1>
+
+                        <img src="img/experiment-dog.jpg">
+                    </section>
+
+                    <section>
+                        <h3>Tip 7: Do your research</h3>
+
+                        <ul>
+                            <li>For any given problem, it's likely there are people dedicating their lives to its solution</li>
+                            <li>Deeper knowledge and understanding is a sure reward</li>
+                        </ul>
+
+                        <p class="pad-top">Worked well for me:</p>
+                        <ul style="display: block">
+                            <li>Arabic writers: histogram kernels</li>
+                            <li>Multi-label Greek: ECC/PCC</li>
+                            <li>Bulldozers: stochastic GBM sklearn bug</li>
+                            <li>Yandex: LambdaMART</li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Tip 8: Apply the basics rigorously</h1>
+
+                        <img src="img/basics.jpg">
+                    </section>
+
+                    <section>
+                        <h3>Tip 8: Apply the basics rigorously</h3>
+                        <!--<h4 style="text-transform: lowercase;">Don't reinvent the wheel</h4>-->
+
+                        <ul class="pad-top">
+                            <li>Obscure methods are awesome, but often the basics will get you very far</li>
+                            <li>Common algorithms have good implementations</li>
+                            <li>Running a method without minimal tuning is worse than not running it at all</li>
+                        </ul>
+
+                        <p class="pad-top">Example: <a href="http://jmlr.org/papers/volume5/rifkin04a/rifkin04a.pdf" target="_blank">In defense of one-vs-all classification</a></p>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Tip 9: The forum is your friend</h1>
+
+                        <img src="img/animal-friends.jpg">
+                    </section>
+
+                    <section>
+                        <h3>Tip 9: The forum is your friend</h3>
+
+                        <ul>
+                            <li>Subscribe to receive important notifications</li>
+                            <li>Understand shared code, but don't rely on it</li>
+                            <li>Try to figure out what your competitors are doing</li>
+                            <li>Learn from post-competition summaries</li>
+                        </ul>
+                    </section>
+                </section>
+
+                <section>
+                    <section>
+                        <h1>Tip 10: Ensemble all the things</h1>
+                        <img src="img/all-the-things.png" height="400px">
+                    </section>
+
+                    <section>
+                        <h3>Tip 10: Ensemble all the things</h3>
+
+                        <ul>
+                            <li>Not to be confused with ensemble methods</li>
+                            <li>Almost no competition is won by a single model</li>
+                            <li>Works well with independent models &ndash; merge teams</li>
+                        </ul>
+
+                        <p class="pad-top">Basic algorithm:</p>
+                        <ol style="display: inline-block">
+                            <li>Try many things</li>
+                            <li>Ensemble the things that work well</li>
+                            <li>Repeat 1 &amp; 2 until you run out of time</li>
+                            <li>Almost win</li>
+                        </ol>
+                    </section>
+
+                </section>
+
+                <section>
+                    <h2>Other resources</h2>
+
+                    <ul>
+                        <li>
+                            <a href="http://anotherdataminingblog.blogspot.com.au/2013/10/techniques-to-improve-accuracy-of-your_17.html" target="_blank">Techniques to improve the accuracy of your predictive models</a>
+                            by Phil Brierley
+                        </li>
+                        <li><a href="http://blog.kaggle.com/2014/08/01/learning-from-the-best/" target="_blank">Learning from the best</a> by David Wind</li>
+                        <li><a href="https://www.youtube.com/watch?v=kwt6XEh7U3g" target="_blank">Getting in shape for the sport of data science</a> by Jeremy Howard</li>
+                        <li><a href="http://presciient.com/videos/">The zen of data science</a> by Eugene Dubossarsky</li>
+                        <li>Getting started competitions</li>
+                        <li>Online courses, books, Wikipedia, etc.</li>
+                    </ul>
+                </section>
+
+                <section>
+                    <h2>How to get started?</h2>
+
+                    <p>Tips are useless if not applied</p>
+
+                    <p class="pad-top fragment"><b>Software engineers:</b> learn predictive modelling</p>
+
+                    <p class="fragment">
+                        <b>Analysts:</b> learn how to program
+                        <a href="http://www.talyarkoni.org/blog/2013/11/18/the-homogenization-of-scientific-computing-or-why-python-is-steadily-eating-other-languages-lunch/" target="_blank">Python</a>
+                    </p>
+
+                    <p class="fragment"><b>Data scientists:</b> you have no excuse</p>
+
+                    <br>
+
+                    <div class="pad-top fragment">
+                        <h1><b>Go forth and Kaggle</b></h1>
+                    </div>
+
+                </section>
+
+                <section>
+                    <h1>Questions?</h1>
+                </section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.min.js"></script>
+
+		<script>
+
+			// Full list of configuration options available here:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+				transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                slideNumber: true,
+
+				// Parallax scrolling
+				// parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+				// parallaxBackgroundSize: '2100px 900px',
+
+				// Optional libraries used to extend on reveal.js
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+					{ src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>

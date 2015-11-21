@@ -1,0 +1,5 @@
+data-science-continuum.png
+    http://hortonworks.com/blog/hortonworks-hadoop-data-science/
+kaggle-monster2.png
+    http://jessireel.wordpress.com/design/kaggle-monster2/
+
