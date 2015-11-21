@@ -1,0 +1,202 @@
+<!doctype html>
+<html lang="en">
+
+    <head>
+        <meta charset="utf-8">
+
+        <title>How do recommender systems work?</title>
+
+        <meta name="description" content="A non-technical introduction to recommender systems.">
+        <meta name="author" content="Yanir Seroussi">
+
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+        <link rel="stylesheet" href="css/reveal.min.css">
+        <link rel="stylesheet" href="css/theme/default.css" id="theme">
+
+        <!-- For syntax highlighting -->
+        <link rel="stylesheet" href="lib/css/zenburn.css">
+
+        <!-- If the query includes 'print-pdf', use the PDF print sheet -->
+        <script>
+            document.write( '<link rel="stylesheet" href="css/print/' + ( window.location.search.match( /print-pdf/gi ) ? 'pdf' : 'paper' ) + '.css" type="text/css" media="print">' );
+        </script>
+
+        <!--[if lt IE 9]>
+        <script src="lib/js/html5shiv.js"></script>
+        <![endif]-->
+
+        <style type="text/css">
+            p {
+                text-align: left;
+            }
+        </style>
+    </head>
+
+    <body>
+
+        <div class="reveal">
+
+            <!-- Any section element inside of this container is displayed as a slide -->
+            <div class="slides">
+                <section>
+                    <h1>How do recommender systems work?</h1>
+                    <h3>A simple introduction</h3>
+                    <h6>
+                          <a href="http://yanirseroussi.com" target="_blank">yanirseroussi.com</a> |
+                          <a href="https://twitter.com/yanirseroussi" target="_blank">@yanirseroussi</a> |
+                          <a href="https://linkedin.com/in/yanirseroussi" target="_blank">linkedin.com/in/yanirseroussi</a>
+                    </h6>
+                    <h4>Note: I also published <a href="http://yanirseroussi.com/2015/10/02/the-wonderful-world-of-recommender-systems/">a more thorough article on recommender systems</a>.</h4>
+                </section>
+
+                <section>
+                    <img src="img/no_magic.gif" height="250" style="float: right">
+
+                    <h3>No magic</h3>
+
+                    <p>GIGO: Any data-driven system can only be as good as the data it's fed</p>
+
+                    <p>Fancy mathematical models often try to emulate simple intuition</p>
+
+                </section>
+
+                <section>
+                    <section>
+
+                        <h3>Classic scenario</h3>
+
+                        <div class="fragment">
+                            <img src="img/question_mark_person.jpg" height="250" style="float: right">
+
+                            <p style="padding-top: 100px;">Question: Given a person, what movies would they like?</p>
+                        </div>
+
+                        <p class="fragment" style="text-align: center; padding-top: 150px;">Answer: depends on the data</p>
+                    </section>
+
+                    <section>
+                        <h3>No data</h3>
+
+                        <p class="fragment">We know nothing about movies and nothing about the person</p>
+
+                        <div class="fragment">
+                            <p>Best guess: random movies</p>
+
+                            <img src="img/dvd_pile.jpg" height="350">
+                         </div>
+                    </section>
+
+                    <section>
+                        <h3>Partial rating* data</h3>
+
+                        <p class="fragment">We know what others rated, but nothing about the person</p>
+
+                        <div class="fragment">
+                            <p>Best guess: popular movies</p>
+
+                            <img src="img/imdbtop250.jpg" height="350">
+                        </div>
+                    </section>
+
+                    <section>
+                        <h3>Richer rating data</h3>
+
+                        <p class="fragment">We have ratings by the person and by other people</p>
+
+                        <br>
+
+                        <p class="fragment" style="text-align: center;"><b>Collaborative filtering</b></p>
+                        <p class="fragment" style="text-align: center;">Find people with similar taste to the person and recommend based on their taste</p> <!-- (e.g., people who also like Dirty Dancing)-->
+                        <p class="fragment" style="text-align: center;">Find movies that are rated similarly to the movies liked by the person</p>
+
+                        <img src="img/dirty_dancing.jpg" height="250" class="fragment">
+
+                        <!--<img src="img/dirty_dancing.jpg">-->
+
+                        <!-- Note: "ratings" can be explicit (star ratings) or implicit (views) -->
+                    </section>
+
+                    <section>
+                        <h3>Richer rating data + movie metadata</h3>
+
+                        <p class="fragment">Content-based recommendation: find similar movies to liked movies based on genre, cast, etc.</p>
+
+                        <p class="fragment">Can be combined with collaborative filtering</p>
+
+                        <img src="img/patrick_swayze_box.jpg" height="250" class="fragment">
+                    </section>
+
+                </section>
+
+                <section>
+                    <h3>And beyond...</h3>
+
+                    <p>Social data</p>
+                    <p>Context</p><!-- (current mood, location, what you just watched)-->
+                    <p>Temporal data</p> <!--(what you liked five years ago may be irrelevant)-->
+                    <p>Price</p> <!-- (more relevant to products) -->
+
+                    <img src="img/social_discovery.svg" height="200">
+                    <img src="img/constantly_learning.svg" height="200">
+                    <img src="img/intent_data.svg" height="200">
+                </section>
+
+                <section>
+                    <h3>Other considerations</h3>
+
+                    <p>Diversity of recommendation list</p>
+                    <p>Serendipity versus trust in the system</p>
+                    <p>Short-term gains versus lifetime value</p>
+                    <p>Relevance to the user versus revenue</p>
+                    <p>User interface and experience</p>
+
+                    <img src="img/big_whiteboard.png" height="250">
+                </section>
+
+                <section>
+                    <h3>Bottom line: build-measure-learn</h3>
+
+                    <img src="img/lean_methodology.jpg">
+                </section>
+            </div>
+        </div>
+
+        <script src="lib/js/head.min.js"></script>
+        <script src="js/reveal.min.js"></script>
+
+        <script>
+
+            // Full list of configuration options available here:
+            // https://github.com/hakimel/reveal.js#configuration
+            Reveal.initialize({
+                controls: true,
+                progress: true,
+                history: true,
+                center: true,
+
+                theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
+                transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
+
+                // Parallax scrolling
+                // parallaxBackgroundImage: 'https://s3.amazonaws.com/hakim-static/reveal-js/reveal-parallax-1.jpg',
+                // parallaxBackgroundSize: '2100px 900px',
+
+                // Optional libraries used to extend on reveal.js
+                dependencies: [
+                    { src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+                    { src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+                    { src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+                    { src: 'plugin/zoom-js/zoom.js', async: true, condition: function() { return !!document.body.classList; } },
+                    { src: 'plugin/notes/notes.js', async: true, condition: function() { return !!document.body.classList; } }
+                ]
+            });
+
+        </script>
+
+    </body>
+</html>
