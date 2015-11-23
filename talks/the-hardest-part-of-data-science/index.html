@@ -1,0 +1,388 @@
+<!doctype html>
+<html lang="en">
+
+	<head>
+		<meta charset="utf-8">
+
+		<title>The hardest part of data science</title>
+
+		<meta name="description" content="A short talk about the real hard parts of data science: problem definition and solution measurement.">
+		<meta name="author" content="Yanir Seroussi">
+
+		<meta name="apple-mobile-web-app-capable" content="yes">
+		<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, minimal-ui">
+
+		<link rel="stylesheet" href="css/reveal.css">
+		<link rel="stylesheet" href="css/theme/night.css" id="theme">
+
+		<!-- Code syntax highlighting -->
+		<link rel="stylesheet" href="lib/css/zenburn.css">
+
+		<!-- Printing and PDF exports -->
+		<script>
+			var link = document.createElement( 'link' );
+			link.rel = 'stylesheet';
+			link.type = 'text/css';
+			link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+			document.getElementsByTagName( 'head' )[0].appendChild( link );
+		</script>
+
+		<!--[if lt IE 9]>
+		<script src="lib/js/html5shiv.js"></script>
+		<![endif]-->
+
+    <style type="text/css">
+      h1, h2, h3, h4, h5, h6 {
+        text-transform: none !important;
+      }
+
+      .reveal h2 {
+        font-size: 1.75em;
+      }
+
+      .reveal h3 {
+        font-size: 1.35em;
+      }
+
+      p {
+        text-align: left;
+      }
+
+      .center {
+        text-align: center;
+      }
+
+      .left {
+        text-align: left;
+      }
+
+      .right {
+        text-align: right;
+      }
+
+      .indent {
+        padding-left: 30px !important;
+      }
+
+      .pad-top {
+        padding-top: 30px !important;
+      }
+
+      .margin-top {
+        margin-top: 30px !important;
+      }
+
+      .small {
+        font-size: .6em !important;
+        line-height: 1.2em !important;
+      }
+
+      .medium {
+        font-size: .8em !important;
+        line-height: 1.2em !important;
+      }
+
+      img {
+        border: 0 !important;
+      }
+
+      .method-example {
+        max-height: 500px !important;
+      }
+
+      .reveal ul, .reveal ol {
+        display: block;
+        padding-left: 30px;
+      }
+
+      .reveal table td {
+        border-bottom: none;
+      }
+
+      .reveal blockquote.wide {
+        width: 100%;
+      }
+
+      .img-source-caption {
+        text-align: right;
+        font-size: 14px !important;
+        line-height: 10px !important;
+        padding-bottom: 10px !important;
+      }
+
+      .no-margin {
+        margin: 0 !important;
+      }
+
+      .strikethrough {
+        text-decoration: line-through !important;
+      }
+    </style>
+	</head>
+
+	<body>
+
+		<div class="reveal">
+
+			<!-- Any section element inside of this container is displayed as a slide -->
+			<div class="slides">
+				<section>
+					<h1>The hardest part of data science</h1>
+					<h4>Yanir Seroussi</h4>
+          <h6>
+            <a href="http://yanirseroussi.com" target="_blank">yanirseroussi.com</a> |
+            <a href="https://twitter.com/yanirseroussi" target="_blank">@yanirseroussi</a> |
+            <a href="https://linkedin.com/in/yanirseroussi" target="_blank">linkedin.com/in/yanirseroussi</a>
+          </h6>
+				</section>
+
+				<section>
+          <section>
+					  <h1>What is the hardest part of data science?</h1>
+          </section>
+
+          <section>
+            <h3>Is it building predictive models?</h3>
+
+            <div class="fragment">
+              <h4>...nah</h4>
+
+              <img data-fragment-index="0" src="img/machine-intelligence-landscape-core-technologies.png">
+
+              <div class="img-source-caption">
+                  Source:
+                  <a href="http://www.shivonzilis.com/machineintelligence" target="_blank">Machine Intelligence Landscape, Shivon Zilis</a>
+              </div>
+            </div>
+
+            <img class="fragment" src="img/ben-hamner-black-box-ml.png" height="250">
+          </section>
+
+          <section>
+            <h3>Is it really data collection?</h3>
+
+            <blockquote class="fragment margin-top" data-fragment-index="0">
+              <!--<img src="img/djpatil.jpg" height="100"><br>-->
+              The hardest part of data science is getting good, clean data. Cleaning data is often 80% of the work.
+            </blockquote>
+            <div class="img-source-caption fragment" data-fragment-index="0">
+              - DJ Patil, US Chief Data Scientist, <a href="http://codingvc.com/talk-summary-building-great-data-products" target="_blank">Building Great Data Products</a>
+            </div>
+
+            <h3 class="fragment pad-top" data-fragment-index="1">Sorry DJ, but<br>time-consuming &ne; hard</h3>
+          </section>
+
+          <section>
+            <h1>What is it then?</h1>
+
+            <h2 class="fragment center">Hard: Problem definition</h2>
+            <h2 class="fragment center">Hardest: Solution measurement</h2>
+          </section>
+				</section>
+
+        <section>
+          <section>
+            <h1>Defining a data science problem</h1>
+          </section>
+
+          <section>
+            <h3>Common data science problems</h3>
+
+            <p class="fragment">
+              "We have all this data, what can we do with it?"<br>
+              "I want my data thing to perform better"<br>
+              "Here's money and data, please generate more money and data"
+            </p>
+
+            <div class="fragment">
+              <img src="img/dilbert-big-data-smaller.jpg">
+              <div class="img-source-caption">
+                  Source:
+                  <a href="http://dilbert.com/strips/comic/2012-07-29/" target="_blank">Dilbert by Scott Adams</a>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h3>Somewhat better-defined data science problems</h3>
+
+            <ul>
+              <li class="fragment">Build a model to predict sales of a marketing campaign</li>
+              <li class="fragment">Create a system that runs campaigns that automatically adapt to customer feedback</li>
+              <li class="fragment">Identify key objects in images</li>
+              <li class="fragment">Improve clickthrough rates on search engine results</li>
+              <li class="fragment">Detect whale calls from underwater recordings to prevent collisions</li>
+            </ul>
+          </section>
+
+          <section>
+            <h3 class="left">Many problems that actually matter...</h3>
+            <h3 class="fragment right">...have solutions that are really hard to measure</h3>
+
+            <p class="fragment">Improve customer satisfaction</p>
+
+            <p class="fragment">Increase the well-being of the population</p>
+
+            <p class="fragment">Make people's lives better</p>
+          </section>
+        </section>
+
+        <section>
+          <section>
+            <h1>Measuring solutions</h1>
+          </section>
+
+          <!--<section>-->
+            <!--<h3>Finding problems is easier than measuring solutions</h3>-->
+
+            <!--<div class="fragment">-->
+              <!--<blockquote>-->
+                <!--Any fool can criticize, condemn and complain &ndash; and most fools do.-->
+              <!--</blockquote>-->
+              <!--<div class="img-source-caption">-->
+                <!-- - Dale Carnegie, <a href="https://en.wikipedia.org/wiki/How_to_Win_Friends_and_Influence_People" target="_blank">How to Win Friends and Influence People</a>-->
+              <!--</div>-->
+            <!--</div>-->
+
+            <!--<div class="fragment pad-top">-->
+              <!--<p class="no-margin">Common measurement issues:</p>-->
+              <!--<ul>-->
+                <!--<li>Censored data</li>-->
+                <!--<li>No single perfect measure</li>-->
+                <!--<li>No way to evaluate metrics</li>-->
+                <!--<li>Gaming the system</li>-->
+                <!--<li>Measuring moving targets</li>-->
+              <!--</ul>-->
+            <!--</div>-->
+          <!--</section>-->
+
+          <section>
+            <h3>Data is almost always censored</h3>
+
+            <p class="fragment"><b>Ideal:</b> run randomised controlled trials to measure treatment effects</p>
+
+            <p class="fragment"><b>Reality:</b> constrained by ethics, practicality, budget, etc.</p>
+
+            <p class="fragment"><b>Examples:</b> climate change, health effects of smoking</p>
+            <!--<div class="fragment left">-->
+              <!--<b>Examples:</b>-->
+              <!--<ul>-->
+                <!--<li>Recommender system biases</li>-->
+                <!--<li>Global climate change mitigation</li>-->
+                <!--<li>Long-term health effects of diet</li>-->
+              <!--</ul>-->
+            <!--</div>-->
+          </section>
+
+          <section>
+            <h3>No metric is perfect, some metrics are harmful</h3>
+
+            <blockquote class="fragment wide left" data-fragment-index="0">
+              <p class="fragment no-margin" data-fragment-index="0">
+                The GDP framework cannot tell us whether final goods and services that were produced during a particular
+                period of time are a reflection of real wealth expansion, or a reflection of capital consumption.
+              </p>
+              <p class="fragment no-margin" data-fragment-index="1">
+                For instance, if a government embarks on the building of a pyramid, which adds absolutely nothing to the
+                well-being of individuals, the GDP framework will regard this as economic growth. In reality, however,
+                the building of the pyramid will divert real funding from wealth-generating activities, thereby stifling
+                the production of wealth.
+              </p>
+              <p class="fragment no-margin" data-fragment-index="2">
+                The whole idea of GDP gives the impression that there is such a thing as the national output. In the
+                real world, however, wealth is produced by someone and belongs to somebody. In other words, goods and
+                services are not produced in totality and supervised by one supreme leader. This in turn means that the
+                entire concept of GDP is devoid of any basis in reality. It is an empty concept.
+              </p>
+            </blockquote>
+            <div class="img-source-caption fragment" data-fragment-index="0">
+              - Frank Shostak, <a href="https://mises.org/library/what-gdp" target="_blank">What is up with the GDP?</a>
+            </div>
+          </section>
+
+          <section>
+            <h3>Trade-offs between different metrics</h3>
+            
+            <img src="img/precision-recall.svg" style="background-color: white; padding: 10px" class="fragment" data-fragment-index="0">
+            <div class="img-source-caption fragment" data-fragment-index="0">
+              - Wikipedia, <a href="https://en.wikipedia.org/wiki/Precision_and_recall" target="_blank">Precision and Recall</a>
+            </div>
+          </section>
+
+          <section>
+            <h3>The data paradox and evaluation of metrics</h3>
+
+            <blockquote class="left wide fragment" data-fragment-index="0">
+              <p class="no-margin fragment" data-fragment-index="0">
+                All metrics create temptations. Even with great intentions and smart minds, data runs you faster and
+                faster into a stupid self-destructive circle. Data can't decide things for you. It can help you see
+                things more clearly if captured carefully, but that's not the same as deciding. Just as there is an
+                advice paradox, there is a <b>data paradox:</b> no matter how much data you have, you still depend on
+                your intuition for deciding how to interpret and then apply the data.
+              </p>
+              <p class="no-margin fragment pad-top" data-fragment-index="1">
+                Put another way, there is no good KPI for measuring KPIs. There are no good metrics for evaluating
+                metrics (or for evaluating metrics for evaluating metrics for evaluating metrics, and on it goes).
+              </p>
+            </blockquote>
+            <div class="img-source-caption fragment" data-fragment-index="0">
+              - Scott Berkun, <a href="http://scottberkun.com/yearwithoutpants/" target="_blank">The Year without Pants</a>
+            </div>
+          </section>
+
+          <section>
+            <h3>OK, let's just choose a metric and accept its imperfections. Are we done?</h3>
+
+            <p class="fragment">
+              No, thanks to <a href="https://en.wikipedia.org/wiki/Goodhart's_law" target="_blank">Goodhart's Law:</a>
+              "When a measure becomes a target, it ceases to be a good measure."
+            </p>
+
+            <p class="fragment">
+              Even without manipulation and gaming, we are often dealing with moving targets
+            </p>
+
+            <p class="fragment">
+              Good data scientists embrace uncertainty and ambiguity, but can still tell a simple story if needed
+            </p>
+          </section>
+        </section>
+
+				<section>
+          <h1>Questions?</h1>
+        </section>
+			</div>
+		</div>
+
+		<script src="lib/js/head.min.js"></script>
+		<script src="js/reveal.js"></script>
+
+		<script>
+
+			// Full list of configuration options available at:
+			// https://github.com/hakimel/reveal.js#configuration
+			Reveal.initialize({
+				controls: true,
+				progress: true,
+				history: true,
+				center: true,
+
+				transition: 'slide', // none/fade/slide/convex/concave/zoom
+
+				// Optional reveal.js plugins
+				dependencies: [
+					{ src: 'lib/js/classList.js', condition: function() { return !document.body.classList; } },
+					{ src: 'plugin/markdown/marked.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/markdown/markdown.js', condition: function() { return !!document.querySelector( '[data-markdown]' ); } },
+					{ src: 'plugin/highlight/highlight.js', async: true, callback: function() { hljs.initHighlightingOnLoad(); } },
+					{ src: 'plugin/zoom-js/zoom.js', async: true },
+					{ src: 'plugin/notes/notes.js', async: true }
+				]
+			});
+
+		</script>
+
+	</body>
+</html>
