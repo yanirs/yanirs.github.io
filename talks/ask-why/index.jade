@@ -131,8 +131,11 @@ html(lang="en")
         section
           h2 Inferring causal structures
 
+          a(href="http://www.causality.inf.ethz.ch/cause-effect.php", target="_blank")
+            img(src="img/cause-effect.gif", alt="Cause and effect chicken & egg")
+
         section
-          h3 Always start with Simpson's Paradox
+          h3 Classic example: Simpson's Paradox
 
           table.center-cell-text
             tr
@@ -181,10 +184,57 @@ html(lang="en")
         section
           h3 What's going on here?
 
+          ol
+            li P(E|C) = 0.5 > P(E|&not;C) = 0.4
+            li P(E|C,F) = 0.2 < P(E|&not;C,F) = 0.3
+            li P(E|C,&not;F) = 0.6 < P(E|&not;C,&not;F) = 0.7
+
+          p where C - treatment (cause), E - recovery (effect), F - female (feature)
+
+        section
+          h3 Should we treat a patient with the drug?
+
+          p.fragment If we don't know their gender...
+            span.fragment.indent Yes! P(E|C) > P(E|&not;C)
+
+          p.fragment If they're female...
+            span.fragment.indent No! P(E|C,F) < P(E|&not;C,F)
+
+          p.fragment If they're male...
+            span.fragment.indent No! P(E|C,&not;F) < P(E|&not;C,&not;F)
+
+          img.fragment(src="img/lol-srsly.jpg")
+
+        section
+          h3 Pearl: Probability calculus isn't enough
+
+          blockquote.full-width.left.
+            The explanation for Simpson's paradox should be clear to readers of this book, since we have taken great
+            care in distinguishing <i>seeing</i> from <i>doing</i>. The conditioning operator in probability calculus
+            stands for the evidential conditional "given that we see," whereas the do() operator was devised to
+            represent the causal conditional "given that we do." Accordingly, the inequality P(E|C) > P(E|&not;C) is
+            not a statement about C being a positive causal factor for E, properly written P(E|do(C)) > P(E|do(&not;C)),
+            but rather about C being positive evidence for E, which may be due to spurious confounding factors that
+            cause both C and E.
+
+        section
+          h3 Causal assumptions are essential
+
+          p.fragment(data-fragment-index=0) <b>Key assumption:</b> Males tend to use the drug more (&not;F &rarr; C)
+          p.indent.fragment(data-fragment-index=0).
+            Condition on the confounding variable F: Follow the gender-specific measures and never prescribe C
+
+          img.fragment(data-fragment-index=1, src="img/simpsons-paradox-causal-assumptions.png")
+
+          p.fragment(data-fragment-index=1).
+            <b>Different scenario:</b> F is high blood pressure, and the drug may raise blood pressure (C &rarr; F)
+          p.indent.fragment(data-fragment-index=1).
+            No point conditioning on F: Follow the overall measures and always prescribe C
+
           //- One-two slides based on R264.pdf
-              - probability versus do() calculus
-              - what if it were blood pressure?
-              - sure-thing principle
+            - probability versus do() calculus
+            - what if it were blood pressure?
+            - sure-thing principle
 
         section
           h3 Flavours of causality

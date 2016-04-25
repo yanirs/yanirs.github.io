@@ -121,10 +121,10 @@
         </section>
         <section>
           <section>
-            <h2>Inferring causal structures</h2>
+            <h2>Inferring causal structures</h2><a href="http://www.causality.inf.ethz.ch/cause-effect.php" target="_blank"><img src="img/cause-effect.gif" alt="Cause and effect chicken &amp; egg"></a>
           </section>
           <section>
-            <h3>Always start with Simpson's Paradox</h3>
+            <h3>Classic example: Simpson's Paradox</h3>
             <table class="center-cell-text">
               <tr>
                 <td></td>
@@ -186,6 +186,44 @@
           </section>
           <section>
             <h3>What's going on here?</h3>
+            <ol>
+              <li>P(E|C) = 0.5 > P(E|&not;C) = 0.4</li>
+              <li>P(E|C,F) = 0.2 < P(E|&not;C,F) = 0.3</li>
+              <li>P(E|C,&not;F) = 0.6 < P(E|&not;C,&not;F) = 0.7</li>
+            </ol>
+            <p>where C - treatment (cause), E - recovery (effect), F - female (feature)</p>
+          </section>
+          <section>
+            <h3>Should we treat a patient with the drug?</h3>
+            <p class="fragment">If we don't know their gender...<span class="fragment indent">Yes! P(E|C) > P(E|&not;C)</span></p>
+            <p class="fragment">If they're female...<span class="fragment indent">No! P(E|C,F) < P(E|&not;C,F)</span></p>
+            <p class="fragment">If they're male...<span class="fragment indent">No! P(E|C,&not;F) < P(E|&not;C,&not;F)</span></p><img src="img/lol-srsly.jpg" class="fragment">
+          </section>
+          <section>
+            <h3>Pearl: Probability calculus isn't enough</h3>
+            <blockquote class="full-width left">
+              The explanation for Simpson's paradox should be clear to readers of this book, since we have taken great
+              care in distinguishing <i>seeing</i> from <i>doing</i>. The conditioning operator in probability calculus
+              stands for the evidential conditional "given that we see," whereas the do() operator was devised to
+              represent the causal conditional "given that we do." Accordingly, the inequality P(E|C) > P(E|&not;C) is
+              not a statement about C being a positive causal factor for E, properly written P(E|do(C)) > P(E|do(&not;C)),
+              but rather about C being positive evidence for E, which may be due to spurious confounding factors that
+              cause both C and E.
+              
+            </blockquote>
+          </section>
+          <section>
+            <h3>Causal assumptions are essential</h3>
+            <p data-fragment-index='0' class="fragment"><b>Key assumption:</b> Males tend to use the drug more (&not;F &rarr; C)</p>
+            <p data-fragment-index='0' class="indent fragment">
+              Condition on the confounding variable F: Follow the gender-specific measures and never prescribe C
+              
+            </p><img data-fragment-index='1' src="img/simpsons-paradox-causal-assumptions.png" class="fragment">
+            <p data-fragment-index='1' class="fragment"><b>Different scenario:</b> F is high blood pressure, and the drug may raise blood pressure (C &rarr; F)</p>
+            <p data-fragment-index='1' class="indent fragment">
+              No point conditioning on F: Follow the overall measures and always prescribe C
+              
+            </p>
           </section>
           <section>
             <h3>Flavours of causality</h3>
