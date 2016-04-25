@@ -1,0 +1,324 @@
+doctype html
+html(lang="en")
+  head
+    title Ask why! Finding motives, causes, and purpose in data science
+
+    meta(name="description",
+         content="This talk discusses three data science Whys: Why do stakeholders want you to do something? " +
+                 "Why do certain outcomes come about? And why are we doing this?")
+    meta(name="author", content="Yanir Seroussi")
+    meta(charset="utf-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
+    meta(name="apple-mobile-web-app-capable", content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style", content="black-translucent")
+
+    link(rel="stylesheet", href="css/reveal.css")
+    link(rel="stylesheet", href="css/theme/night.css")
+    link(rel="stylesheet", href="lib/css/zenburn.css")
+    link(rel="stylesheet", href="custom.css")
+
+    // Print and PDF exports
+    script.
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName('head')[0].appendChild(link);
+
+    <!--[if lt IE 9]><script src="lib/js/html5shiv.js"></script><![endif]-->
+
+  body
+    .reveal: .slides
+      section
+        h1 Ask Why!
+          small Finding motives, causes, and purpose in data science
+        h4 Yanir Seroussi
+        h6.
+          <a href="https://yanirseroussi.com" target="_blank">yanirseroussi.com</a>
+          |
+          <a href="https://twitter.com/yanirseroussi" target="_blank">@yanirseroussi</a>
+          |
+          <a href="https://linkedin.com/in/yanirseroussi" target="_blank">linkedin.com/in/yanirseroussi</a>
+        //- TODOs:
+          - Add images (one for each part)
+          - grid for small images (e.g., Philface, client dialogue)
+          - Tentative timings:
+           - 2min Thanks Phil:
+           - 5min Stakeholder motives
+           - 13min Causal inference
+           - 5min Purpose
+
+      section
+        section
+          h2 Thanks Phil!
+          img(src="img/phil-brierley.jpg")
+
+        section
+          blockquote.left.
+            Are you doing anything on 6th May next year? I'm organising an event and need a passionate data scientist
+            to tell it as it is! Let me know it you are interested, and what you would like to talk about - hopefully
+            something technical and thought provoking.
+          .img-source-caption - Phil Brierley, 4 December 2015
+
+        section
+          h3 General outline
+
+          p Asking why to:
+          table.full-width
+            tr
+              td.left Uncover stakeholder motives
+              td.right: i [telling it as it is]
+            tr
+              td.left Infer causal structures
+              td.right: i [hopefully technical]
+            tr
+              td.left Find your purpose
+              td.right: i [hopefully thought-provoking]
+
+      section
+        section
+          h2 Uncovering stakeholder motives
+          a(href="https://www.youtube.com/watch?v=XqfwYkpOLg4", target="_blank")
+            img(src="img/dilbert-boss.jpg", height=500, alt="Dilbert and Pointy Haired Boss")
+
+        section
+          h3 A not-so-imaginary scenario...
+
+          p.fragment.
+            <b>Client:</b> I need a model to predict churn.
+          p.fragment.
+            <b>Younger me:</b> Sure, I'll plow through your data and use deep learning to build the best model ever!
+            It's going to be awesome!
+
+          p.fragment.center: i ...a few weeks later...
+
+          p.fragment.
+            <b>Younger me:</b> The model is ready! It's super-accurate, with the most predictive feature being tenure
+            with the company.
+          p.fragment.
+            <b>Client:</b> Thanks! We don't really have time to use this model at the moment, as our churn rates are
+            actually pretty low. Let's talk again when this becomes a problem.
+
+        section
+          h3 Better ask why
+
+          p.fragment.
+            <b>Client:</b> I need a model to predict churn.
+          p.fragment.
+            <b>Current me:</b> Why do you need a model to predict churn? What are you going to do with it?
+
+          p.fragment.center: i ...a few minutes later...
+
+          p.fragment.
+            <b>Current me:</b> So what you really want is to reduce churn, because you assume that preventable churn is
+            costing you $10M per year. Hence, you'd be willing to pay for a system that not only predicts churn, but
+            also schedules the most effective interventions to prevent it based on the customer's personal
+            circumstances.
+          p.fragment.
+            <b>Client:</b> Correct! Please build me this magical system!
+
+        section
+          h3 Possible answers to <i>why do you need a model?</i>
+
+          p.fragment: i It'll look good on my performance review
+          p.fragment.indent Run away!
+          p.fragment: i We always use a model, even if using it is worse than random
+          p.fragment.indent Run away, even faster. Sounds like they're unlikely to see business value in data science.
+          p.fragment: i We want to understand what's causing churn
+          p.fragment.indent Be careful with your modelling, e.g., short tenure doesn't necessarily <b>cause</b> churn.
+
+      section
+        section
+          h2 Inferring causal structures
+
+        section
+          h3 Always start with Simpson's Paradox
+
+          table.center-cell-text
+            tr
+              td
+              td Population size
+              td Recovered?
+              td Recovery rate
+            tr.fragment(data-fragment-index=0): td.left: b Everyone
+            tr.fragment(data-fragment-index=0)
+              td.left.indent Treated
+              td 40
+              td 20
+              td 0.5
+            tr.fragment(data-fragment-index=0)
+              td.left.indent Untreated
+              td 40
+              td 16
+              td 0.4
+            tr.fragment(data-fragment-index=1): td.left: b Males
+            tr.fragment(data-fragment-index=1)
+              td.left.indent Treated
+              td 30
+              td 18
+              td 0.6
+            tr.fragment(data-fragment-index=1)
+              td.left.indent Untreated
+              td 10
+              td 7
+              td 0.7
+            tr.fragment(data-fragment-index=2): td.left: b Females
+            tr.fragment(data-fragment-index=2)
+              td.left.indent Treated
+              td 10
+              td 2
+              td 0.2
+            tr.fragment(data-fragment-index=2)
+              td.left.indent Untreated
+              td 30
+              td 9
+              td 0.3
+
+          .img-source-caption.pad-top.
+            - Judea Pearl,
+            <a href="http://bayes.cs.ucla.edu/R264.pdf" target="_blank">Simpson's Paradox: An Anatomy</a>
+
+        section
+          h3 What's going on here?
+
+          //- One-two slides based on R264.pdf
+              - probability versus do() calculus
+              - what if it were blood pressure?
+              - sure-thing principle
+
+        section
+          h3 Flavours of causality
+
+          //- Not much time, but mention Granger, Pearl, Kleinberg
+
+        section
+          h3 For all flavours, we need untested causal assumptions
+
+          //- Mention Hill as a way of finding them
+
+        section
+          h3 Causal frustrations
+
+          //- Causal assumptions means you need to convince people
+          //- Many definitions exist
+          //- Methods are limited (I've yet to use this stuff in practice
+          //- Changing deeply-held beliefs is near-impossible (UQ course, that article from the causality post)
+          //- way more important and foundational than a lot of the crap taught in schools - should be part of primary school curriculum
+
+        section
+          h3 Extras?
+
+          //- prayer paper - end of 3.1 page 49
+          //- look at kleinberg's course slides
+
+      section
+        section
+          h2 Finding your purpose
+
+          a(href="http://johnriordan.bigcartel.com/product/exploited-ape", target="_blank")
+            img(src="img/exploited-ape-john-riordan.jpg", alt="Exploited Ape by John Riordan")
+
+        section
+          h3 My path and motivations so far
+
+          ul
+            li.fragment Technion BSc: Interesting, portable profession
+            li.fragment Intel: Just wanted to write software
+            li.fragment Qualcomm: Wanted to write more interesting software
+            li.fragment Monash PhD: Interested in AI & NLP, wanted to come to Australia
+            li.fragment Google: Wanted Australian work experience, pad CV
+            li.fragment Giveable: Australia, early-stage startup, PhD-related
+            li.fragment Next Commerce: Sydney, data science, retain Giveable work
+            li.fragment Consulting/own projects: Lifestyle, independence
+            li.fragment Car Next Door: Values, interests, long-term lifestyle
+
+        section
+          h3 Natural progression
+
+          .flow-box Learn a skill
+          div &darr;
+          .flow-box Find a way to apply it
+          div &darr;
+          .flow-box Get better, get bored
+          div &darr;
+          .flow-box Why do I even bother?
+
+        section
+          h3 Who am I to preach?
+
+          blockquote.full-width.left.
+            I would not presume to tell someone who is convinced they are making a meaningful contribution to the world
+            that, really, they are not. But what about those people who are themselves convinced their jobs are
+            meaningless? Not long ago I got back in touch with a school friend who I hadn't seen since I was 12.
+            [...]
+            Now he's a corporate lawyer working in a prominent New York firm. He was the first to admit that his job was
+            utterly meaningless, contributed nothing to the world, and, in his own estimation, should not really exist.
+
+          .img-source-caption.
+            - David Graeber,
+            <a href="http://strikemag.org/bullshit-jobs/" target="_blank">On the Phenomenon of Bullshit Jobs</a>
+
+        section
+          h3 Is your job meaningless? Why do you bother?
+
+          p.fragment No objective definition of meaning
+          p.fragment Totally fine to be doing it for the money/experience, just be honest
+          p.fragment Money doesn't necessarily compensate for Dilbertian suffering and lack of pride in your work
+          p.fragment Most data scientists have a choice, so make sure you choose well
+
+        //-
+          section
+            h3 One last preachy word of advice
+
+            .fragment
+              blockquote.left.
+                People who sell their souls for the promise of a secure job and a secure salary are spat out as soon as
+                they become dispensable. The more loyal to an institution you are, the more exploitable, and ultimately
+                expendable, you become.
+
+              .img-source-caption.
+                - George Monbiot, <a href="http://www.monbiot.com/career-advice/" target="_blank">Career Advice</a>
+
+            h3.fragment.pad-top Do not give up on doing something that would make you proud
+            h3.fragment Do not be afraid to question why
+
+      section
+        h1 Questions?
+
+    script(src="lib/js/head.min.js")
+    script(src="js/reveal.js")
+    script.
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'slide',
+        dependencies: [
+          {
+            src: 'lib/js/classList.js',
+            condition: function() { return !document.body.classList; }
+          },
+          {
+            src: 'plugin/markdown/marked.js',
+            condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+          },
+          {
+            src: 'plugin/markdown/markdown.js',
+            condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+          },
+          {
+            src: 'plugin/highlight/highlight.js',
+            async: true,
+            callback: function() { hljs.initHighlightingOnLoad(); }
+          },
+          {
+            src: 'plugin/zoom-js/zoom.js',
+            async: true
+          },
+          {
+            src: 'plugin/notes/notes.js',
+            async: true
+          }
+        ]
+      });

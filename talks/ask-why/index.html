@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>Ask why! Finding motives, causes, and purpose in data science</title>
+    <meta name="description" content="This talk discusses three data science Whys: Why do stakeholders want you to do something? Why do certain outcomes come about? And why are we doing this?">
+    <meta name="author" content="Yanir Seroussi">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="stylesheet" href="css/reveal.css">
+    <link rel="stylesheet" href="css/theme/night.css">
+    <link rel="stylesheet" href="lib/css/zenburn.css">
+    <link rel="stylesheet" href="custom.css">
+    <!-- Print and PDF exports-->
+    <script>
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName('head')[0].appendChild(link);
+      
+    </script><!--[if lt IE 9]><script src="lib/js/html5shiv.js"></script><![endif]-->
+  </head>
+  <body>
+    <div class="reveal">
+      <div class="slides">
+        <section>
+          <h1>Ask Why!<small>Finding motives, causes, and purpose in data science</small></h1>
+          <h4>Yanir Seroussi</h4>
+          <h6>
+            <a href="https://yanirseroussi.com" target="_blank">yanirseroussi.com</a>
+            |
+            <a href="https://twitter.com/yanirseroussi" target="_blank">@yanirseroussi</a>
+            |
+            <a href="https://linkedin.com/in/yanirseroussi" target="_blank">linkedin.com/in/yanirseroussi</a>
+          </h6>
+        </section>
+        <section>
+          <section>
+            <h2>Thanks Phil!</h2><img src="img/phil-brierley.jpg">
+          </section>
+          <section>
+            <blockquote class="left">
+              Are you doing anything on 6th May next year? I'm organising an event and need a passionate data scientist
+              to tell it as it is! Let me know it you are interested, and what you would like to talk about - hopefully
+              something technical and thought provoking.
+            </blockquote>
+            <div class="img-source-caption">- Phil Brierley, 4 December 2015</div>
+          </section>
+          <section>
+            <h3>General outline</h3>
+            <p>Asking why to:</p>
+            <table class="full-width">
+              <tr>
+                <td class="left">Uncover stakeholder motives</td>
+                <td class="right"><i>[telling it as it is]</i></td>
+              </tr>
+              <tr>
+                <td class="left">Infer causal structures</td>
+                <td class="right"><i>[hopefully technical]</i></td>
+              </tr>
+              <tr>
+                <td class="left">Find your purpose</td>
+                <td class="right"><i>[hopefully thought-provoking]</i></td>
+              </tr>
+            </table>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Uncovering stakeholder motives</h2><a href="https://www.youtube.com/watch?v=XqfwYkpOLg4" target="_blank"><img src="img/dilbert-boss.jpg" height="500" alt="Dilbert and Pointy Haired Boss"></a>
+          </section>
+          <section>
+            <h3>A not-so-imaginary scenario...</h3>
+            <p class="fragment"><b>Client:</b> I need a model to predict churn.</p>
+            <p class="fragment">
+              <b>Younger me:</b> Sure, I'll plow through your data and use deep learning to build the best model ever!
+              It's going to be awesome!
+              
+            </p>
+            <p class="fragment center"><i>...a few weeks later...</i></p>
+            <p class="fragment">
+              <b>Younger me:</b> The model is ready! It's super-accurate, with the most predictive feature being tenure
+              with the company.
+            </p>
+            <p class="fragment">
+              <b>Client:</b> Thanks! We don't really have time to use this model at the moment, as our churn rates are
+              actually pretty low. Let's talk again when this becomes a problem.
+              
+            </p>
+          </section>
+          <section>
+            <h3>Better ask why</h3>
+            <p class="fragment"><b>Client:</b> I need a model to predict churn.</p>
+            <p class="fragment">
+              <b>Current me:</b> Why do you need a model to predict churn? What are you going to do with it?
+              
+            </p>
+            <p class="fragment center"><i>...a few minutes later...</i></p>
+            <p class="fragment">
+              <b>Current me:</b> So what you really want is to reduce churn, because you assume that preventable churn is
+              costing you $10M per year. Hence, you'd be willing to pay for a system that not only predicts churn, but
+              also schedules the most effective interventions to prevent it based on the customer's personal
+              circumstances.
+            </p>
+            <p class="fragment">
+              <b>Client:</b> Correct! Please build me this magical system!
+              
+            </p>
+          </section>
+          <section>
+            <h3>Possible answers to <i>why do you need a model?</i></h3>
+            <p class="fragment"><i>It'll look good on my performance review</i></p>
+            <p class="fragment indent">Run away!</p>
+            <p class="fragment"><i>We always use a model, even if using it is worse than random</i></p>
+            <p class="fragment indent">Run away, even faster. Sounds like they're unlikely to see business value in data science.</p>
+            <p class="fragment"><i>We want to understand what's causing churn</i></p>
+            <p class="fragment indent">Be careful with your modelling, e.g., short tenure doesn't necessarily <b>cause</b> churn.</p>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Inferring causal structures</h2>
+          </section>
+          <section>
+            <h3>Always start with Simpson's Paradox</h3>
+            <table class="center-cell-text">
+              <tr>
+                <td></td>
+                <td>Population size</td>
+                <td>Recovered?</td>
+                <td>Recovery rate</td>
+              </tr>
+              <tr data-fragment-index='0' class="fragment">
+                <td class="left"><b>Everyone</b></td>
+              </tr>
+              <tr data-fragment-index='0' class="fragment">
+                <td class="left indent">Treated</td>
+                <td>40</td>
+                <td>20</td>
+                <td>0.5</td>
+              </tr>
+              <tr data-fragment-index='0' class="fragment">
+                <td class="left indent">Untreated</td>
+                <td>40</td>
+                <td>16</td>
+                <td>0.4</td>
+              </tr>
+              <tr data-fragment-index='1' class="fragment">
+                <td class="left"><b>Males</b></td>
+              </tr>
+              <tr data-fragment-index='1' class="fragment">
+                <td class="left indent">Treated</td>
+                <td>30</td>
+                <td>18</td>
+                <td>0.6</td>
+              </tr>
+              <tr data-fragment-index='1' class="fragment">
+                <td class="left indent">Untreated</td>
+                <td>10</td>
+                <td>7</td>
+                <td>0.7</td>
+              </tr>
+              <tr data-fragment-index='2' class="fragment">
+                <td class="left"><b>Females</b></td>
+              </tr>
+              <tr data-fragment-index='2' class="fragment">
+                <td class="left indent">Treated</td>
+                <td>10</td>
+                <td>2</td>
+                <td>0.2</td>
+              </tr>
+              <tr data-fragment-index='2' class="fragment">
+                <td class="left indent">Untreated</td>
+                <td>30</td>
+                <td>9</td>
+                <td>0.3</td>
+              </tr>
+            </table>
+            <div class="img-source-caption pad-top">
+              - Judea Pearl,
+              <a href="http://bayes.cs.ucla.edu/R264.pdf" target="_blank">Simpson's Paradox: An Anatomy</a>
+              
+            </div>
+          </section>
+          <section>
+            <h3>What's going on here?</h3>
+          </section>
+          <section>
+            <h3>Flavours of causality</h3>
+          </section>
+          <section>
+            <h3>For all flavours, we need untested causal assumptions</h3>
+          </section>
+          <section>
+            <h3>Causal frustrations</h3>
+          </section>
+          <section>
+            <h3>Extras?</h3>
+          </section>
+        </section>
+        <section>
+          <section>
+            <h2>Finding your purpose</h2><a href="http://johnriordan.bigcartel.com/product/exploited-ape" target="_blank"><img src="img/exploited-ape-john-riordan.jpg" alt="Exploited Ape by John Riordan"></a>
+          </section>
+          <section>
+            <h3>My path and motivations so far</h3>
+            <ul>
+              <li class="fragment">Technion BSc: Interesting, portable profession</li>
+              <li class="fragment">Intel: Just wanted to write software</li>
+              <li class="fragment">Qualcomm: Wanted to write more interesting software</li>
+              <li class="fragment">Monash PhD: Interested in AI & NLP, wanted to come to Australia</li>
+              <li class="fragment">Google: Wanted Australian work experience, pad CV</li>
+              <li class="fragment">Giveable: Australia, early-stage startup, PhD-related</li>
+              <li class="fragment">Next Commerce: Sydney, data science, retain Giveable work</li>
+              <li class="fragment">Consulting/own projects: Lifestyle, independence</li>
+              <li class="fragment">Car Next Door: Values, interests, long-term lifestyle</li>
+            </ul>
+          </section>
+          <section>
+            <h3>Natural progression</h3>
+            <div class="flow-box">Learn a skill</div>
+            <div>&darr;</div>
+            <div class="flow-box">Find a way to apply it</div>
+            <div>&darr;</div>
+            <div class="flow-box">Get better, get bored</div>
+            <div>&darr;</div>
+            <div class="flow-box">Why do I even bother?</div>
+          </section>
+          <section>
+            <h3>Who am I to preach?</h3>
+            <blockquote class="full-width left">
+              I would not presume to tell someone who is convinced they are making a meaningful contribution to the world
+              that, really, they are not. But what about those people who are themselves convinced their jobs are
+              meaningless? Not long ago I got back in touch with a school friend who I hadn't seen since I was 12.
+              [...]
+              Now he's a corporate lawyer working in a prominent New York firm. He was the first to admit that his job was
+              utterly meaningless, contributed nothing to the world, and, in his own estimation, should not really exist.
+              
+            </blockquote>
+            <div class="img-source-caption">
+              - David Graeber,
+              <a href="http://strikemag.org/bullshit-jobs/" target="_blank">On the Phenomenon of Bullshit Jobs</a>
+              
+            </div>
+          </section>
+          <section>
+            <h3>Is your job meaningless? Why do you bother?</h3>
+            <p class="fragment">No objective definition of meaning</p>
+            <p class="fragment">Totally fine to be doing it for the money/experience, just be honest</p>
+            <p class="fragment">Money doesn't necessarily compensate for Dilbertian suffering and lack of pride in your work</p>
+            <p class="fragment">Most data scientists have a choice, so make sure you choose well</p>
+          </section>
+        </section>
+        <section>
+          <h1>Questions?</h1>
+        </section>
+      </div>
+    </div>
+    <script src="lib/js/head.min.js"></script>
+    <script src="js/reveal.js"></script>
+    <script>
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'slide',
+        dependencies: [
+          {
+            src: 'lib/js/classList.js',
+            condition: function() { return !document.body.classList; }
+          },
+          {
+            src: 'plugin/markdown/marked.js',
+            condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+          },
+          {
+            src: 'plugin/markdown/markdown.js',
+            condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+          },
+          {
+            src: 'plugin/highlight/highlight.js',
+            async: true,
+            callback: function() { hljs.initHighlightingOnLoad(); }
+          },
+          {
+            src: 'plugin/zoom-js/zoom.js',
+            async: true
+          },
+          {
+            src: 'plugin/notes/notes.js',
+            async: true
+          }
+        ]
+      });
+    </script>
+  </body>
+</html>
