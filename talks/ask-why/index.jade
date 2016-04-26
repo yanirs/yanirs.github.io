@@ -40,8 +40,7 @@ html(lang="en")
           |
           <a href="https://linkedin.com/in/yanirseroussi" target="_blank">linkedin.com/in/yanirseroussi</a>
         //- TODOs:
-          - Add images (one for each part)
-          - grid for small images (e.g., Philface, client dialogue)
+          - grid for small images? (e.g., Philface, client dialogue)
           - Tentative timings:
            - 2min Thanks Phil:
            - 5min Stakeholder motives
@@ -54,7 +53,7 @@ html(lang="en")
           img(src="img/phil-brierley.jpg")
 
         section
-          blockquote.left.
+          blockquote.
             Are you doing anything on 6th May next year? I'm organising an event and need a passionate data scientist
             to tell it as it is! Let me know it you are interested, and what you would like to talk about - hopefully
             something technical and thought provoking.
@@ -185,9 +184,9 @@ html(lang="en")
           h3 What's going on here?
 
           ol
-            li P(E|C) = 0.5 > P(E|&not;C) = 0.4
-            li P(E|C,F) = 0.2 < P(E|&not;C,F) = 0.3
-            li P(E|C,&not;F) = 0.6 < P(E|&not;C,&not;F) = 0.7
+            li P(E|C) &cong; 0.5 > P(E|&not;C) &cong; 0.4
+            li P(E|C,F) &cong; 0.2 < P(E|&not;C,F) &cong; 0.3
+            li P(E|C,&not;F) &cong; 0.6 < P(E|&not;C,&not;F) &cong; 0.7
 
           p where C - treatment (cause), E - recovery (effect), F - female (feature)
 
@@ -208,7 +207,7 @@ html(lang="en")
         section
           h3 Pearl: Probability calculus isn't enough
 
-          blockquote.full-width.left.
+          blockquote.full-width.
             The explanation for Simpson's paradox should be clear to readers of this book, since we have taken great
             care in distinguishing <i>seeing</i> from <i>doing</i>. The conditioning operator in probability calculus
             stands for the evidential conditional "given that we see," whereas the do() operator was devised to
@@ -220,46 +219,106 @@ html(lang="en")
         section
           h3 Causal assumptions are essential
 
-          p.fragment(data-fragment-index=0) <b>Key assumption:</b> Males tend to use the drug more (&not;F &rarr; C)
+          p.fragment(data-fragment-index=0) <b>Key assumption:</b> Males tend to use the drug more (F &rarr; C)
           p.indent.fragment(data-fragment-index=0).
             Condition on the confounding variable F: Follow the gender-specific measures and never prescribe C
-
-          img.fragment(data-fragment-index=1, src="img/simpsons-paradox-causal-assumptions.png")
 
           p.fragment(data-fragment-index=1).
             <b>Different scenario:</b> F is high blood pressure, and the drug may raise blood pressure (C &rarr; F)
           p.indent.fragment(data-fragment-index=1).
             No point conditioning on F: Follow the overall measures and always prescribe C
 
-          //- One-two slides based on R264.pdf
-            - probability versus do() calculus
-            - what if it were blood pressure?
-            - sure-thing principle
+          img.fragment(data-fragment-index=1, src="img/simpsons-paradox-causal-assumptions.png")
+
+        section
+          h3 One last scenario
+
+          p.fragment(data-fragment-index=0).
+            F is brown eye colour, and we can't assume it affects drug selection, or is affected by it
+          p.indent.fragment(data-fragment-index=0).
+            No point conditioning on F: Follow the overall measures and always prescribe C
+
+          p.fragment(data-fragment-index=1).
+            <b>Generally:</b> The decision whether to use F to predict E can't only depend on the data &ndash; the data
+            may lie
+
+        section
+          h3 Variable choice is a critical modelling decision
+          h4.fragment "Big data" just makes it a bigger problem
+
+          a.fragment(href="http://tylervigen.com/spurious-correlations", target="_blank")
+            img(src="img/spurious-correlations.png")
 
         section
           h3 Flavours of causality
 
-          //- Not much time, but mention Granger, Pearl, Kleinberg
+          ul
+            li.fragment Graphical models: Pearl and many others
+              ul.fragment
+                li Vanilla Bayesian networks: Time as an afterthought
+                li Dynamic Bayesian networks: Hard to model long-term effects and non-discrete intervals
+            li.fragment Granger-causality: Can past values of X be used to forecast Y?
+              ul
+                li Not really causality, more like temporal correlation
+            li.fragment
+              | Kleinberg: Temporal logic, cause precedes effect and raises its probability, causal significance across
+              | multiple pathways
+              ul.fragment
+                li Doesn't shy from philosophical discussions
+                li Still early days, practical use unclear
 
         section
-          h3 For all flavours, we need untested causal assumptions
+          h3 Cause of frustration #1:<br>No single definition
 
-          //- Mention Hill as a way of finding them
-
-        section
-          h3 Causal frustrations
-
-          //- Causal assumptions means you need to convince people
-          //- Many definitions exist
-          //- Methods are limited (I've yet to use this stuff in practice
-          //- Changing deeply-held beliefs is near-impossible (UQ course, that article from the causality post)
-          //- way more important and foundational than a lot of the crap taught in schools - should be part of primary school curriculum
+          blockquote.full-width.
+            There is simply no unified philosophical theory of what causes are, and no single foolproof computational
+            method for finding them with absolute certainty. What makes this even more challenging is that, depending on
+            one's definition of causality, different factors may be identified as causes in the same situation, and it
+            may not be clear what the ground truth is.
+          .img-source-caption.
+            - Samantha Kleinberg,
+            <a href="http://www.skleinberg.org/why/" target="_blank">Why: A Guide to Finding and Using Causes</a>
 
         section
-          h3 Extras?
+          h3 Cause of frustration #2:<br>Need for untested assumptions
 
-          //- prayer paper - end of 3.1 page 49
-          //- look at kleinberg's course slides
+          blockquote.full-width.
+            We know, from first principles, that any causal conclusion drawn from observational studies must rest on
+            untested causal assumptions. Cartwright (1989) named this principle 'no causes in, no causes out,' which
+            follows formally from the theory of equivalent models (Verma and Pearl, 1990); for any model yielding a
+            conclusion C, one can construct a statistically equivalent model that refutes C and fits the data equally
+            well.
+          .img-source-caption.
+            - Judea Pearl, <a href="http://ftp.cs.ucla.edu/pub/stat_ser/r391.pdf" target="_blank">Trygve Haavelmo and
+            the Emergence of Causal Calculus</a>
+
+        section
+          h3 Cause of frustration #3:<br>Unreasonable people
+
+          blockquote.full-width.
+            Our findings parallel those of previous work and show that endorsement of free-market
+            economics predicted rejection of climate science. Endorsement of free markets also predicted the rejection
+            of other established scientific findings, such as the facts that HIV causes AIDS and that smoking causes
+            lung cancer. We additionally show that, above and beyond endorsement of free markets, endorsement of a
+            cluster of conspiracy theories (e.g., that the Federal Bureau of Investigation killed Martin Luther King,
+            Jr.) predicted rejection of climate science as well as other scientific findings. Our results provide
+            empirical support for previous suggestions that conspiratorial thinking contributes to the rejection of
+            science.
+          .img-source-caption.
+            - Lewandowsky et al.,
+            <a href="http://pss.sagepub.com/content/24/5/622" target="_blank">NASA Faked the Moon
+            Landing&mdash;Therefore, (Climate) Science Is a Hoax: An Anatomy of the Motivated Rejection of Science</a>
+
+        section
+          h3 Why bother with causality then?
+
+          ul.fragment
+            li Form plausible explanations
+            li Generate stable predictions
+            li Schedule effective interventions
+            li Deal with political implications
+
+          // h5.pad-top.fragment Causality is at the core of science
 
       section
         section
@@ -296,7 +355,7 @@ html(lang="en")
         section
           h3 Who am I to preach?
 
-          blockquote.full-width.left.
+          blockquote.full-width.
             I would not presume to tell someone who is convinced they are making a meaningful contribution to the world
             that, really, they are not. But what about those people who are themselves convinced their jobs are
             meaningless? Not long ago I got back in touch with a school friend who I hadn't seen since I was 12.
@@ -321,7 +380,7 @@ html(lang="en")
             h3 One last preachy word of advice
 
             .fragment
-              blockquote.left.
+              blockquote.
                 People who sell their souls for the promise of a secure job and a secure salary are spat out as soon as
                 they become dispensable. The more loyal to an institution you are, the more exploitable, and ultimately
                 expendable, you become.
