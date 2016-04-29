@@ -55,7 +55,7 @@ html(lang="en")
         section
           blockquote.
             Are you doing anything on 6th May next year? I'm organising an event and need a passionate data scientist
-            to tell it as it is! Let me know it you are interested, and what you would like to talk about - hopefully
+            to tell it as it is! Let me know if you are interested, and what you would like to talk about - hopefully
             something technical and thought provoking.
           .img-source-caption - Phil Brierley, 4 December 2015
 
@@ -139,56 +139,63 @@ html(lang="en")
           table.center-cell-text
             tr
               td
+              td
               td Population size
-              td Recovered?
+              td Recovered? (E)
               td Recovery rate
             tr.fragment(data-fragment-index=0): td.left: b Everyone
             tr.fragment(data-fragment-index=0)
               td.left.indent Treated
+              td.small C
               td 40
               td 20
               td 0.5
             tr.fragment(data-fragment-index=0)
               td.left.indent Untreated
+              td.small &not; C
               td 40
               td 16
               td 0.4
-            tr.fragment(data-fragment-index=1): td.left: b Males
+            tr.fragment(data-fragment-index=1): td.left: b Females
             tr.fragment(data-fragment-index=1)
               td.left.indent Treated
-              td 30
-              td 18
-              td 0.6
-            tr.fragment(data-fragment-index=1)
-              td.left.indent Untreated
-              td 10
-              td 7
-              td 0.7
-            tr.fragment(data-fragment-index=2): td.left: b Females
-            tr.fragment(data-fragment-index=2)
-              td.left.indent Treated
+              td.small F, C
               td 10
               td 2
               td 0.2
-            tr.fragment(data-fragment-index=2)
+            tr.fragment(data-fragment-index=1)
               td.left.indent Untreated
+              td.small F, &not;C
               td 30
               td 9
               td 0.3
+            tr.fragment(data-fragment-index=2): td.left: b Males
+            tr.fragment(data-fragment-index=2)
+              td.left.indent Treated
+              td.small &not;F, C
+              td 30
+              td 18
+              td 0.6
+            tr.fragment(data-fragment-index=2)
+              td.left.indent Untreated
+              td.small &not;F, &not;C
+              td 10
+              td 7
+              td 0.7
 
           .img-source-caption.pad-top.
             - Judea Pearl,
             <a href="http://bayes.cs.ucla.edu/R264.pdf" target="_blank">Simpson's Paradox: An Anatomy</a>
 
-        section
-          h3 What's going on here?
-
-          ol
-            li P(E|C) &cong; 0.5 > P(E|&not;C) &cong; 0.4
-            li P(E|C,F) &cong; 0.2 < P(E|&not;C,F) &cong; 0.3
-            li P(E|C,&not;F) &cong; 0.6 < P(E|&not;C,&not;F) &cong; 0.7
-
-          p where C - treatment (cause), E - recovery (effect), F - female (feature)
+        //section
+        //  h3 What's going on here?
+        //
+        //  ol
+        //    li P(E|C) &cong; 0.5 > P(E|&not;C) &cong; 0.4
+        //    li P(E|C,F) &cong; 0.2 < P(E|&not;C,F) &cong; 0.3
+        //    li P(E|C,&not;F) &cong; 0.6 < P(E|&not;C,&not;F) &cong; 0.7
+        //
+        //  p where C - treatment (cause), E - recovery (effect), F - female (feature)
 
         section
           h3 Should we treat a patient with the drug?
@@ -207,7 +214,7 @@ html(lang="en")
         section
           h3 Pearl: Probability calculus isn't enough
 
-          blockquote.full-width.
+          blockquote.full-width.fragment(data-fragment-index=0).
             The explanation for Simpson's paradox should be clear to readers of this book, since we have taken great
             care in distinguishing <i>seeing</i> from <i>doing</i>. The conditioning operator in probability calculus
             stands for the evidential conditional "given that we see," whereas the do() operator was devised to
@@ -216,31 +223,34 @@ html(lang="en")
             but rather about C being positive evidence for E, which may be due to spurious confounding factors that
             cause both C and E.
 
+          .img-source-caption.fragment(data-fragment-index=0).
+            - Judea Pearl,
+            <a href="http://bayes.cs.ucla.edu/R264.pdf" target="_blank">Simpson's Paradox: An Anatomy</a>
+
         section
           h3 Causal assumptions are essential
 
-          p.fragment(data-fragment-index=0) <b>Key assumption:</b> Males tend to use the drug more (F &rarr; C)
-          p.indent.fragment(data-fragment-index=0).
+          p.fragment <b>Key assumption:</b> Males tend to use the drug more (F &rarr; C)
+          p.indent.fragment.
             Condition on the confounding variable F: Follow the gender-specific measures and never prescribe C
 
-          p.fragment(data-fragment-index=1).
-            <b>Different scenario:</b> F is high blood pressure, and the drug may raise blood pressure (C &rarr; F)
-          p.indent.fragment(data-fragment-index=1).
-            No point conditioning on F: Follow the overall measures and always prescribe C
+          img.fragment(src="img/simpsons-paradox-causal-assumptions.png")
 
-          img.fragment(data-fragment-index=1, src="img/simpsons-paradox-causal-assumptions.png")
+          p.fragment.
+            <b>Different scenario:</b> F is high blood pressure, and the drug may raise blood pressure (C &rarr; F)
+          p.indent.fragment.
+            No point conditioning on F: Follow the overall measures and always prescribe C
 
         section
           h3 One last scenario
 
-          p.fragment(data-fragment-index=0).
-            F is brown eye colour, and we can't assume it affects drug selection, or is affected by it
-          p.indent.fragment(data-fragment-index=0).
+          p.fragment.
+            F is a specific star sign, and we can't assume it affects drug selection, or is affected by it
+          p.indent.fragment.
             No point conditioning on F: Follow the overall measures and always prescribe C
 
-          p.fragment(data-fragment-index=1).
-            <b>Generally:</b> The decision whether to use F to predict E can't only depend on the data &ndash; the data
-            may lie
+          p.fragment.
+            <b>Generally:</b> The decision whether to use F to predict E can't only depend on the data
 
         section
           h3 Variable choice is a critical modelling decision
@@ -254,7 +264,7 @@ html(lang="en")
 
           ul
             li.fragment Graphical models: Pearl and many others
-              ul.fragment
+              ul
                 li Vanilla Bayesian networks: Time as an afterthought
                 li Dynamic Bayesian networks: Hard to model long-term effects and non-discrete intervals
             li.fragment Granger-causality: Can past values of X be used to forecast Y?
@@ -263,39 +273,39 @@ html(lang="en")
             li.fragment
               | Kleinberg: Temporal logic, cause precedes effect and raises its probability, causal significance across
               | multiple pathways
-              ul.fragment
-                li Doesn't shy from philosophical discussions
+              ul
+                li Doesn't shy away from philosophical discussions
                 li Still early days, practical use unclear
 
         section
           h3 Cause of frustration #1:<br>No single definition
 
-          blockquote.full-width.
+          blockquote.full-width.fragment(data-fragment-index=0).
             There is simply no unified philosophical theory of what causes are, and no single foolproof computational
             method for finding them with absolute certainty. What makes this even more challenging is that, depending on
             one's definition of causality, different factors may be identified as causes in the same situation, and it
             may not be clear what the ground truth is.
-          .img-source-caption.
+          .img-source-caption.fragment(data-fragment-index=0).
             - Samantha Kleinberg,
             <a href="http://www.skleinberg.org/why/" target="_blank">Why: A Guide to Finding and Using Causes</a>
 
         section
           h3 Cause of frustration #2:<br>Need for untested assumptions
 
-          blockquote.full-width.
+          blockquote.full-width.fragment(data-fragment-index=0).
             We know, from first principles, that any causal conclusion drawn from observational studies must rest on
             untested causal assumptions. Cartwright (1989) named this principle 'no causes in, no causes out,' which
             follows formally from the theory of equivalent models (Verma and Pearl, 1990); for any model yielding a
             conclusion C, one can construct a statistically equivalent model that refutes C and fits the data equally
             well.
-          .img-source-caption.
+          .img-source-caption.fragment(data-fragment-index=0).
             - Judea Pearl, <a href="http://ftp.cs.ucla.edu/pub/stat_ser/r391.pdf" target="_blank">Trygve Haavelmo and
             the Emergence of Causal Calculus</a>
 
         section
           h3 Cause of frustration #3:<br>Unreasonable people
 
-          blockquote.full-width.
+          blockquote.full-width.fragment(data-fragment-index=0).
             Our findings parallel those of previous work and show that endorsement of free-market
             economics predicted rejection of climate science. Endorsement of free markets also predicted the rejection
             of other established scientific findings, such as the facts that HIV causes AIDS and that smoking causes
@@ -304,7 +314,7 @@ html(lang="en")
             Jr.) predicted rejection of climate science as well as other scientific findings. Our results provide
             empirical support for previous suggestions that conspiratorial thinking contributes to the rejection of
             science.
-          .img-source-caption.
+          .img-source-caption.fragment(data-fragment-index=0).
             - Lewandowsky et al.,
             <a href="http://pss.sagepub.com/content/24/5/622" target="_blank">NASA Faked the Moon
             Landing&mdash;Therefore, (Climate) Science Is a Hoax: An Anatomy of the Motivated Rejection of Science</a>
@@ -313,12 +323,11 @@ html(lang="en")
           h3 Why bother with causality then?
 
           ul.fragment
+            li Properly encode causal assumptions
             li Form plausible explanations
             li Generate stable predictions
             li Schedule effective interventions
             li Deal with political implications
-
-          // h5.pad-top.fragment Causality is at the core of science
 
       section
         section
@@ -334,7 +343,7 @@ html(lang="en")
             li.fragment Technion BSc: Interesting, portable profession
             li.fragment Intel: Just wanted to write software
             li.fragment Qualcomm: Wanted to write more interesting software
-            li.fragment Monash PhD: Interested in AI & NLP, wanted to come to Australia
+            li.fragment Monash PhD: Australia, interested in AI & NLP
             li.fragment Google: Wanted Australian work experience, pad CV
             li.fragment Giveable: Australia, early-stage startup, PhD-related
             li.fragment Next Commerce: Sydney, data science, retain Giveable work
@@ -352,28 +361,36 @@ html(lang="en")
           div &darr;
           .flow-box Why do I even bother?
 
+        //section
+        //  h3 Generalised useless models
+        //
+        //  blockquote.full-width.fragment.
+        //    In the year 1930, John Maynard Keynes predicted that technology would have advanced sufficiently by
+        //    century's end that countries like Great Britain or the United States would achieve a 15-hour work week.
+        //    There's every reason to believe he was right. In technological terms, we are quite capable of this. And yet
+        //    it didn't happen. Instead, technology has been marshaled, if anything, to figure out ways to make us all
+        //    work more. In order to achieve this, jobs have had to be created that are, effectively, pointless.
+        //    Huge swathes of people, in Europe and North America in particular, spend their entire working lives
+        //    performing tasks they secretly believe do not really need to be performed.
+        //
+        //  .img-source-caption.
+        //    - David Graeber,
+        //    <a href="http://strikemag.org/bullshit-jobs/" target="_blank">On the Phenomenon of Bullshit Jobs</a>
+
         section
-          h3 Who am I to preach?
-
-          blockquote.full-width.
-            I would not presume to tell someone who is convinced they are making a meaningful contribution to the world
-            that, really, they are not. But what about those people who are themselves convinced their jobs are
-            meaningless? Not long ago I got back in touch with a school friend who I hadn't seen since I was 12.
-            [...]
-            Now he's a corporate lawyer working in a prominent New York firm. He was the first to admit that his job was
-            utterly meaningless, contributed nothing to the world, and, in his own estimation, should not really exist.
-
+          img(src="img/bullshit-jobs.jpg")
           .img-source-caption.
             - David Graeber,
             <a href="http://strikemag.org/bullshit-jobs/" target="_blank">On the Phenomenon of Bullshit Jobs</a>
 
         section
-          h3 Is your job meaningless? Why do you bother?
+          h3 Are you building generalised useless models? Why do you bother?
 
-          p.fragment No objective definition of meaning
-          p.fragment Totally fine to be doing it for the money/experience, just be honest
-          p.fragment Money doesn't necessarily compensate for Dilbertian suffering and lack of pride in your work
-          p.fragment Most data scientists have a choice, so make sure you choose well
+          ul
+            li.fragment No objective definition of meaning
+            li.fragment Totally fine to be doing it for money/experience, just be honest
+            li.fragment Money doesn't necessarily compensate for Dilbertian suffering and lack of pride in your work
+            li.fragment Most data scientists have a choice &ndash; make sure you choose well
 
         //-
           section
