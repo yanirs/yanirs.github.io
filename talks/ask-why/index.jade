@@ -136,54 +136,54 @@ html(lang="en")
         section
           h3 Classic example: Simpson's Paradox
 
-          table.center-cell-text
+          table.center-cell-text.fragment(data-fragment-index=0)
             tr
               td
               td
               td Population size
               td Recovered? (E)
               td Recovery rate
-            tr.fragment(data-fragment-index=0): td.left: b Everyone
-            tr.fragment(data-fragment-index=0)
+            tr: td.left: b Everyone
+            tr
               td.left.indent Treated
               td.small C
               td 40
               td 20
               td 0.5
-            tr.fragment(data-fragment-index=0)
+            tr
               td.left.indent Untreated
               td.small &not; C
               td 40
               td 16
               td 0.4
-            tr.fragment(data-fragment-index=1): td.left: b Females
-            tr.fragment(data-fragment-index=1)
+            tr: td.left: b Females
+            tr
               td.left.indent Treated
               td.small F, C
               td 10
               td 2
               td 0.2
-            tr.fragment(data-fragment-index=1)
+            tr
               td.left.indent Untreated
               td.small F, &not;C
               td 30
               td 9
               td 0.3
-            tr.fragment(data-fragment-index=2): td.left: b Males
-            tr.fragment(data-fragment-index=2)
+            tr: td.left: b Males
+            tr
               td.left.indent Treated
               td.small &not;F, C
               td 30
               td 18
               td 0.6
-            tr.fragment(data-fragment-index=2)
+            tr
               td.left.indent Untreated
               td.small &not;F, &not;C
               td 10
               td 7
               td 0.7
 
-          .img-source-caption.pad-top.
+          .img-source-caption.pad-top.fragment(data-fragment-index=0).
             - Judea Pearl,
             <a href="http://bayes.cs.ucla.edu/R264.pdf" target="_blank">Simpson's Paradox: An Anatomy</a>
 
@@ -198,69 +198,89 @@ html(lang="en")
         //  p where C - treatment (cause), E - recovery (effect), F - female (feature)
 
         section
-          h3 Should we treat a patient with the drug?
+          h3 Should we prescribe the treatment to a patient?
 
           p.fragment If we don't know their gender...
             span.fragment.indent Yes! P(E|C) > P(E|&not;C)
 
           p.fragment If they're female...
-            span.fragment.indent No! P(E|C,F) < P(E|&not;C,F)
+            span.fragment.indent No! P(E|C, F) < P(E|&not;C, F)
 
           p.fragment If they're male...
-            span.fragment.indent No! P(E|C,&not;F) < P(E|&not;C,&not;F)
+            span.fragment.indent No! P(E|C, &not;F) < P(E|&not;C, &not;F)
 
           img.fragment(src="img/lol-srsly.jpg")
 
-        section
-          h3 Pearl: Probability calculus isn't enough
+        //section
+        //  h3 Pearl: Probability calculus isn't enough
+        //
+        //  blockquote.full-width.fragment(data-fragment-index=0).
+        //    The explanation for Simpson's paradox should be clear to readers of this book, since we have taken great
+        //    care in distinguishing <i>seeing</i> from <i>doing</i>. The conditioning operator in probability calculus
+        //    stands for the evidential conditional "given that we see," whereas the do() operator was devised to
+        //    represent the causal conditional "given that we do." Accordingly, the inequality P(E|C) > P(E|&not;C) is
+        //    not a statement about C being a positive causal factor for E, properly written P(E|do(C)) > P(E|do(&not;C)),
+        //    but rather about C being positive evidence for E, which may be due to spurious confounding factors that
+        //    cause both C and E.
+        //
+        //  .img-source-caption.fragment(data-fragment-index=0).
+        //    - Judea Pearl,
+        //    <a href="http://bayes.cs.ucla.edu/R264.pdf" target="_blank">Simpson's Paradox: An Anatomy</a>
 
-          blockquote.full-width.fragment(data-fragment-index=0).
-            The explanation for Simpson's paradox should be clear to readers of this book, since we have taken great
-            care in distinguishing <i>seeing</i> from <i>doing</i>. The conditioning operator in probability calculus
-            stands for the evidential conditional "given that we see," whereas the do() operator was devised to
-            represent the causal conditional "given that we do." Accordingly, the inequality P(E|C) > P(E|&not;C) is
-            not a statement about C being a positive causal factor for E, properly written P(E|do(C)) > P(E|do(&not;C)),
-            but rather about C being positive evidence for E, which may be due to spurious confounding factors that
-            cause both C and E.
+        section.causal-assumptions
+          h3 Pearl: Causal assumptions are essential
 
-          .img-source-caption.fragment(data-fragment-index=0).
-            - Judea Pearl,
-            <a href="http://bayes.cs.ucla.edu/R264.pdf" target="_blank">Simpson's Paradox: An Anatomy</a>
-
-        section
-          h3 Causal assumptions are essential
-
-          p.fragment <b>Key assumption:</b> Males tend to use the drug more (F &rarr; C)
+          p.fragment <b>Assumption:</b> Gender affects treatment uptake and recovery
           p.indent.fragment.
-            Condition on the confounding variable F: Follow the gender-specific measures and never prescribe C
+            &rarr; Follow the gender-specific measures and never prescribe C
+
+          p.fragment.
+            <b>Different scenario:</b> F is high blood pressure, the treatment affects blood pressure, and blood
+            pressure affects recovery
+          p.indent.fragment.
+            &rarr; Follow the aggregated measures and always prescribe C
 
           img.fragment(src="img/simpsons-paradox-causal-assumptions.png")
 
           p.fragment.
-            <b>Different scenario:</b> F is high blood pressure, and the drug may raise blood pressure (C &rarr; F)
-          p.indent.fragment.
-            No point conditioning on F: Follow the overall measures and always prescribe C
-
-        section
-          h3 One last scenario
-
-          p.fragment.
-            F is a specific star sign, and we can't assume it affects drug selection, or is affected by it
-          p.indent.fragment.
-            No point conditioning on F: Follow the overall measures and always prescribe C
-
-          p.fragment.
             <b>Generally:</b> The decision whether to use F to predict E can't only depend on the data
 
-        section
-          h3 Variable choice is a critical modelling decision
-          h4.fragment "Big data" just makes it a bigger problem
+        //section
+        //  h3 One last scenario
+        //
+        //  p.no-margin.fragment.
+        //    F is brown eye colour, which is caused by two different genes, one that also affects treatment uptake, and
+        //    another that also affects recovery
+        //  p.no-margin.indent.fragment.
+        //    &rarr; Follow the aggregated measures and always prescribe C
+        //
+        //  p.fragment.
+        //    <b>Generally:</b> The decision whether to use F to predict E can't only depend on the data
 
-          a.fragment(href="http://tylervigen.com/spurious-correlations", target="_blank")
-            img(src="img/spurious-correlations.png")
+        //section
+        //  h3 Pearl: Causal assumptions are essential
+        //
+        //  img.fragment(src="img/simpsons-paradox-causal-assumptions-full.png", height=150)
+        //
+        //  p.fragment <b>Original scenario:</b> Gender affects treatment selection and recovery
+        //
+        //  p.fragment.
+        //    <b>Different scenario:</b> F is high blood pressure, the treatment affects blood pressure, and
+        //    blood pressure affects recovery
+        //
+        //  p.fragment.
+        //    <b>Last scenario:</b> F is brown eye colour, which is caused by two different genes, one that affects
+        //    treatment selection, and another that affects recovery
+        //
+        //section
+        //  h3 Variable choice is a critical modelling decision
+        //  h4.fragment "Big data" just makes it a bigger problem
+        //
+        //  a.fragment(href="http://tylervigen.com/spurious-correlations", target="_blank")
+        //    img(src="img/spurious-correlations.png")
 
         section
-          h3 Flavours of causality
+          h3 Some flavours of causality
 
           ul
             li.fragment Graphical models: Pearl and many others
@@ -270,42 +290,72 @@ html(lang="en")
             li.fragment Granger-causality: Can past values of X be used to forecast Y?
               ul
                 li Not really causality, more like temporal correlation
-            li.fragment
-              | Kleinberg: Temporal logic, cause precedes effect and raises its probability, causal significance across
-              | multiple pathways
+            li.fragment Kleinberg: Temporal logic
               ul
                 li Doesn't shy away from philosophical discussions
                 li Still early days, practical use unclear
 
+        //section
+        //  h3 Limitations and frustrations
+        //
+        //  .fragment
+        //    h6.left Causal plurality
+        //    blockquote.full-width.medium.
+        //      There is simply no unified philosophical theory of what causes are, and no single foolproof computational
+        //      method for finding them with absolute certainty.
+        //    .img-source-caption.
+        //      - Samantha Kleinberg,
+        //      <a href="http://www.skleinberg.org/why/" target="_blank">Why: A Guide to Finding and Using Causes</a>
+        //
+        //  .fragment
+        //    h6.left Need for untested assumptions
+        //    blockquote.full-width.medium.
+        //      For any model yielding a conclusion C, one can construct a statistically equivalent model that refutes C
+        //      and fits the data equally well.
+        //    .img-source-caption.
+        //      - Judea Pearl, <a href="http://ftp.cs.ucla.edu/pub/stat_ser/r391.pdf" target="_blank">Trygve Haavelmo and
+        //      the Emergence of Causal Calculus</a>
+        //
+        //  .fragment
+        //    h6.left Unreasonable people
+        //    blockquote.full-width.medium.
+        //      We additionally show that, above and beyond endorsement of free markets, endorsement of a cluster of
+        //      conspiracy theories (e.g., that the Federal Bureau of Investigation killed Martin Luther King, Jr.)
+        //      predicted rejection of climate science as well as other scientific findings.
+        //    .img-source-caption.
+        //      - Lewandowsky et al.,
+        //      <a href="http://pss.sagepub.com/content/24/5/622" target="_blank">NASA Faked the Moon
+        //      Landing&mdash;Therefore, (Climate) Science Is a Hoax: An Anatomy of the Motivated Rejection of Science</a>
+
         section
           h3 Cause of frustration #1:<br>No single definition
 
-          blockquote.full-width.fragment(data-fragment-index=0).
+          blockquote.full-width.
             There is simply no unified philosophical theory of what causes are, and no single foolproof computational
             method for finding them with absolute certainty. What makes this even more challenging is that, depending on
             one's definition of causality, different factors may be identified as causes in the same situation, and it
             may not be clear what the ground truth is.
-          .img-source-caption.fragment(data-fragment-index=0).
+          .img-source-caption.
             - Samantha Kleinberg,
             <a href="http://www.skleinberg.org/why/" target="_blank">Why: A Guide to Finding and Using Causes</a>
 
         section
           h3 Cause of frustration #2:<br>Need for untested assumptions
 
-          blockquote.full-width.fragment(data-fragment-index=0).
+          blockquote.full-width.
             We know, from first principles, that any causal conclusion drawn from observational studies must rest on
             untested causal assumptions. Cartwright (1989) named this principle 'no causes in, no causes out,' which
             follows formally from the theory of equivalent models (Verma and Pearl, 1990); for any model yielding a
             conclusion C, one can construct a statistically equivalent model that refutes C and fits the data equally
             well.
-          .img-source-caption.fragment(data-fragment-index=0).
+          .img-source-caption.
             - Judea Pearl, <a href="http://ftp.cs.ucla.edu/pub/stat_ser/r391.pdf" target="_blank">Trygve Haavelmo and
             the Emergence of Causal Calculus</a>
 
         section
           h3 Cause of frustration #3:<br>Unreasonable people
 
-          blockquote.full-width.fragment(data-fragment-index=0).
+          blockquote.full-width.
             Our findings parallel those of previous work and show that endorsement of free-market
             economics predicted rejection of climate science. Endorsement of free markets also predicted the rejection
             of other established scientific findings, such as the facts that HIV causes AIDS and that smoking causes
@@ -314,7 +364,7 @@ html(lang="en")
             Jr.) predicted rejection of climate science as well as other scientific findings. Our results provide
             empirical support for previous suggestions that conspiratorial thinking contributes to the rejection of
             science.
-          .img-source-caption.fragment(data-fragment-index=0).
+          .img-source-caption.
             - Lewandowsky et al.,
             <a href="http://pss.sagepub.com/content/24/5/622" target="_blank">NASA Faked the Moon
             Landing&mdash;Therefore, (Climate) Science Is a Hoax: An Anatomy of the Motivated Rejection of Science</a>
@@ -335,6 +385,86 @@ html(lang="en")
 
           a(href="http://johnriordan.bigcartel.com/product/exploited-ape", target="_blank")
             img(src="img/exploited-ape-john-riordan.jpg", alt="Exploited Ape by John Riordan")
+
+        //section
+        //  h3 My path and motivations so far
+        //
+        //  - var vmark = '&#x2714;';
+        //  - var xmark = '&#x2718;';
+        //
+        //  table.medium.center-cell-text.left-first-column
+        //    thead
+        //      tr
+        //        td
+        //        td Interest?
+        //        td Experience?
+        //        td Location?
+        //        td Lifestyle?
+        //        td Impact?
+        //    tbody
+        //      tr.fragment
+        //        td Technion BSc
+        //        td !{vmark}
+        //        td !{vmark}
+        //        td !{xmark}
+        //        td !{xmark}
+        //        td !{xmark}
+        //      tr.fragment
+        //        td Intel
+        //        td !{xmark}
+        //        td !{vmark}
+        //        td !{xmark}
+        //        td !{xmark}
+        //        td !{xmark}
+        //      tr.fragment
+        //        td Qualcomm
+        //        td !{vmark}
+        //        td !{vmark}
+        //        td !{xmark}
+        //        td !{xmark}
+        //        td !{xmark}
+        //      tr.fragment
+        //        td Monash PhD
+        //        td !{vmark}
+        //        td !{vmark}
+        //        td !{vmark}
+        //        td !{xmark}
+        //        td !{xmark}
+        //      tr.fragment
+        //        td Google
+        //        td !{vmark}
+        //        td !{vmark}
+        //        td !{vmark}
+        //        td !{xmark}
+        //        td !{xmark}
+        //      tr.fragment
+        //        td Giveable
+        //        td !{vmark}
+        //        td !{vmark}
+        //        td !{vmark}
+        //        td !{xmark}
+        //        td !{xmark}
+        //      tr.fragment
+        //        td Next Commerce
+        //        td !{vmark}
+        //        td !{vmark}
+        //        td !{vmark}
+        //        td !{xmark}
+        //        td !{xmark}
+        //      tr.fragment
+        //        td Projects & Consulting
+        //        td !{vmark}
+        //        td !{xmark}
+        //        td !{xmark}
+        //        td !{vmark}
+        //        td !{xmark}
+        //      tr.fragment
+        //        td Car Next Door
+        //        td !{vmark}
+        //        td !{vmark}
+        //        td !{vmark}
+        //        td !{xmark}
+        //        td !{vmark}
 
         section
           h3 My path and motivations so far
@@ -377,11 +507,11 @@ html(lang="en")
         //    - David Graeber,
         //    <a href="http://strikemag.org/bullshit-jobs/" target="_blank">On the Phenomenon of Bullshit Jobs</a>
 
-        section
-          img(src="img/bullshit-jobs.jpg")
-          .img-source-caption.
-            - David Graeber,
-            <a href="http://strikemag.org/bullshit-jobs/" target="_blank">On the Phenomenon of Bullshit Jobs</a>
+        //section
+        //  img(src="img/bullshit-jobs.jpg")
+        //  .img-source-caption.
+        //    - David Graeber,
+        //    <a href="http://strikemag.org/bullshit-jobs/" target="_blank">On the Phenomenon of Bullshit Jobs</a>
 
         section
           h3 Are you building generalised useless models? Why do you bother?
