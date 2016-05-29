@@ -6,8 +6,4 @@ Originally made at [Lyst](http://www.lyst.com), forked from https://github.com/s
 
 # Usage
 
-Clone the repo and open `build/index.html`.
-
 If you make changes, use `grunt build` to build. You will need grunt.
-
-

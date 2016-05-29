@@ -3,18 +3,17 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-browserify');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-cssmin');
-  grunt.loadNpmTasks('grunt-contrib-copy');
   grunt.loadNpmTasks('grunt-contrib-watch');
+  grunt.loadNpmTasks('grunt-contrib-jade');
 
   grunt.initConfig({
     browserify: {
       build: {
         files: {
-          '../bayes.js': ['src/bayes.js']
+          '../bayes.js': ['bayes.js']
         }
       }
     },
-
     uglify: {
       build: {
         files: {
@@ -22,23 +21,23 @@ module.exports = function (grunt) {
         }
       }
     },
-
     cssmin: {
       build: {
         files: {
-          '../style.css': ['src/style.css']
+          '../style.css': ['style.css']
         }
       }
     },
-
-    copy: {
-      build: {
+    jade: {
+      compile: {
+        options: {
+          pretty: false
+        },
         files: {
-          '../index.html': ['src/index.html']
+          '../index.html': 'index.jade'
         }
       }
     },
-
     watch: {
       css: {
         files: ['src/style.css'],
@@ -51,9 +50,9 @@ module.exports = function (grunt) {
           'uglify:build'
         ]
       },
-      html: {
-        files: ['src/index.html'],
-        tasks: ['copy:build']
+      jade: {
+        files: ['index.jade'],
+        tasks: ['jade:compile']
       }
     }
   });
@@ -62,6 +61,6 @@ module.exports = function (grunt) {
     'browserify:build',
     'uglify:build',
     'cssmin:build',
-    'copy:build'
+    'jade:compile'
   ]);
 };

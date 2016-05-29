@@ -1,0 +1,139 @@
+doctype html
+html(lang="en")
+  head
+    meta(charset="utf-8")
+    title Bayesian A/B Test Calculator
+    link(rel="stylesheet", href="style.css")
+
+  body
+    .wrapper.header
+      h1.logo Bayesian A/B Test Calculator
+      p.tagline The Beta-Bernoulli model in the context of A/B testing.
+
+    .wrapper
+      .sidebar.note-wrapper
+        h3 Need Help?
+        p.note.
+          See <a href="#explanation">here</a> or read more about Bayesian inference in A/B testing on
+          <a href="http://developers.lyst.com/2014/05/10/bayesian-ab-testing">Lyst's blog</a>.
+
+      .content
+        h3.instructions-title TL:DR; Instructions
+        ol
+          li <span class="number">1</span>Specify the prior alpha and beta parameters.
+          li <span class="number">2</span>Plot the priors and revise parameters as necessary.
+          li <span class="number">3</span>Enter data on the number of successes and failures in the test and control groups.
+          li <span class="number">4</span>Plot to see posterior distributions.
+
+    .wrapper
+      .sidebar
+        form#form
+          h3.form-title Your Data
+          .form-group
+            h4.form-group-title Prior Parameters
+            fieldset
+              label(for="priorAlpha") Alpha
+              input#priorAlpha(value="10", type="number", step="0.1", min="0.1", placeholder=">= 0")
+            fieldset
+              label(for="priorBeta") Beta
+              input#priorBeta(value="10", type="number", step="0.1", min="0.1", placeholder=">= 0")
+
+          .form-group
+            h4.form-group-title.control Control Results
+            fieldset
+              label(for="controlSuccesses") Successes
+              input#controlSuccesses(value="0", type="number", min="0", placeholder=">= 0")
+            fieldset
+              label(for="controlFailures") Failures
+              input#controlFailures(value="0", type="number", min="0", placeholder=">= 0")
+
+          .form-group
+            h4.form-group-title.test Test Results
+            fieldset
+              label(for="testSuccesses") Successes
+              input#testSuccesses(value="0", type="number", min="0", placeholder=">= 0")
+            fieldset
+              label(for="testFailures") Failures
+              input#testFailures(value="0", type="number", min="0", placeholder=">= 0")
+
+          .form-buttons
+            input(type="submit", value="Calculate")
+            input(type="reset", value="Reset")
+
+      .content
+        .chart
+          h2.chart-title Test and Control Probability Density Functions
+          p.chart-description The success probability distributions in test and control groups.
+          #pdfplot
+
+        .chart
+          h2.chart-title Histogram of Test - Control Probability
+          p.chart-description Distribution of differences in success probability between test and control groups.
+          #histogram
+
+        .chart
+          h2.chart-title Quantiles of the differences distribution.
+          p.chart-description Posterior probability that the difference lies below the value x.
+          table#quantileTable
+          p.
+            The average difference between test and control is: <span id="differenceMean">0</span>.
+            The probability that test performs better: <span id="testSuccessProbability">0.5</span>.
+
+        .charts-summary
+
+    .wrapper
+      #explanation.content.full-width
+        h2 Explanation
+        .columns
+          .column
+            p.
+              This simple calculator uses the Beta-Bernoulli model (a binary outcome model, where the prior for the
+              success probability is a Beta distribution) applied in the A/B testing context, where the goal of
+              inference is understanding the probability that the test group performs better than the control group.
+            p.
+              Bayesian inference consists in first specifying a prior belief about what effects are likely, and then
+              updating the prior with incoming data.
+            p.
+              For example, if our conversion rate is 5%, we may say that it's reasonably likely that a change we want to
+              test could improve that by 5 percentage points&mdash;but that it is most likely that the change will have
+              no effect, and that it is entirely unlikely that the conversion rate will shoot up to 30% (after all, we
+              are only making a small change).
+            p.
+              As the data start coming in, we start updating our beliefs. If the incoming data points point to an
+              improvement in the conversion rate, we start moving our estimate of the effect from the prior upwards; the
+              more data we collect, the more confident we are in it and the further we can move away from our prior. The
+              end result is what is called the posterior&mdash;a probability distribution describing the likely effect
+              from our treatment.
+          .column
+            ol
+              li.
+                <span class="number">1</span> Specify the prior through the alpha and beta parameters of the
+                <a href="http://en.wikipedia.org/wiki/Beta_distribution">Beta distribution</a>. The parameter values
+                govern two things: the prior success probability (our belief about the average conversion rate, for
+                example) as well as the variance of the prior distribution (small alpha and beta will lead to a prior
+                distribution where success probabilities can vary quite a lot around their mean; large values will lead
+                to a distribution with a small variance). For example, setting alpha to 10 and beta to 10 will give us a
+                prior distribution where the expected success probability is 0.5, but there is a fair amount of
+                uncertainty around that value. Setting them to 100 and 100 will give us the same expected probability of
+                0.5, but the variance around that value will be much smaller.
+              li.
+                <span class="number">2</span> Have a look at the histogram of success probability differences between
+                the test and control. It expresses prior beliefs about the likely difference of success probabilities
+                between the test and control groups. Because we specified a symmetric prior, the belief is centered
+                around a difference of zero (a priori, A/B tests are just as likely to do worse as they are to do better
+                than the control). If our priors have a low variance, the histogram will put put a low weight on large
+                differences (it is unlikely that a test will do much better or much worse than the control); if the
+                priors have a high variance, large differences will be much more likely.
+              li.
+                <span class="number">3</span> Gather data!
+              li.
+                <span class="number">4</span> Input the number of successes (conversions, clicks and so on) and failures
+                in both the test and control groups. This triggers updating the priors with the data.
+              li.
+                <span class="number">5</span> The prior plots shift to express posterior (prior updated with data)
+                distributions. The density plots will (may) diverge, showing the posterior distributions of the success
+                probability in test and control groups. Similarly, the difference histogram will shift. The part of the
+                distribution lying to the right of zero expresses the confidence that the test performs better; the part
+                to the left that it performs worse.
+
+    script(type="text/javascript", src="bayes.min.js")
