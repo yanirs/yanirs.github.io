@@ -40,11 +40,11 @@ module.exports = function (grunt) {
     },
     watch: {
       css: {
-        files: ['src/style.css'],
+        files: ['style.css'],
         tasks: ['cssmin:build']
       },
       js: {
-        files: ['src/bayes.js'],
+        files: ['bayes.js'],
         tasks: [
           'browserify:build',
           'uglify:build'

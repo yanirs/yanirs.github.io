@@ -1,9 +1,46 @@
 "use strict";
 
-var beta = require("beta-js");
 var d3 = require("d3");
-var jStat = require("jStat");
+var jStat = require("jStat").jStat;
 
+var BetaDistribution = function (alpha, beta) {
+  var gammaln = jStat.gammaln;
+  this.alpha = alpha;
+  this.beta = beta;
+
+  this.betaInverse = (gammaln(this.alpha + this.beta) - gammaln(this.alpha) - gammaln(this.beta));
+};
+
+BetaDistribution.prototype.lpdf = function(x) {
+  if (x < 0 || x > 1) {
+    return Number.NEGATIVE_INFINITY;
+  }
+  return (this.betaInverse + (this.alpha - 1) * Math.log(x) + (this.beta - 1) * Math.log(1 - x));
+};
+
+BetaDistribution.prototype.pdf = function(x) {
+  if (x < 0 || x > 1) {
+    return 0;
+  }
+  if (this.alpha == 1 && this.beta == 1) {
+    return 1;
+  }
+  return Math.exp(this.lpdf(x));
+};
+
+BetaDistribution.prototype.rv = function () {
+  return jStat.beta.sample(this.alpha, this.beta);
+};
+
+BetaDistribution.prototype.rvs = function(n) {
+  var rvs = [];
+
+  for (var i=0; i < n; i++) {
+    rvs.push(this.rv());
+  }
+
+  return rvs;
+};
 
 var BetaModel = function (alpha, beta) {
   this.alpha = alpha;
@@ -11,7 +48,7 @@ var BetaModel = function (alpha, beta) {
 };
 
 BetaModel.prototype.distribution = function () {
-  return beta.beta(this.alpha, this.beta);
+  return new BetaDistribution(this.alpha, this.beta);
 };
 
 BetaModel.prototype.getPDF = function (noPoints) {
@@ -299,7 +336,7 @@ Plots.prototype.drawTable = function (arr1, arr2) {
 
 Plots.prototype.drawSummaryStatistics = function (el) {
   var quantiles = [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.975, 0.99];
-  var differenceQuantiles = jStat.jStat.quantiles(el.differenceData, quantiles);
+  var differenceQuantiles = jStat.quantiles(el.differenceData, quantiles);
   var tableElement = document.getElementById('quantileTable');
   tableElement.innerHTML = this.drawTable(quantiles, differenceQuantiles);
 

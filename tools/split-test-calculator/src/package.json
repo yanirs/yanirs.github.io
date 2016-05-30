@@ -4,8 +4,7 @@
   "description": "Bayesian A/B test inference",
   "dependencies": {
     "jStat": "1.5.2",
-    "d3": "3.4.6",
-    "beta-js": "0.0.1"
+    "d3": "3.4.6"
   },
   "devDependencies": {
     "grunt": "^0.4.5",
