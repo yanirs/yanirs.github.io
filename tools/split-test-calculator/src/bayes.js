@@ -126,9 +126,9 @@ Plots.prototype.getHistogramElements = function () {
 };
 
 Plots.prototype.getPDFElements = function () {
-
-  var controlData = this.controlBeta.getPDF(1000);
-  var testData = this.testBeta.getPDF(1000);
+  var numSamples = 2500;
+  var controlData = this.controlBeta.getPDF(numSamples);
+  var testData = this.testBeta.getPDF(numSamples);
   var allData = controlData.concat(testData);
   var interpolationMode = 'cardinal';
 
@@ -370,19 +370,13 @@ Plots.prototype.updatePosterior = function (testSuccesses, testFailures, control
   this.controlBeta.update(controlSuccesses, controlFailures);
 };
 
-
-var getNumber = function (x, def) {
-  return Number(x);
-};
-
 var getInputs = function () {
-
-  var priorAlpha = getNumber(document.getElementById("priorAlpha").value, 10);
-  var priorBeta = getNumber(document.getElementById("priorBeta").value, 10);
-  var controlSuccesses = getNumber(document.getElementById("controlSuccesses").value, 10);
-  var controlFailures = getNumber(document.getElementById("controlFailures").value, 10);
-  var testSuccesses = getNumber(document.getElementById("testSuccesses").value, 10);
-  var testFailures = getNumber(document.getElementById("testFailures").value, 10);
+  var priorAlpha = Number(document.getElementById("priorAlpha").value);
+  var priorBeta = Number(document.getElementById("priorBeta").value);
+  var controlSuccesses = Number(document.getElementById("controlSuccesses").value);
+  var controlFailures = Number(document.getElementById("controlFailures").value);
+  var testSuccesses = Number(document.getElementById("testSuccesses").value);
+  var testFailures = Number(document.getElementById("testFailures").value);
 
   return {
     "priorAlpha": priorAlpha,
@@ -395,7 +389,6 @@ var getInputs = function () {
 };
 
 var initializePlots = function () {
-
   var inputs = getInputs();
   var plots = new Plots(inputs.priorAlpha, inputs.priorBeta);
   plots.drawPDF();
@@ -406,14 +399,10 @@ var initializePlots = function () {
 initializePlots();
 
 var updatePlots = function () {
-
   var inputs = getInputs();
   var plots = window.plots;
   plots.updatePrior(inputs.priorAlpha, inputs.priorBeta);
-  plots.updatePosterior(inputs.testSuccesses,
-    inputs.testFailures,
-    inputs.controlSuccesses,
-    inputs.controlFailures);
+  plots.updatePosterior(inputs.testSuccesses, inputs.testFailures, inputs.controlSuccesses, inputs.controlFailures);
   plots.redrawPDF();
   plots.redrawHistogram();
 
