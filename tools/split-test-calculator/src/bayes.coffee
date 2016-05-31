@@ -24,14 +24,11 @@ class BetaModel
     new BetaDistribution(@alpha, @beta)
 
   getPDF: (noPoints) ->
-    pdf = []
     distribution = @distribution()
-    for i in [0..noPoints - 1]
-      val = distribution.pdf(i / noPoints)
-      pdf.push
-        'x': i / noPoints
-        'y': if val == Number.POSITIVE_INFINITY then 0 else val
-    pdf
+    distributionVal = (x) ->
+      val = distribution.pdf(x)
+      if val == Number.POSITIVE_INFINITY then 0 else val
+    {x: i / noPoints, y: distributionVal(i / noPoints)} for i in [0..noPoints - 1]
 
   getRvs: (noSamples) ->
     @distribution().rvs(noSamples)
@@ -106,86 +103,70 @@ class Plots
 
   drawHistogram: ->
     el = @getHistogramElements()
-    svg = d3.select('#histogram').append('svg').attr('width', el.width + el.margin.left + el.margin.right).attr('height', el.height + el.margin.top + el.margin.bottom).append('g').attr('transform', 'translate(' + el.margin.left + ',' + el.margin.top + ')')
-    svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + el.height + ')').call el.xAxis
-    svg.append('g').attr('class', 'y axis').call(el.yAxis).append('text').attr('transform', 'rotate(-90)').attr('y', 6).attr('dy', '.71em').style('text-anchor', 'end').text 'Samples'
-    bar = svg.selectAll('.bar').data(el.histogram).enter().append('g').attr('class', 'bar').attr('transform', (d) ->
-      'translate(' + el.x(d.x) + ',0)'
-    )
-    bar.append('rect').attr('x', 1).attr('y', (d) ->
-      el.y d.y
-    ).attr('width', el.histogram[0].dx / 2 * el.width).attr 'height', (d) ->
-      el.height - el.y(d.y)
+    svg = d3.select('#histogram').append('svg').attr('width', el.width + el.margin.left + el.margin.right)
+                                               .attr('height', el.height + el.margin.top + el.margin.bottom)
+                                 .append('g').attr('transform', "translate(#{el.margin.left},#{el.margin.top})")
+    svg.append('g').attr('class', 'x axis').attr('transform', "translate(0,#{el.height})").call(el.xAxis)
+    svg.append('g').attr('class', 'y axis').call(el.yAxis).append('text').attr('transform', 'rotate(-90)')
+                                                                         .attr('y', 6)
+                                                                         .attr('dy', '.71em')
+                                                                         .style('text-anchor', 'end')
+                                                                         .text('Samples')
+    bar = svg.selectAll('.bar').data(el.histogram).enter().append('g').attr('class', 'bar')
+                                                                      .attr('transform',
+                                                                            (d) -> "translate(#{el.x(d.x)},0)")
+    bar.append('rect').attr('x', 1)
+                      .attr('y', (d) -> el.y(d.y))
+                      .attr('width', el.histogram[0].dx / 2 * el.width)
+                      .attr('height', (d) -> el.height - el.y(d.y))
     @histogramSVG = svg
-    @drawSummaryStatistics el
+    @drawSummaryStatistics(el)
 
   drawPDF: ->
     d = @getPDFElements()
-    svg = d3.select('#pdfplot').append('svg').attr('width', d.width + d.margin.left + d.margin.right).attr('height', d.height + d.margin.top + d.margin.bottom).append('g').attr('transform', 'translate(' + d.margin.left + ',' + d.margin.top + ')')
-    svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + d.height + ')').call d.xAxis
-    svg.append('g').attr('class', 'y axis').call(d.yAxis).append('text').attr('transform', 'rotate(-90)').attr('y', 6).attr('dy', '.71em').style('text-anchor', 'end').text 'Density'
-    svg.append('path').datum(d.testData).attr('class', 'line').attr('d', d.testLine).attr 'id', 'testLine'
-    svg.append('path').datum(d.controlData).attr('class', 'area').attr('d', d.controlLine).attr 'id', 'controlLine'
+    svg = d3.select('#pdfplot').append('svg').attr('width', d.width + d.margin.left + d.margin.right)
+                                             .attr('height', d.height + d.margin.top + d.margin.bottom)
+                               .append('g').attr('transform', "translate(#{d.margin.left},#{d.margin.top})")
+    svg.append('g').attr('class', 'x axis').attr('transform', "translate(0,#{d.height})").call(d.xAxis)
+    svg.append('g').attr('class', 'y axis').call(d.yAxis).append('text').attr('transform', 'rotate(-90)')
+                                                                        .attr('y', 6)
+                                                                        .attr('dy', '.71em')
+                                                                        .style('text-anchor', 'end')
+                                                                        .text('Density')
+    svg.append('path').datum(d.testData).attr('class', 'line').attr('d', d.testLine).attr('id', 'testLine')
+    svg.append('path').datum(d.controlData).attr('class', 'area').attr('d', d.controlLine).attr('id', 'controlLine')
     @pdfSVG = svg
 
-  drawTable: (arr1, arr2) ->
-    `var i`
-    tb = ''
-    tb += '<tr>'
-    tb += '<td class="table-row-title">Percentiles</td>'
-    i = 0
-    while i < arr1.length
-      tb += '<td>' + arr1[i] * 100 + '%</td>'
-      i++
-    tb += '</tr><tr>'
-    tb += '<td class="table-row-title">Value</td>'
-    i = 0
-    while i < arr1.length
-      tb += '<td>' + Math.round(100 * arr2[i]) / 100 + '</td>'
-      i++
-    tb += '</tr>'
-    tb
-
   drawSummaryStatistics: (el) ->
-    quantiles = [
-      0.01
-      0.025
-      0.05
-      0.1
-      0.25
-      0.5
-      0.75
-      0.9
-      0.95
-      0.975
-      0.99
-    ]
+    quantiles = [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.975, 0.99]
+    round = (x) -> Math.round(x * 100) / 100
     differenceQuantiles = jStat.quantiles(el.differenceData, quantiles)
-    tableElement = document.getElementById('quantileTable')
-    tableElement.innerHTML = @drawTable(quantiles, differenceQuantiles)
-    percentileOfZero = BetaModel::percentileOfScore(el.differenceData, 0)
-    testSuccessProbability = document.getElementById('testSuccessProbability')
-    testSuccessProbability.innerHTML = Math.round((1.0 - percentileOfZero) * 100) / 100
-    differenceMeanHTML = document.getElementById('differenceMean')
-    differenceMean = jStat.mean(el.differenceData)
-    differenceMeanHTML.innerHTML = Math.round(100 * differenceMean) / 100
+    tb = '<tr><td class="table-row-title">Percentiles</td>'
+    for quantile in quantiles
+      tb += "<td>#{quantile * 100}%</td>"
+    tb += '</tr><tr><td class="table-row-title">Value</td>'
+    for differenceQuantile in differenceQuantiles
+      tb += "<td>#{round(differenceQuantile)}</td>"
+    tb += '</tr>'
+    document.getElementById('quantileTable').innerHTML = tb
+    document.getElementById('testSuccessProbability').innerHTML =
+      round(1.0 - BetaModel::percentileOfScore(el.differenceData, 0))
+    document.getElementById('differenceMean').innerHTML = round(jStat.mean(el.differenceData))
 
   redrawHistogram: ->
     el = @getHistogramElements()
     svg = @histogramSVG
-    svg.selectAll('rect').data(el.histogram).transition().duration(1000).attr('y', (d) ->
-      el.y d.y
-    ).attr 'height', (d) ->
-      el.height - el.y(d.y)
+    svg.selectAll('rect').data(el.histogram).transition().duration(1000).attr('y', (d) -> el.y(d.y))
+                                                                        .attr('height', (d) -> el.height - el.y(d.y))
     @drawSummaryStatistics(el)
 
   redrawPDF: ->
     d = @getPDFElements()
     svg = @pdfSVG
-    svg.select('#testLine').datum(d.testData).transition().duration(1000).attr 'd', d.testLine
-    svg.select('#controlLine').datum(d.controlData).transition().duration(1000).attr 'd', d.controlLine
-    svg.select('.y.axis').transition().duration(1000).call d.yAxis
-    svg.select('.x.axis').transition().call d.xAxis
+    svg.select('#testLine').datum(d.testData).transition().duration(1000).attr('d', d.testLine)
+    svg.select('#controlLine').datum(d.controlData).transition().duration(1000).attr('d', d.controlLine)
+    svg.select('.y.axis').transition().duration(1000).call(d.yAxis)
+    svg.select('.x.axis').transition().call(d.xAxis)
 
   updatePrior: (alpha, beta) ->
     @controlBeta = new BetaModel(alpha, beta)

@@ -53,17 +53,25 @@ BetaModel = (function() {
   };
 
   BetaModel.prototype.getPDF = function(noPoints) {
-    var distribution, i, j, pdf, ref, val;
-    pdf = [];
+    var distribution, distributionVal, i, j, ref, results;
     distribution = this.distribution();
+    distributionVal = function(x) {
+      var val;
+      val = distribution.pdf(x);
+      if (val === Number.POSITIVE_INFINITY) {
+        return 0;
+      } else {
+        return val;
+      }
+    };
+    results = [];
     for (i = j = 0, ref = noPoints - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
-      val = distribution.pdf(i / noPoints);
-      pdf.push({
-        'x': i / noPoints,
-        'y': val === Number.POSITIVE_INFINITY ? 0 : val
+      results.push({
+        x: i / noPoints,
+        y: distributionVal(i / noPoints)
       });
     }
-    return pdf;
+    return results;
   };
 
   BetaModel.prototype.getRvs = function(noSamples) {
@@ -185,11 +193,11 @@ Plots = (function() {
   Plots.prototype.drawHistogram = function() {
     var bar, el, svg;
     el = this.getHistogramElements();
-    svg = d3.select('#histogram').append('svg').attr('width', el.width + el.margin.left + el.margin.right).attr('height', el.height + el.margin.top + el.margin.bottom).append('g').attr('transform', 'translate(' + el.margin.left + ',' + el.margin.top + ')');
-    svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + el.height + ')').call(el.xAxis);
+    svg = d3.select('#histogram').append('svg').attr('width', el.width + el.margin.left + el.margin.right).attr('height', el.height + el.margin.top + el.margin.bottom).append('g').attr('transform', "translate(" + el.margin.left + "," + el.margin.top + ")");
+    svg.append('g').attr('class', 'x axis').attr('transform', "translate(0," + el.height + ")").call(el.xAxis);
     svg.append('g').attr('class', 'y axis').call(el.yAxis).append('text').attr('transform', 'rotate(-90)').attr('y', 6).attr('dy', '.71em').style('text-anchor', 'end').text('Samples');
     bar = svg.selectAll('.bar').data(el.histogram).enter().append('g').attr('class', 'bar').attr('transform', function(d) {
-      return 'translate(' + el.x(d.x) + ',0)';
+      return "translate(" + (el.x(d.x)) + ",0)";
     });
     bar.append('rect').attr('x', 1).attr('y', function(d) {
       return el.y(d.y);
@@ -203,48 +211,35 @@ Plots = (function() {
   Plots.prototype.drawPDF = function() {
     var d, svg;
     d = this.getPDFElements();
-    svg = d3.select('#pdfplot').append('svg').attr('width', d.width + d.margin.left + d.margin.right).attr('height', d.height + d.margin.top + d.margin.bottom).append('g').attr('transform', 'translate(' + d.margin.left + ',' + d.margin.top + ')');
-    svg.append('g').attr('class', 'x axis').attr('transform', 'translate(0,' + d.height + ')').call(d.xAxis);
+    svg = d3.select('#pdfplot').append('svg').attr('width', d.width + d.margin.left + d.margin.right).attr('height', d.height + d.margin.top + d.margin.bottom).append('g').attr('transform', "translate(" + d.margin.left + "," + d.margin.top + ")");
+    svg.append('g').attr('class', 'x axis').attr('transform', "translate(0," + d.height + ")").call(d.xAxis);
     svg.append('g').attr('class', 'y axis').call(d.yAxis).append('text').attr('transform', 'rotate(-90)').attr('y', 6).attr('dy', '.71em').style('text-anchor', 'end').text('Density');
     svg.append('path').datum(d.testData).attr('class', 'line').attr('d', d.testLine).attr('id', 'testLine');
     svg.append('path').datum(d.controlData).attr('class', 'area').attr('d', d.controlLine).attr('id', 'controlLine');
     return this.pdfSVG = svg;
   };
 
-  Plots.prototype.drawTable = function(arr1, arr2) {
-    var i;
-    var i, tb;
-    tb = '';
-    tb += '<tr>';
-    tb += '<td class="table-row-title">Percentiles</td>';
-    i = 0;
-    while (i < arr1.length) {
-      tb += '<td>' + arr1[i] * 100 + '%</td>';
-      i++;
+  Plots.prototype.drawSummaryStatistics = function(el) {
+    var differenceQuantile, differenceQuantiles, j, k, len, len1, quantile, quantiles, round, tb;
+    quantiles = [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.975, 0.99];
+    round = function(x) {
+      return Math.round(x * 100) / 100;
+    };
+    differenceQuantiles = jStat.quantiles(el.differenceData, quantiles);
+    tb = '<tr><td class="table-row-title">Percentiles</td>';
+    for (j = 0, len = quantiles.length; j < len; j++) {
+      quantile = quantiles[j];
+      tb += "<td>" + (quantile * 100) + "%</td>";
     }
-    tb += '</tr><tr>';
-    tb += '<td class="table-row-title">Value</td>';
-    i = 0;
-    while (i < arr1.length) {
-      tb += '<td>' + Math.round(100 * arr2[i]) / 100 + '</td>';
-      i++;
+    tb += '</tr><tr><td class="table-row-title">Value</td>';
+    for (k = 0, len1 = differenceQuantiles.length; k < len1; k++) {
+      differenceQuantile = differenceQuantiles[k];
+      tb += "<td>" + (round(differenceQuantile)) + "</td>";
     }
     tb += '</tr>';
-    return tb;
-  };
-
-  Plots.prototype.drawSummaryStatistics = function(el) {
-    var differenceMean, differenceMeanHTML, differenceQuantiles, percentileOfZero, quantiles, tableElement, testSuccessProbability;
-    quantiles = [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.975, 0.99];
-    differenceQuantiles = jStat.quantiles(el.differenceData, quantiles);
-    tableElement = document.getElementById('quantileTable');
-    tableElement.innerHTML = this.drawTable(quantiles, differenceQuantiles);
-    percentileOfZero = BetaModel.prototype.percentileOfScore(el.differenceData, 0);
-    testSuccessProbability = document.getElementById('testSuccessProbability');
-    testSuccessProbability.innerHTML = Math.round((1.0 - percentileOfZero) * 100) / 100;
-    differenceMeanHTML = document.getElementById('differenceMean');
-    differenceMean = jStat.mean(el.differenceData);
-    return differenceMeanHTML.innerHTML = Math.round(100 * differenceMean) / 100;
+    document.getElementById('quantileTable').innerHTML = tb;
+    document.getElementById('testSuccessProbability').innerHTML = round(1.0 - BetaModel.prototype.percentileOfScore(el.differenceData, 0));
+    return document.getElementById('differenceMean').innerHTML = round(jStat.mean(el.differenceData));
   };
 
   Plots.prototype.redrawHistogram = function() {
