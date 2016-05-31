@@ -11,7 +11,7 @@ BetaModel = (function() {
     this.beta = beta;
   }
 
-  BetaModel.prototype.getPDF = function(noPoints) {
+  BetaModel.prototype.getPdf = function(noPoints) {
     var betaInverse, distributionVal, i, j, ref, results;
     betaInverse = jStat.gammaln(this.alpha + this.beta) - jStat.gammaln(this.alpha) - jStat.gammaln(this.beta);
     distributionVal = (function(_this) {
@@ -77,13 +77,16 @@ Plots = (function() {
 
   Plots.prototype.NUM_SAMPLES = 5000;
 
+  Plots.prototype.NUM_HISTOGRAM_BINS = 200;
+
+  Plots.prototype.PDF_INTERPOLATION_MODE = 'cardinal';
+
   function Plots(inputs) {
     this.update(inputs);
   }
 
   Plots.prototype.getHistogramElements = function() {
-    var controlData, differenceData, histogram, i, noBins, testData, x, y;
-    noBins = 200;
+    var controlData, differenceData, el, histogram, i, testData, x, y;
     controlData = this.controlBeta.getRvs(this.NUM_SAMPLES);
     testData = this.testBeta.getRvs(this.NUM_SAMPLES);
     differenceData = (function() {
@@ -95,31 +98,26 @@ Plots = (function() {
       return results;
     })();
     x = d3.scale.linear().domain([-1, 1]).range([0, this.WIDTH]);
-    histogram = d3.layout.histogram().bins(x.ticks(noBins))(differenceData);
+    histogram = d3.layout.histogram().bins(x.ticks(this.NUM_HISTOGRAM_BINS))(differenceData);
     y = d3.scale.linear().domain([
       0, d3.max(histogram, function(d) {
         return d.y;
       })
     ]).range([this.HEIGHT, 0]);
-    return {
-      'margin': this.MARGIN,
-      'width': this.WIDTH,
-      'height': this.HEIGHT,
-      'xAxis': d3.svg.axis().scale(x).orient('bottom'),
-      'yAxis': d3.svg.axis().scale(y).orient('left'),
+    el = {
       'x': x,
       'y': y,
       'differenceData': differenceData,
       'histogram': histogram
     };
+    return this.addCommonElements(el, x, y);
   };
 
-  Plots.prototype.getPDFElements = function() {
-    var allData, controlData, controlLine, interpolationMode, testData, testLine, x, xAxis, y, yAxis;
-    controlData = this.controlBeta.getPDF(this.NUM_SAMPLES);
-    testData = this.testBeta.getPDF(this.NUM_SAMPLES);
+  Plots.prototype.getPdfElements = function() {
+    var allData, controlData, el, testData, x, y;
+    controlData = this.controlBeta.getPdf(this.NUM_SAMPLES);
+    testData = this.testBeta.getPdf(this.NUM_SAMPLES);
     allData = controlData.concat(testData);
-    interpolationMode = 'cardinal';
     x = d3.scale.linear().domain(d3.extent(allData, function(d) {
       return d.x;
     })).range([0, this.WIDTH]);
@@ -128,37 +126,36 @@ Plots = (function() {
         return d.y;
       }) + 1
     ]).range([this.HEIGHT, 0]);
-    xAxis = d3.svg.axis().scale(x).orient('bottom');
-    yAxis = d3.svg.axis().scale(y).orient('left');
-    controlLine = d3.svg.area().x(function(d) {
-      return x(d.x);
-    }).y1(this.HEIGHT).y0(function(d) {
-      return y(d.y);
-    }).interpolate(interpolationMode);
-    testLine = d3.svg.area().x(function(d) {
-      return x(d.x);
-    }).y1(this.HEIGHT).y0(function(d) {
-      return y(d.y);
-    }).interpolate(interpolationMode);
-    return {
-      'margin': this.MARGIN,
-      'width': this.WIDTH,
-      'height': this.HEIGHT,
-      'xAxis': xAxis,
-      'yAxis': yAxis,
-      'testLine': testLine,
-      'controlLine': controlLine,
+    el = {
+      'testLine': d3.svg.area().x(function(d) {
+        return x(d.x);
+      }).y1(this.HEIGHT).y0(function(d) {
+        return y(d.y);
+      }).interpolate(this.PDF_INTERPOLATION_MODE),
+      'controlLine': d3.svg.area().x(function(d) {
+        return x(d.x);
+      }).y1(this.HEIGHT).y0(function(d) {
+        return y(d.y);
+      }).interpolate(this.PDF_INTERPOLATION_MODE),
       'testData': testData,
       'controlData': controlData
     };
+    return this.addCommonElements(el, x, y);
+  };
+
+  Plots.prototype.addCommonElements = function(el, x, y) {
+    el.margin = this.MARGIN;
+    el.width = this.WIDTH;
+    el.height = this.HEIGHT;
+    el.xAxis = d3.svg.axis().scale(x).orient('bottom');
+    el.yAxis = d3.svg.axis().scale(y).orient('left');
+    return el;
   };
 
   Plots.prototype.drawHistogram = function() {
     var bar, el, svg;
     el = this.getHistogramElements();
-    svg = d3.select('#histogram').append('svg').attr('width', el.width + el.margin.left + el.margin.right).attr('height', el.height + el.margin.top + el.margin.bottom).append('g').attr('transform', "translate(" + el.margin.left + "," + el.margin.top + ")");
-    svg.append('g').attr('class', 'x axis').attr('transform', "translate(0," + el.height + ")").call(el.xAxis);
-    svg.append('g').attr('class', 'y axis').call(el.yAxis).append('text').attr('transform', 'rotate(-90)').attr('y', 6).attr('dy', '.71em').style('text-anchor', 'end').text('Samples');
+    svg = this.drawSvg(el, '#histogram', 'Samples');
     bar = svg.selectAll('.bar').data(el.histogram).enter().append('g').attr('class', 'bar').attr('transform', function(d) {
       return "translate(" + (el.x(d.x)) + ",0)";
     });
@@ -167,19 +164,25 @@ Plots = (function() {
     }).attr('width', el.histogram[0].dx / 2 * el.width).attr('height', function(d) {
       return el.height - el.y(d.y);
     });
-    this.histogramSVG = svg;
+    this.histogramSvg = svg;
     return this.drawSummaryStatistics(el);
   };
 
-  Plots.prototype.drawPDF = function() {
-    var d, svg;
-    d = this.getPDFElements();
-    svg = d3.select('#pdfplot').append('svg').attr('width', d.width + d.margin.left + d.margin.right).attr('height', d.height + d.margin.top + d.margin.bottom).append('g').attr('transform', "translate(" + d.margin.left + "," + d.margin.top + ")");
-    svg.append('g').attr('class', 'x axis').attr('transform', "translate(0," + d.height + ")").call(d.xAxis);
-    svg.append('g').attr('class', 'y axis').call(d.yAxis).append('text').attr('transform', 'rotate(-90)').attr('y', 6).attr('dy', '.71em').style('text-anchor', 'end').text('Density');
-    svg.append('path').datum(d.testData).attr('class', 'line').attr('d', d.testLine).attr('id', 'testLine');
-    svg.append('path').datum(d.controlData).attr('class', 'area').attr('d', d.controlLine).attr('id', 'controlLine');
-    return this.pdfSVG = svg;
+  Plots.prototype.drawPdf = function() {
+    var el, svg;
+    el = this.getPdfElements();
+    svg = this.drawSvg(el, '#pdfplot', 'Density');
+    svg.append('path').datum(el.testData).attr('class', 'line').attr('d', el.testLine).attr('id', 'testLine');
+    svg.append('path').datum(el.controlData).attr('class', 'area').attr('d', el.controlLine).attr('id', 'controlLine');
+    return this.pdfSvg = svg;
+  };
+
+  Plots.prototype.drawSvg = function(el, plotId, plotTitle) {
+    var svg;
+    svg = d3.select(plotId).append('svg').attr('width', el.width + el.margin.left + el.margin.right).attr('height', el.height + el.margin.top + el.margin.bottom).append('g').attr('transform', "translate(" + el.margin.left + "," + el.margin.top + ")");
+    svg.append('g').attr('class', 'x axis').attr('transform', "translate(0," + el.height + ")").call(el.xAxis);
+    svg.append('g').attr('class', 'y axis').call(el.yAxis).append('text').attr('transform', 'rotate(-90)').attr('y', 6).attr('dy', '.71em').style('text-anchor', 'end').text(plotTitle);
+    return svg;
   };
 
   Plots.prototype.drawSummaryStatistics = function(el) {
@@ -208,7 +211,7 @@ Plots = (function() {
   Plots.prototype.redrawHistogram = function() {
     var el, svg;
     el = this.getHistogramElements();
-    svg = this.histogramSVG;
+    svg = this.histogramSvg;
     svg.selectAll('rect').data(el.histogram).transition().duration(1000).attr('y', function(d) {
       return el.y(d.y);
     }).attr('height', function(d) {
@@ -217,10 +220,10 @@ Plots = (function() {
     return this.drawSummaryStatistics(el);
   };
 
-  Plots.prototype.redrawPDF = function() {
+  Plots.prototype.redrawPdf = function() {
     var d, svg;
-    d = this.getPDFElements();
-    svg = this.pdfSVG;
+    d = this.getPdfElements();
+    svg = this.pdfSvg;
     svg.select('#testLine').datum(d.testData).transition().duration(1000).attr('d', d.testLine);
     svg.select('#controlLine').datum(d.controlData).transition().duration(1000).attr('d', d.controlLine);
     svg.select('.y.axis').transition().duration(1000).call(d.yAxis);
@@ -254,7 +257,7 @@ getInputs = function() {
 
 initializePlots = function() {
   window.plots = new Plots(getInputs());
-  window.plots.drawPDF();
+  window.plots.drawPdf();
   return window.plots.drawHistogram();
 };
 
@@ -262,7 +265,7 @@ bindInputs = function() {
   return document.getElementById('form').onsubmit = function(event) {
     event.preventDefault();
     window.plots.update(getInputs());
-    window.plots.redrawPDF();
+    window.plots.redrawPdf();
     window.plots.redrawHistogram();
   };
 };

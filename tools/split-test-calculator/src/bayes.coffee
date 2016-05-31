@@ -4,7 +4,7 @@ jStat = require('jStat').jStat
 class BetaModel
   constructor: (@alpha, @beta) ->
 
-  getPDF: (noPoints) ->
+  getPdf: (noPoints) ->
     betaInverse = jStat.gammaln(@alpha + @beta) - jStat.gammaln(@alpha) - jStat.gammaln(@beta)
     distributionVal = (x) =>
       return 1 if @alpha == 1 and @beta == 1
@@ -31,64 +31,52 @@ class Plots
   HEIGHT: 350 - Plots::MARGIN.top - Plots::MARGIN.bottom
 
   NUM_SAMPLES: 5000
+  NUM_HISTOGRAM_BINS: 200
+  PDF_INTERPOLATION_MODE: 'cardinal'
 
   constructor: (inputs) ->
     @update(inputs)
 
   getHistogramElements: ->
-    noBins = 200
     controlData = @controlBeta.getRvs(@NUM_SAMPLES)
     testData = @testBeta.getRvs(@NUM_SAMPLES)
     differenceData = (testData[i] - controlData[i] for i in [0..controlData.length - 1])
     x = d3.scale.linear().domain([-1, 1]).range([0, @WIDTH])
-    histogram = d3.layout.histogram().bins(x.ticks(noBins))(differenceData)
+    histogram = d3.layout.histogram().bins(x.ticks(@NUM_HISTOGRAM_BINS))(differenceData)
     y = d3.scale.linear().domain([0, d3.max(histogram, (d) -> d.y)]).range([@HEIGHT, 0])
-    {
-      'margin': @MARGIN
-      'width': @WIDTH
-      'height': @HEIGHT
-      'xAxis': d3.svg.axis().scale(x).orient('bottom')
-      'yAxis': d3.svg.axis().scale(y).orient('left')
+    el = {
       'x': x
       'y': y
       'differenceData': differenceData
       'histogram': histogram
     }
+    @addCommonElements(el, x, y)
 
-  getPDFElements: ->
-    controlData = @controlBeta.getPDF(@NUM_SAMPLES)
-    testData = @testBeta.getPDF(@NUM_SAMPLES)
+  getPdfElements: ->
+    controlData = @controlBeta.getPdf(@NUM_SAMPLES)
+    testData = @testBeta.getPdf(@NUM_SAMPLES)
     allData = controlData.concat(testData)
-    interpolationMode = 'cardinal'
     x = d3.scale.linear().domain(d3.extent(allData, (d) -> d.x)).range([0, @WIDTH])
     y = d3.scale.linear().domain([0, d3.max(allData, (d) -> d.y) + 1]).range([@HEIGHT, 0])
-    xAxis = d3.svg.axis().scale(x).orient('bottom')
-    yAxis = d3.svg.axis().scale(y).orient('left')
-    controlLine = d3.svg.area().x((d) -> x d.x).y1(@HEIGHT).y0((d) -> y d.y).interpolate(interpolationMode)
-    testLine = d3.svg.area().x((d) -> x d.x).y1(@HEIGHT).y0((d) -> y d.y).interpolate(interpolationMode)
-    {
-      'margin': @MARGIN
-      'width': @WIDTH
-      'height': @HEIGHT
-      'xAxis': xAxis
-      'yAxis': yAxis
-      'testLine': testLine
-      'controlLine': controlLine
+    el = {
+      'testLine': d3.svg.area().x((d) -> x d.x).y1(@HEIGHT).y0((d) -> y d.y).interpolate(@PDF_INTERPOLATION_MODE)
+      'controlLine': d3.svg.area().x((d) -> x d.x).y1(@HEIGHT).y0((d) -> y d.y).interpolate(@PDF_INTERPOLATION_MODE)
       'testData': testData
       'controlData': controlData
     }
+    @addCommonElements(el, x, y)
+
+  addCommonElements: (el, x, y) ->
+    el.margin = @MARGIN
+    el.width = @WIDTH
+    el.height = @HEIGHT
+    el.xAxis = d3.svg.axis().scale(x).orient('bottom')
+    el.yAxis = d3.svg.axis().scale(y).orient('left')
+    el
 
   drawHistogram: ->
     el = @getHistogramElements()
-    svg = d3.select('#histogram').append('svg').attr('width', el.width + el.margin.left + el.margin.right)
-                                               .attr('height', el.height + el.margin.top + el.margin.bottom)
-                                 .append('g').attr('transform', "translate(#{el.margin.left},#{el.margin.top})")
-    svg.append('g').attr('class', 'x axis').attr('transform', "translate(0,#{el.height})").call(el.xAxis)
-    svg.append('g').attr('class', 'y axis').call(el.yAxis).append('text').attr('transform', 'rotate(-90)')
-                                                                         .attr('y', 6)
-                                                                         .attr('dy', '.71em')
-                                                                         .style('text-anchor', 'end')
-                                                                         .text('Samples')
+    svg = @drawSvg(el, '#histogram', 'Samples')
     bar = svg.selectAll('.bar').data(el.histogram).enter().append('g').attr('class', 'bar')
                                                                       .attr('transform',
                                                                             (d) -> "translate(#{el.x(d.x)},0)")
@@ -96,23 +84,27 @@ class Plots
                       .attr('y', (d) -> el.y(d.y))
                       .attr('width', el.histogram[0].dx / 2 * el.width)
                       .attr('height', (d) -> el.height - el.y(d.y))
-    @histogramSVG = svg
+    @histogramSvg = svg
     @drawSummaryStatistics(el)
 
-  drawPDF: ->
-    d = @getPDFElements()
-    svg = d3.select('#pdfplot').append('svg').attr('width', d.width + d.margin.left + d.margin.right)
-                                             .attr('height', d.height + d.margin.top + d.margin.bottom)
-                               .append('g').attr('transform', "translate(#{d.margin.left},#{d.margin.top})")
-    svg.append('g').attr('class', 'x axis').attr('transform', "translate(0,#{d.height})").call(d.xAxis)
-    svg.append('g').attr('class', 'y axis').call(d.yAxis).append('text').attr('transform', 'rotate(-90)')
-                                                                        .attr('y', 6)
-                                                                        .attr('dy', '.71em')
-                                                                        .style('text-anchor', 'end')
-                                                                        .text('Density')
-    svg.append('path').datum(d.testData).attr('class', 'line').attr('d', d.testLine).attr('id', 'testLine')
-    svg.append('path').datum(d.controlData).attr('class', 'area').attr('d', d.controlLine).attr('id', 'controlLine')
-    @pdfSVG = svg
+  drawPdf: ->
+    el = @getPdfElements()
+    svg = @drawSvg(el, '#pdfplot', 'Density')
+    svg.append('path').datum(el.testData).attr('class', 'line').attr('d', el.testLine).attr('id', 'testLine')
+    svg.append('path').datum(el.controlData).attr('class', 'area').attr('d', el.controlLine).attr('id', 'controlLine')
+    @pdfSvg = svg
+
+  drawSvg: (el, plotId, plotTitle) ->
+    svg = d3.select(plotId).append('svg').attr('width', el.width + el.margin.left + el.margin.right)
+                                         .attr('height', el.height + el.margin.top + el.margin.bottom)
+                           .append('g').attr('transform', "translate(#{el.margin.left},#{el.margin.top})")
+    svg.append('g').attr('class', 'x axis').attr('transform', "translate(0,#{el.height})").call(el.xAxis)
+    svg.append('g').attr('class', 'y axis').call(el.yAxis).append('text').attr('transform', 'rotate(-90)')
+                                                                         .attr('y', 6)
+                                                                         .attr('dy', '.71em')
+                                                                         .style('text-anchor', 'end')
+                                                                         .text(plotTitle)
+    svg
 
   drawSummaryStatistics: (el) ->
     quantiles = [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.975, 0.99]
@@ -132,14 +124,14 @@ class Plots
 
   redrawHistogram: ->
     el = @getHistogramElements()
-    svg = @histogramSVG
+    svg = @histogramSvg
     svg.selectAll('rect').data(el.histogram).transition().duration(1000).attr('y', (d) -> el.y(d.y))
                                                                         .attr('height', (d) -> el.height - el.y(d.y))
     @drawSummaryStatistics(el)
 
-  redrawPDF: ->
-    d = @getPDFElements()
-    svg = @pdfSVG
+  redrawPdf: ->
+    d = @getPdfElements()
+    svg = @pdfSvg
     svg.select('#testLine').datum(d.testData).transition().duration(1000).attr('d', d.testLine)
     svg.select('#controlLine').datum(d.controlData).transition().duration(1000).attr('d', d.controlLine)
     svg.select('.y.axis').transition().duration(1000).call(d.yAxis)
@@ -158,14 +150,14 @@ getInputs = ->
 
 initializePlots = ->
   window.plots = new Plots(getInputs())
-  window.plots.drawPDF()
+  window.plots.drawPdf()
   window.plots.drawHistogram()
 
 bindInputs = ->
   document.getElementById('form').onsubmit = (event) ->
     event.preventDefault()
     window.plots.update(getInputs())
-    window.plots.redrawPDF()
+    window.plots.redrawPdf()
     window.plots.redrawHistogram()
     return
 
