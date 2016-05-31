@@ -1,69 +1,33 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var BetaDistribution, BetaModel, Plots, bindInputs, d3, getInputs, initializePlots, jStat;
+var BetaModel, Plots, bindInputs, d3, getInputs, initializePlots, jStat;
 
 d3 = require('d3');
 
 jStat = require('jStat').jStat;
 
-BetaDistribution = (function() {
-  function BetaDistribution(alpha1, beta1) {
-    this.alpha = alpha1;
-    this.beta = beta1;
-    this.betaInverse = jStat.gammaln(this.alpha + this.beta) - jStat.gammaln(this.alpha) - jStat.gammaln(this.beta);
-  }
-
-  BetaDistribution.prototype.lpdf = function(x) {
-    if (x < 0 || x > 1) {
-      return Number.NEGATIVE_INFINITY;
-    }
-    return this.betaInverse + (this.alpha - 1) * Math.log(x) + (this.beta - 1) * Math.log(1 - x);
-  };
-
-  BetaDistribution.prototype.pdf = function(x) {
-    if (x < 0 || x > 1) {
-      return 0;
-    }
-    if (this.alpha === 1 && this.beta === 1) {
-      return 1;
-    }
-    return Math.exp(this.lpdf(x));
-  };
-
-  BetaDistribution.prototype.rvs = function(n) {
-    var j, ref, results;
-    results = [];
-    for (j = 1, ref = n; 1 <= ref ? j <= ref : j >= ref; 1 <= ref ? j++ : j--) {
-      results.push(jStat.beta.sample(this.alpha, this.beta));
-    }
-    return results;
-  };
-
-  return BetaDistribution;
-
-})();
-
 BetaModel = (function() {
-  function BetaModel(alpha1, beta1) {
-    this.alpha = alpha1;
-    this.beta = beta1;
+  function BetaModel(alpha, beta) {
+    this.alpha = alpha;
+    this.beta = beta;
   }
-
-  BetaModel.prototype.distribution = function() {
-    return new BetaDistribution(this.alpha, this.beta);
-  };
 
   BetaModel.prototype.getPDF = function(noPoints) {
-    var distribution, distributionVal, i, j, ref, results;
-    distribution = this.distribution();
-    distributionVal = function(x) {
-      var val;
-      val = distribution.pdf(x);
-      if (val === Number.POSITIVE_INFINITY) {
-        return 0;
-      } else {
-        return val;
-      }
-    };
+    var betaInverse, distributionVal, i, j, ref, results;
+    betaInverse = jStat.gammaln(this.alpha + this.beta) - jStat.gammaln(this.alpha) - jStat.gammaln(this.beta);
+    distributionVal = (function(_this) {
+      return function(x) {
+        var val;
+        if (_this.alpha === 1 && _this.beta === 1) {
+          return 1;
+        }
+        val = Math.exp(betaInverse + (_this.alpha - 1) * Math.log(x) + (_this.beta - 1) * Math.log(1 - x));
+        if (val === Number.POSITIVE_INFINITY) {
+          return 0;
+        } else {
+          return val;
+        }
+      };
+    })(this);
     results = [];
     for (i = j = 0, ref = noPoints - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
       results.push({
@@ -74,13 +38,13 @@ BetaModel = (function() {
     return results;
   };
 
-  BetaModel.prototype.getRvs = function(noSamples) {
-    return this.distribution().rvs(noSamples);
-  };
-
-  BetaModel.prototype.update = function(successes, failures) {
-    this.alpha = this.alpha + successes;
-    return this.beta = this.beta + failures;
+  BetaModel.prototype.getRvs = function(numSamples) {
+    var j, ref, results;
+    results = [];
+    for (j = 1, ref = numSamples; 1 <= ref ? j <= ref : j >= ref; 1 <= ref ? j++ : j--) {
+      results.push(jStat.beta.sample(this.alpha, this.beta));
+    }
+    return results;
   };
 
   BetaModel.prototype.percentileOfScore = function(arr, score) {
@@ -113,9 +77,8 @@ Plots = (function() {
 
   Plots.prototype.NUM_SAMPLES = 5000;
 
-  function Plots(alpha, beta) {
-    this.controlBeta = new BetaModel(alpha, beta);
-    this.testBeta = new BetaModel(alpha, beta);
+  function Plots(inputs) {
+    this.update(inputs);
   }
 
   Plots.prototype.getHistogramElements = function() {
@@ -264,14 +227,9 @@ Plots = (function() {
     return svg.select('.x.axis').transition().call(d.xAxis);
   };
 
-  Plots.prototype.updatePrior = function(alpha, beta) {
-    this.controlBeta = new BetaModel(alpha, beta);
-    return this.testBeta = new BetaModel(alpha, beta);
-  };
-
-  Plots.prototype.updatePosterior = function(testSuccesses, testFailures, controlSuccesses, controlFailures) {
-    this.controlBeta.update(controlSuccesses, controlFailures);
-    return this.testBeta.update(testSuccesses, testFailures);
+  Plots.prototype.update = function(inputs) {
+    this.controlBeta = new BetaModel(inputs.priorAlpha + inputs.controlSuccesses, inputs.priorBeta + inputs.controlFailures);
+    return this.testBeta = new BetaModel(inputs.priorAlpha + inputs.testSuccesses, inputs.priorBeta + inputs.testFailures);
   };
 
   return Plots;
@@ -295,24 +253,17 @@ getInputs = function() {
 };
 
 initializePlots = function() {
-  var inputs, plots;
-  inputs = getInputs();
-  plots = new Plots(inputs.priorAlpha, inputs.priorBeta);
-  plots.drawPDF();
-  plots.drawHistogram();
-  return window.plots = plots;
+  window.plots = new Plots(getInputs());
+  window.plots.drawPDF();
+  return window.plots.drawHistogram();
 };
 
 bindInputs = function() {
   return document.getElementById('form').onsubmit = function(event) {
-    var inputs, plots;
     event.preventDefault();
-    inputs = getInputs();
-    plots = window.plots;
-    plots.updatePrior(inputs.priorAlpha, inputs.priorBeta);
-    plots.updatePosterior(inputs.testSuccesses, inputs.testFailures, inputs.controlSuccesses, inputs.controlFailures);
-    plots.redrawPDF();
-    plots.redrawHistogram();
+    window.plots.update(getInputs());
+    window.plots.redrawPDF();
+    window.plots.redrawHistogram();
   };
 };
 

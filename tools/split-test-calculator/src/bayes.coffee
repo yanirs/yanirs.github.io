@@ -1,41 +1,19 @@
 d3 = require('d3')
 jStat = require('jStat').jStat
 
-class BetaDistribution
-  constructor: (@alpha, @beta) ->
-    @betaInverse = jStat.gammaln(@alpha + @beta) - jStat.gammaln(@alpha) - jStat.gammaln(@beta)
-
-  lpdf: (x) ->
-    return Number.NEGATIVE_INFINITY if x < 0 or x > 1
-    @betaInverse + (@alpha - 1) * Math.log(x) + (@beta - 1) * Math.log(1 - x)
-
-  pdf: (x) ->
-    return 0 if x < 0 or x > 1
-    return 1 if @alpha == 1 and @beta == 1
-    Math.exp(@lpdf(x))
-
-  rvs: (n) ->
-    jStat.beta.sample(@alpha, @beta) for [1..n]
-
 class BetaModel
   constructor: (@alpha, @beta) ->
 
-  distribution: ->
-    new BetaDistribution(@alpha, @beta)
-
   getPDF: (noPoints) ->
-    distribution = @distribution()
-    distributionVal = (x) ->
-      val = distribution.pdf(x)
+    betaInverse = jStat.gammaln(@alpha + @beta) - jStat.gammaln(@alpha) - jStat.gammaln(@beta)
+    distributionVal = (x) =>
+      return 1 if @alpha == 1 and @beta == 1
+      val = Math.exp(betaInverse + (@alpha - 1) * Math.log(x) + (@beta - 1) * Math.log(1 - x))
       if val == Number.POSITIVE_INFINITY then 0 else val
     {x: i / noPoints, y: distributionVal(i / noPoints)} for i in [0..noPoints - 1]
 
-  getRvs: (noSamples) ->
-    @distribution().rvs(noSamples)
-
-  update: (successes, failures) ->
-    @alpha = @alpha + successes
-    @beta = @beta + failures
+  getRvs: (numSamples) ->
+    jStat.beta.sample(@alpha, @beta) for [1..numSamples]
 
   percentileOfScore: (arr, score) ->
     counter = 0
@@ -54,9 +32,8 @@ class Plots
 
   NUM_SAMPLES: 5000
 
-  constructor: (alpha, beta) ->
-    @controlBeta = new BetaModel(alpha, beta)
-    @testBeta = new BetaModel(alpha, beta)
+  constructor: (inputs) ->
+    @update(inputs)
 
   getHistogramElements: ->
     noBins = 200
@@ -168,13 +145,11 @@ class Plots
     svg.select('.y.axis').transition().duration(1000).call(d.yAxis)
     svg.select('.x.axis').transition().call(d.xAxis)
 
-  updatePrior: (alpha, beta) ->
-    @controlBeta = new BetaModel(alpha, beta)
-    @testBeta = new BetaModel(alpha, beta)
-
-  updatePosterior: (testSuccesses, testFailures, controlSuccesses, controlFailures) ->
-    @controlBeta.update(controlSuccesses, controlFailures)
-    @testBeta.update(testSuccesses, testFailures)
+  update: (inputs) ->
+    @controlBeta = new BetaModel(inputs.priorAlpha + inputs.controlSuccesses,
+                                 inputs.priorBeta + inputs.controlFailures)
+    @testBeta = new BetaModel(inputs.priorAlpha + inputs.testSuccesses,
+                              inputs.priorBeta + inputs.testFailures)
 
 getInputs = ->
   new class then constructor: ->
@@ -182,21 +157,16 @@ getInputs = ->
       ['priorAlpha', 'priorBeta', 'controlSuccesses', 'controlFailures', 'testSuccesses', 'testFailures']
 
 initializePlots = ->
-  inputs = getInputs()
-  plots = new Plots(inputs.priorAlpha, inputs.priorBeta)
-  plots.drawPDF()
-  plots.drawHistogram()
-  window.plots = plots
+  window.plots = new Plots(getInputs())
+  window.plots.drawPDF()
+  window.plots.drawHistogram()
 
 bindInputs = ->
   document.getElementById('form').onsubmit = (event) ->
     event.preventDefault()
-    inputs = getInputs()
-    plots = window.plots
-    plots.updatePrior(inputs.priorAlpha, inputs.priorBeta)
-    plots.updatePosterior(inputs.testSuccesses, inputs.testFailures, inputs.controlSuccesses, inputs.controlFailures)
-    plots.redrawPDF()
-    plots.redrawHistogram()
+    window.plots.update(getInputs())
+    window.plots.redrawPDF()
+    window.plots.redrawHistogram()
     return
 
 initializePlots()
