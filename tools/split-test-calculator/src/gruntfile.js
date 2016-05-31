@@ -5,8 +5,19 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-cssmin');
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jade');
+  grunt.loadNpmTasks('grunt-contrib-coffee');
 
   grunt.initConfig({
+    coffee: {
+      options: {
+        bare: true
+      },
+      compile: {
+        files: {
+          'bayes.js': ['bayes.coffee']
+        }
+      }
+    },
     browserify: {
       build: {
         files: {
@@ -43,9 +54,10 @@ module.exports = function (grunt) {
         files: ['style.css'],
         tasks: ['cssmin:build']
       },
-      js: {
-        files: ['bayes.js'],
+      coffee: {
+        files: ['bayes.coffee'],
         tasks: [
+          'coffee:compile',
           'browserify:build',
           'uglify:build'
         ]
@@ -58,6 +70,7 @@ module.exports = function (grunt) {
   });
 
   grunt.registerTask('build', [
+    'coffee:compile',
     'browserify:build',
     'uglify:build',
     'cssmin:build',
