@@ -82,13 +82,14 @@ Plots = (function() {
   Plots.prototype.PDF_INTERPOLATION_MODE = 'cardinal';
 
   function Plots(inputs) {
+    this.models = {};
     this.update(inputs);
   }
 
   Plots.prototype.getHistogramElements = function() {
     var controlData, differenceData, el, histogram, i, testData, x, y;
-    controlData = this.controlBeta.getRvs(this.NUM_SAMPLES);
-    testData = this.testBeta.getRvs(this.NUM_SAMPLES);
+    controlData = this.models.control.getRvs(this.NUM_SAMPLES);
+    testData = this.models.test.getRvs(this.NUM_SAMPLES);
     differenceData = (function() {
       var j, ref, results;
       results = [];
@@ -115,8 +116,8 @@ Plots = (function() {
 
   Plots.prototype.getPdfElements = function() {
     var allData, controlData, el, testData, x, y;
-    controlData = this.controlBeta.getPdf(this.NUM_SAMPLES);
-    testData = this.testBeta.getPdf(this.NUM_SAMPLES);
+    controlData = this.models.control.getPdf(this.NUM_SAMPLES);
+    testData = this.models.test.getPdf(this.NUM_SAMPLES);
     allData = controlData.concat(testData);
     x = d3.scale.linear().domain(d3.extent(allData, function(d) {
       return d.x;
@@ -181,7 +182,7 @@ Plots = (function() {
     var svg;
     svg = d3.select(plotId).append('svg').attr('width', el.width + el.margin.left + el.margin.right).attr('height', el.height + el.margin.top + el.margin.bottom).append('g').attr('transform', "translate(" + el.margin.left + "," + el.margin.top + ")");
     svg.append('g').attr('class', 'x axis').attr('transform', "translate(0," + el.height + ")").call(el.xAxis);
-    svg.append('g').attr('class', 'y axis').call(el.yAxis).append('text').attr('transform', 'rotate(-90)').attr('y', 6).attr('dy', '.71em').style('text-anchor', 'end').text(plotTitle);
+    svg.append('g').attr('class', 'y axis').call(el.yAxis).append('text').attr('y', -10).style('text-anchor', 'end').text(plotTitle);
     return svg;
   };
 
@@ -231,13 +232,21 @@ Plots = (function() {
   };
 
   Plots.prototype.update = function(inputs) {
-    var mean, priorAlpha, priorBeta, stddev;
+    var failures, group, j, len, mean, priorAlpha, priorBeta, ref, stddev;
     mean = inputs['prior-mean'];
     stddev = inputs['prior-uncertainty'] * mean * (1 - mean);
     priorAlpha = Math.pow(mean, 2) * (((1 - mean) / Math.pow(stddev, 2)) - (1 / mean));
     priorBeta = priorAlpha * ((1 / mean) - 1);
-    this.controlBeta = new BetaModel(priorAlpha + inputs['control-successes'], priorBeta + inputs['control-failures']);
-    return this.testBeta = new BetaModel(priorAlpha + inputs['test-successes'], priorBeta + inputs['test-failures']);
+    ref = ['control', 'test'];
+    for (j = 0, len = ref.length; j < len; j++) {
+      group = ref[j];
+      failures = inputs[group + "-trials"] - inputs[group + "-successes"];
+      if (failures < 0) {
+        alert('Number of trials cannot be smaller than number of successes');
+        return;
+      }
+      this.models[group] = new BetaModel(priorAlpha + inputs[group + "-successes"], priorBeta + failures);
+    }
   };
 
   return Plots;
@@ -248,7 +257,7 @@ getInputs = function() {
   return new ((function() {
     function _Class() {
       var id, j, len, ref;
-      ref = ['prior-mean', 'prior-uncertainty', 'control-successes', 'control-failures', 'test-successes', 'test-failures'];
+      ref = ['prior-mean', 'prior-uncertainty', 'control-trials', 'control-successes', 'test-trials', 'test-successes'];
       for (j = 0, len = ref.length; j < len; j++) {
         id = ref[j];
         this[id] = Number(document.getElementById(id).value);

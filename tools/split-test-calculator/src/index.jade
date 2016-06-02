@@ -30,7 +30,7 @@ html(lang="en")
         form#form
           h3.form-title Your Data
           .form-group
-            h4.form-group-title Prior Parameters
+            h4.form-group-title Prior Beliefs
             fieldset
               label(for="prior-mean") Mean
               input#prior-mean(value="0.5", type="number", min="0.001", max="0.999", step="0.001", placeholder="> 0")
@@ -41,20 +41,20 @@ html(lang="en")
           .form-group
             h4.form-group-title.control Control Results
             fieldset
+              label(for="control-trials") Trials
+              input#control-trials(value="0", type="number", min="0", placeholder=">= 0")
+            fieldset
               label(for="control-successes") Successes
               input#control-successes(value="0", type="number", min="0", placeholder=">= 0")
-            fieldset
-              label(for="control-failures") Failures
-              input#control-failures(value="0", type="number", min="0", placeholder=">= 0")
 
           .form-group
             h4.form-group-title.test Test Results
             fieldset
+              label(for="test-trials") Trials
+              input#test-trials(value="0", type="number", min="0", placeholder=">= 0")
+            fieldset
               label(for="test-successes") Successes
               input#test-successes(value="0", type="number", min="0", placeholder=">= 0")
-            fieldset
-              label(for="test-failures") Failures
-              input#test-failures(value="0", type="number", min="0", placeholder=">= 0")
 
           .form-buttons
             input(type="submit", value="Calculate")

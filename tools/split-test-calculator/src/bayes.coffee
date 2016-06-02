@@ -35,11 +35,12 @@ class Plots
   PDF_INTERPOLATION_MODE: 'cardinal'
 
   constructor: (inputs) ->
+    @models = {}
     @update(inputs)
 
   getHistogramElements: ->
-    controlData = @controlBeta.getRvs(@NUM_SAMPLES)
-    testData = @testBeta.getRvs(@NUM_SAMPLES)
+    controlData = @models.control.getRvs(@NUM_SAMPLES)
+    testData = @models.test.getRvs(@NUM_SAMPLES)
     differenceData = (testData[i] - controlData[i] for i in [0..controlData.length - 1])
     x = d3.scale.linear().domain([-1, 1]).range([0, @WIDTH])
     histogram = d3.layout.histogram().bins(x.ticks(@NUM_HISTOGRAM_BINS))(differenceData)
@@ -53,8 +54,8 @@ class Plots
     @addCommonElements(el, x, y)
 
   getPdfElements: ->
-    controlData = @controlBeta.getPdf(@NUM_SAMPLES)
-    testData = @testBeta.getPdf(@NUM_SAMPLES)
+    controlData = @models.control.getPdf(@NUM_SAMPLES)
+    testData = @models.test.getPdf(@NUM_SAMPLES)
     allData = controlData.concat(testData)
     x = d3.scale.linear().domain(d3.extent(allData, (d) -> d.x)).range([0, @WIDTH])
     y = d3.scale.linear().domain([0, d3.max(allData, (d) -> d.y) + 1]).range([@HEIGHT, 0])
@@ -99,9 +100,7 @@ class Plots
                                          .attr('height', el.height + el.margin.top + el.margin.bottom)
                            .append('g').attr('transform', "translate(#{el.margin.left},#{el.margin.top})")
     svg.append('g').attr('class', 'x axis').attr('transform', "translate(0,#{el.height})").call(el.xAxis)
-    svg.append('g').attr('class', 'y axis').call(el.yAxis).append('text').attr('transform', 'rotate(-90)')
-                                                                         .attr('y', 6)
-                                                                         .attr('dy', '.71em')
+    svg.append('g').attr('class', 'y axis').call(el.yAxis).append('text').attr('y', -10)
                                                                          .style('text-anchor', 'end')
                                                                          .text(plotTitle)
     svg
@@ -143,13 +142,17 @@ class Plots
     stddev = inputs['prior-uncertainty'] * mean * (1 - mean)
     priorAlpha = Math.pow(mean, 2) * (((1 - mean) / Math.pow(stddev, 2)) - (1 / mean))
     priorBeta = priorAlpha * ((1 / mean) - 1)
-    @controlBeta = new BetaModel(priorAlpha + inputs['control-successes'], priorBeta + inputs['control-failures'])
-    @testBeta = new BetaModel(priorAlpha + inputs['test-successes'], priorBeta + inputs['test-failures'])
+    for group in ['control', 'test']
+      failures = inputs["#{group}-trials"] - inputs["#{group}-successes"]
+      if failures < 0
+        alert('Number of trials cannot be smaller than number of successes')
+        return
+      @models[group] = new BetaModel(priorAlpha + inputs["#{group}-successes"], priorBeta + failures)
 
 getInputs = ->
   new class then constructor: ->
     @[id] = Number(document.getElementById(id).value) for id in \
-      ['prior-mean', 'prior-uncertainty', 'control-successes', 'control-failures', 'test-successes', 'test-failures']
+      ['prior-mean', 'prior-uncertainty', 'control-trials', 'control-successes', 'test-trials', 'test-successes']
 
 initializePlots = ->
   window.plots = new Plots(getInputs())
