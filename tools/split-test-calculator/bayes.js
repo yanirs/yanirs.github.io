@@ -231,8 +231,13 @@ Plots = (function() {
   };
 
   Plots.prototype.update = function(inputs) {
-    this.controlBeta = new BetaModel(inputs.priorAlpha + inputs.controlSuccesses, inputs.priorBeta + inputs.controlFailures);
-    return this.testBeta = new BetaModel(inputs.priorAlpha + inputs.testSuccesses, inputs.priorBeta + inputs.testFailures);
+    var mean, priorAlpha, priorBeta, stddev;
+    mean = inputs['prior-mean'];
+    stddev = inputs['prior-uncertainty'] * mean * (1 - mean);
+    priorAlpha = Math.pow(mean, 2) * (((1 - mean) / Math.pow(stddev, 2)) - (1 / mean));
+    priorBeta = priorAlpha * ((1 / mean) - 1);
+    this.controlBeta = new BetaModel(priorAlpha + inputs['control-successes'], priorBeta + inputs['control-failures']);
+    return this.testBeta = new BetaModel(priorAlpha + inputs['test-successes'], priorBeta + inputs['test-failures']);
   };
 
   return Plots;
@@ -243,7 +248,7 @@ getInputs = function() {
   return new ((function() {
     function _Class() {
       var id, j, len, ref;
-      ref = ['priorAlpha', 'priorBeta', 'controlSuccesses', 'controlFailures', 'testSuccesses', 'testFailures'];
+      ref = ['prior-mean', 'prior-uncertainty', 'control-successes', 'control-failures', 'test-successes', 'test-failures'];
       for (j = 0, len = ref.length; j < len; j++) {
         id = ref[j];
         this[id] = Number(document.getElementById(id).value);
@@ -262,7 +267,9 @@ initializePlots = function() {
 };
 
 bindInputs = function() {
-  return document.getElementById('form').onsubmit = function(event) {
+  var form;
+  form = document.getElementById('form');
+  return form.onsubmit = form.onchange = function(event) {
     event.preventDefault();
     window.plots.update(getInputs());
     window.plots.redrawPdf();

@@ -138,15 +138,18 @@ class Plots
     svg.select('.x.axis').transition().call(d.xAxis)
 
   update: (inputs) ->
-    @controlBeta = new BetaModel(inputs.priorAlpha + inputs.controlSuccesses,
-                                 inputs.priorBeta + inputs.controlFailures)
-    @testBeta = new BetaModel(inputs.priorAlpha + inputs.testSuccesses,
-                              inputs.priorBeta + inputs.testFailures)
+    # See http://stats.stackexchange.com/a/12239 -- the mean is in (0, 1) and stddev is in (0, mean * (1 - mean)]
+    mean = inputs['prior-mean']
+    stddev = inputs['prior-uncertainty'] * mean * (1 - mean)
+    priorAlpha = Math.pow(mean, 2) * (((1 - mean) / Math.pow(stddev, 2)) - (1 / mean))
+    priorBeta = priorAlpha * ((1 / mean) - 1)
+    @controlBeta = new BetaModel(priorAlpha + inputs['control-successes'], priorBeta + inputs['control-failures'])
+    @testBeta = new BetaModel(priorAlpha + inputs['test-successes'], priorBeta + inputs['test-failures'])
 
 getInputs = ->
   new class then constructor: ->
     @[id] = Number(document.getElementById(id).value) for id in \
-      ['priorAlpha', 'priorBeta', 'controlSuccesses', 'controlFailures', 'testSuccesses', 'testFailures']
+      ['prior-mean', 'prior-uncertainty', 'control-successes', 'control-failures', 'test-successes', 'test-failures']
 
 initializePlots = ->
   window.plots = new Plots(getInputs())
@@ -154,7 +157,8 @@ initializePlots = ->
   window.plots.drawHistogram()
 
 bindInputs = ->
-  document.getElementById('form').onsubmit = (event) ->
+  form = document.getElementById('form')
+  form.onsubmit = form.onchange = (event) ->
     event.preventDefault()
     window.plots.update(getInputs())
     window.plots.redrawPdf()
