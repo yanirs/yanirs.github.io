@@ -16,6 +16,7 @@
     "grunt-contrib-watch": "^0.6.1",
     "pug": "~2.0.0-alpha8",
     "grunt-contrib-jade": "~1.0.0",
-    "grunt-contrib-coffee": "~1.0.0"
+    "grunt-contrib-coffee": "~1.0.0",
+    "grunt-contrib-sass": "~1.0.0"
   }
 }

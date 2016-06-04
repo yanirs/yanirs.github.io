@@ -6,6 +6,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-jade');
   grunt.loadNpmTasks('grunt-contrib-coffee');
+  grunt.loadNpmTasks('grunt-contrib-sass');
 
   grunt.initConfig({
     coffee: {
@@ -32,6 +33,18 @@ module.exports = function (grunt) {
         }
       }
     },
+    sass: {
+      dist: {
+        options: {
+          'sourcemap': 'none',
+          'style': 'expanded',
+          'noCache': true
+        },
+        files: {
+          'style.css': 'style.scss'
+        }
+      }
+    },
     cssmin: {
       build: {
         files: {
@@ -51,8 +64,11 @@ module.exports = function (grunt) {
     },
     watch: {
       css: {
-        files: ['style.css'],
-        tasks: ['cssmin:build']
+        files: ['style.scss'],
+        tasks: [
+          'sass:dist',
+          'cssmin:build'
+        ]
       },
       coffee: {
         files: ['bayes.coffee'],
@@ -73,6 +89,7 @@ module.exports = function (grunt) {
     'coffee:compile',
     'browserify:build',
     'uglify:build',
+    'sass:dist',
     'cssmin:build',
     'jade:compile'
   ]);
