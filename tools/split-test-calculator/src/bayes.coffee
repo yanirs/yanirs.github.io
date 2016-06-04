@@ -106,8 +106,8 @@ class Plots
     svg
 
   drawSummaryStatistics: (el) ->
-    quantiles = [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.975, 0.99]
-    round = (x) -> Math.round(x * 100) / 100
+    quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99]
+    round = (x) -> Math.round(x * 1000) / 1000
     differenceQuantiles = jStat.quantiles(el.differenceData, quantiles)
     tb = '<tr><td class="table-row-title">Percentiles</td>'
     for quantile in quantiles
@@ -116,10 +116,11 @@ class Plots
     for differenceQuantile in differenceQuantiles
       tb += "<td>#{round(differenceQuantile)}</td>"
     tb += '</tr>'
-    document.getElementById('quantileTable').innerHTML = tb
-    document.getElementById('testSuccessProbability').innerHTML =
+    document.getElementById('quantile-table').innerHTML = tb
+    document.getElementById('test-success-probability').innerHTML =
       round(1.0 - BetaModel::percentileOfScore(el.differenceData, 0))
-    document.getElementById('differenceMean').innerHTML = round(jStat.mean(el.differenceData))
+    document.getElementById('difference-mean').innerHTML =
+      "#{round(jStat.mean(el.differenceData))}±#{round(jStat.stdev(el.differenceData))}"
 
   redrawHistogram: ->
     el = @getHistogramElements()

@@ -188,9 +188,9 @@ Plots = (function() {
 
   Plots.prototype.drawSummaryStatistics = function(el) {
     var differenceQuantile, differenceQuantiles, j, k, len, len1, quantile, quantiles, round, tb;
-    quantiles = [0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 0.75, 0.9, 0.95, 0.975, 0.99];
+    quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99];
     round = function(x) {
-      return Math.round(x * 100) / 100;
+      return Math.round(x * 1000) / 1000;
     };
     differenceQuantiles = jStat.quantiles(el.differenceData, quantiles);
     tb = '<tr><td class="table-row-title">Percentiles</td>';
@@ -204,9 +204,9 @@ Plots = (function() {
       tb += "<td>" + (round(differenceQuantile)) + "</td>";
     }
     tb += '</tr>';
-    document.getElementById('quantileTable').innerHTML = tb;
-    document.getElementById('testSuccessProbability').innerHTML = round(1.0 - BetaModel.prototype.percentileOfScore(el.differenceData, 0));
-    return document.getElementById('differenceMean').innerHTML = round(jStat.mean(el.differenceData));
+    document.getElementById('quantile-table').innerHTML = tb;
+    document.getElementById('test-success-probability').innerHTML = round(1.0 - BetaModel.prototype.percentileOfScore(el.differenceData, 0));
+    return document.getElementById('difference-mean').innerHTML = (round(jStat.mean(el.differenceData))) + "±" + (round(jStat.stdev(el.differenceData)));
   };
 
   Plots.prototype.redrawHistogram = function() {

@@ -74,12 +74,10 @@ html(lang="en")
         .chart
           h2.chart-title Quantiles of the differences distribution.
           p.chart-description Posterior probability that the difference lies below the value x.
-          table#quantileTable
-          p.
-            The average difference between test and control is: <span id="differenceMean">0</span>.
-            The probability that test performs better: <span id="testSuccessProbability">0.5</span>.
-
-        .charts-summary
+          table#quantile-table
+          ul
+            li Probability that test performs better: <span id="test-success-probability"></span>
+            li Expected change in success rate if test is chosen: <span id="difference-mean"></span>
 
     .wrapper
       #explanation.content.full-width
