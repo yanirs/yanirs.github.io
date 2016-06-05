@@ -1,9 +1,13 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var BetaModel, Plots, bindInputs, d3, getInputs, initializePlots, jStat;
+var BetaModel, Plots, bindInputs, d3, getInputs, initializePlots, jStat, round;
 
 d3 = require('d3');
 
 jStat = require('jStat').jStat;
+
+round = function(x) {
+  return Math.round(x * 1000) / 1000;
+};
 
 BetaModel = (function() {
   function BetaModel(alpha, beta) {
@@ -187,11 +191,8 @@ Plots = (function() {
   };
 
   Plots.prototype.drawSummaryStatistics = function(el) {
-    var differenceQuantile, differenceQuantiles, j, k, len, len1, quantile, quantiles, round, tb;
+    var differenceQuantile, differenceQuantiles, j, k, len, len1, quantile, quantiles, tb;
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99];
-    round = function(x) {
-      return Math.round(x * 1000) / 1000;
-    };
     differenceQuantiles = jStat.quantiles(el.differenceData, quantiles);
     tb = '<tr><td class="table-row-title">Percentiles</td>';
     for (j = 0, len = quantiles.length; j < len; j++) {
@@ -232,11 +233,13 @@ Plots = (function() {
   };
 
   Plots.prototype.update = function(inputs) {
-    var failures, group, j, len, mean, priorAlpha, priorBeta, ref, stddev;
+    var failures, group, j, len, mean, priorAlpha, priorBeta, ref, variance;
     mean = inputs['prior-mean'];
-    stddev = inputs['prior-uncertainty'] * mean * (1 - mean);
-    priorAlpha = Math.pow(mean, 2) * (((1 - mean) / Math.pow(stddev, 2)) - (1 / mean));
+    variance = Math.pow(inputs['prior-uncertainty'], 2) * mean * (1 - mean);
+    priorAlpha = Math.pow(mean, 2) * (((1 - mean) / variance) - (1 / mean));
     priorBeta = priorAlpha * ((1 / mean) - 1);
+    document.getElementById('prior-alpha').innerHTML = round(priorAlpha);
+    document.getElementById('prior-beta').innerHTML = round(priorBeta);
     ref = ['control', 'test'];
     for (j = 0, len = ref.length; j < len; j++) {
       group = ref[j];

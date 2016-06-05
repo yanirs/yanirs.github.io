@@ -1,6 +1,8 @@
 d3 = require('d3')
 jStat = require('jStat').jStat
 
+round = (x) -> Math.round(x * 1000) / 1000
+
 class BetaModel
   constructor: (@alpha, @beta) ->
 
@@ -107,7 +109,6 @@ class Plots
 
   drawSummaryStatistics: (el) ->
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99]
-    round = (x) -> Math.round(x * 1000) / 1000
     differenceQuantiles = jStat.quantiles(el.differenceData, quantiles)
     tb = '<tr><td class="table-row-title">Percentiles</td>'
     for quantile in quantiles
@@ -138,11 +139,13 @@ class Plots
     svg.select('.x.axis').transition().call(d.xAxis)
 
   update: (inputs) ->
-    # See http://stats.stackexchange.com/a/12239 -- the mean is in (0, 1) and stddev is in (0, mean * (1 - mean)]
+    # See http://stats.stackexchange.com/a/12239 -- the mean is in (0, 1) and variance is in (0, mean * (1 - mean))
     mean = inputs['prior-mean']
-    stddev = inputs['prior-uncertainty'] * mean * (1 - mean)
-    priorAlpha = Math.pow(mean, 2) * (((1 - mean) / Math.pow(stddev, 2)) - (1 / mean))
+    variance = Math.pow(inputs['prior-uncertainty'], 2) * mean * (1 - mean)
+    priorAlpha = Math.pow(mean, 2) * (((1 - mean) / variance) - (1 / mean))
     priorBeta = priorAlpha * ((1 / mean) - 1)
+    document.getElementById('prior-alpha').innerHTML = round(priorAlpha)
+    document.getElementById('prior-beta').innerHTML = round(priorBeta)
     for group in ['control', 'test']
       failures = inputs["#{group}-trials"] - inputs["#{group}-successes"]
       if failures < 0

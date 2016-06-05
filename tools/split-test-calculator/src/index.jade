@@ -36,7 +36,9 @@ html(lang="en")
               input#prior-mean(value="0.5", type="number", min="0.001", max="0.999", step="0.001", placeholder="> 0")
             fieldset
               label(for="prior-uncertainty") Uncertainty
-              input#prior-uncertainty(value="0.5", type="number", min="0.01", max="1", step="0.01", placeholder="> 0")
+              input#prior-uncertainty(value="0.707", type="number", min="0.001", max="0.999", step="0.001",
+                                      placeholder="> 0")
+            p.prior-values &alpha; = <span id="prior-alpha"></span>, &beta; = <span id="prior-beta"></span>
 
           .form-group
             h4.form-group-title.control Control Results
