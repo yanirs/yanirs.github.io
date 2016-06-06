@@ -10,7 +10,7 @@ html(lang="en")
     .container.header
       h1.logo Split testing calculator
 
-    .container: .row
+    .container
       .sidebar.note-wrapper
         h3 Need Help?
         p.note.
@@ -25,7 +25,7 @@ html(lang="en")
           li <span class="number">3</span>Enter data on the number of successes and failures in the test and control groups.
           li <span class="number">4</span>Plot to see posterior distributions.
 
-    .container: .row
+    .container
       .sidebar
         form#form
           h3.form-title Your Data
@@ -36,7 +36,7 @@ html(lang="en")
               input#prior-mean(value="0.5", type="number", min="0.001", max="0.999", step="0.001", placeholder="> 0")
             fieldset
               label(for="prior-uncertainty") Uncertainty
-              input#prior-uncertainty(value="0.707", type="number", min="0.001", max="0.999", step="0.001",
+              input#prior-uncertainty(value="0.05", type="number", min="0.001", max="0.999", step="0.001",
                                       placeholder="> 0")
             p.prior-values &alpha; = <span id="prior-alpha"></span>, &beta; = <span id="prior-beta"></span>
 
@@ -62,12 +62,15 @@ html(lang="en")
             input(type="submit", value="Calculate")
             input(type="reset", value="Reset")
 
-        p
-          i Probability that test performs better:&nbsp;
-          b: span#test-success-probability
-        p
-          i Expected change in success rate if test is chosen:&nbsp;
-          b: span#difference-mean
+        .text-center
+          p
+            i Probability that test performs better than control:
+            br
+            b: span#test-success-probability
+          p
+            i Expected change in success rate if test is chosen:
+            br
+            b: span#difference-mean
 
       .content
         .chart
