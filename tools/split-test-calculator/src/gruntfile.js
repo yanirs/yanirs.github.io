@@ -38,7 +38,7 @@ module.exports = function (grunt) {
         options: {
           'sourcemap': 'none',
           'style': 'expanded',
-          'noCache': true
+          'loadPath': 'node_modules/gridle/sass/'
         },
         files: {
           'style.css': 'style.scss'

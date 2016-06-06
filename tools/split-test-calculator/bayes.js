@@ -75,8 +75,6 @@ Plots = (function() {
     left: 50
   };
 
-  Plots.prototype.WIDTH = 690 - Plots.prototype.MARGIN.left - Plots.prototype.MARGIN.right;
-
   Plots.prototype.HEIGHT = 350 - Plots.prototype.MARGIN.top - Plots.prototype.MARGIN.bottom;
 
   Plots.prototype.NUM_SAMPLES = 5000;
@@ -87,6 +85,7 @@ Plots = (function() {
 
   function Plots(inputs) {
     this.models = {};
+    this.width = document.getElementsByClassName('content')[0].offsetWidth - this.MARGIN.left - this.MARGIN.right - 20;
     this.update(inputs);
   }
 
@@ -102,7 +101,7 @@ Plots = (function() {
       }
       return results;
     })();
-    x = d3.scale.linear().domain([-1, 1]).range([0, this.WIDTH]);
+    x = d3.scale.linear().domain([-1, 1]).range([0, this.width]);
     histogram = d3.layout.histogram().bins(x.ticks(this.NUM_HISTOGRAM_BINS))(differenceData);
     y = d3.scale.linear().domain([
       0, d3.max(histogram, function(d) {
@@ -125,7 +124,7 @@ Plots = (function() {
     allData = controlData.concat(testData);
     x = d3.scale.linear().domain(d3.extent(allData, function(d) {
       return d.x;
-    })).range([0, this.WIDTH]);
+    })).range([0, this.width]);
     y = d3.scale.linear().domain([
       0, d3.max(allData, function(d) {
         return d.y;
@@ -150,7 +149,6 @@ Plots = (function() {
 
   Plots.prototype.addCommonElements = function(el, x, y) {
     el.margin = this.MARGIN;
-    el.width = this.WIDTH;
     el.height = this.HEIGHT;
     el.xAxis = d3.svg.axis().scale(x).orient('bottom');
     el.yAxis = d3.svg.axis().scale(y).orient('left');
@@ -160,13 +158,13 @@ Plots = (function() {
   Plots.prototype.drawHistogram = function() {
     var bar, el, svg;
     el = this.getHistogramElements();
-    svg = this.drawSvg(el, '#histogram', 'Samples');
+    svg = this.drawSvg(el, 'histogram', 'Samples');
     bar = svg.selectAll('.bar').data(el.histogram).enter().append('g').attr('class', 'bar').attr('transform', function(d) {
       return "translate(" + (el.x(d.x)) + ",0)";
     });
     bar.append('rect').attr('x', 1).attr('y', function(d) {
       return el.y(d.y);
-    }).attr('width', el.histogram[0].dx / 2 * el.width).attr('height', function(d) {
+    }).attr('width', el.histogram[0].dx / 2 * this.width).attr('height', function(d) {
       return el.height - el.y(d.y);
     });
     this.histogramSvg = svg;
@@ -176,7 +174,7 @@ Plots = (function() {
   Plots.prototype.drawPdf = function() {
     var el, svg;
     el = this.getPdfElements();
-    svg = this.drawSvg(el, '#pdfplot', 'Density');
+    svg = this.drawSvg(el, 'pdfplot', 'Density');
     svg.append('path').datum(el.testData).attr('class', 'line').attr('d', el.testLine).attr('id', 'testLine');
     svg.append('path').datum(el.controlData).attr('class', 'area').attr('d', el.controlLine).attr('id', 'controlLine');
     return this.pdfSvg = svg;
@@ -184,27 +182,21 @@ Plots = (function() {
 
   Plots.prototype.drawSvg = function(el, plotId, plotTitle) {
     var svg;
-    svg = d3.select(plotId).append('svg').attr('width', el.width + el.margin.left + el.margin.right).attr('height', el.height + el.margin.top + el.margin.bottom).append('g').attr('transform', "translate(" + el.margin.left + "," + el.margin.top + ")");
+    document.getElementById(plotId).innerHTML = '';
+    svg = d3.select('#' + plotId).append('svg').attr('width', this.width + el.margin.left + el.margin.right).attr('height', el.height + el.margin.top + el.margin.bottom).append('g').attr('transform', "translate(" + el.margin.left + "," + el.margin.top + ")");
     svg.append('g').attr('class', 'x axis').attr('transform', "translate(0," + el.height + ")").call(el.xAxis);
     svg.append('g').attr('class', 'y axis').call(el.yAxis).append('text').attr('y', -10).style('text-anchor', 'end').text(plotTitle);
     return svg;
   };
 
   Plots.prototype.drawSummaryStatistics = function(el) {
-    var differenceQuantile, differenceQuantiles, j, k, len, len1, quantile, quantiles, tb;
+    var differenceQuantiles, i, j, quantiles, ref, tb;
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99];
     differenceQuantiles = jStat.quantiles(el.differenceData, quantiles);
-    tb = '<tr><td class="table-row-title">Percentiles</td>';
-    for (j = 0, len = quantiles.length; j < len; j++) {
-      quantile = quantiles[j];
-      tb += "<td>" + (quantile * 100) + "%</td>";
+    tb = '<tr><td>Percentile</td><td>Value</td></tr>';
+    for (i = j = 0, ref = differenceQuantiles.length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+      tb += "<tr><td>" + (quantiles[i] * 100) + "%</td><td>" + (round(differenceQuantiles[i])) + "</td></tr>";
     }
-    tb += '</tr><tr><td class="table-row-title">Value</td>';
-    for (k = 0, len1 = differenceQuantiles.length; k < len1; k++) {
-      differenceQuantile = differenceQuantiles[k];
-      tb += "<td>" + (round(differenceQuantile)) + "</td>";
-    }
-    tb += '</tr>';
     document.getElementById('quantile-table').innerHTML = tb;
     document.getElementById('test-success-probability').innerHTML = round(1.0 - BetaModel.prototype.percentileOfScore(el.differenceData, 0));
     return document.getElementById('difference-mean').innerHTML = (round(jStat.mean(el.differenceData))) + "±" + (round(jStat.stdev(el.differenceData)));
@@ -281,12 +273,13 @@ initializePlots = function() {
 bindInputs = function() {
   var form;
   form = document.getElementById('form');
-  return form.onsubmit = form.onchange = function(event) {
+  form.onsubmit = form.onchange = function(event) {
     event.preventDefault();
     window.plots.update(getInputs());
     window.plots.redrawPdf();
     window.plots.redrawHistogram();
   };
+  return window.onresize = initializePlots;
 };
 
 initializePlots();

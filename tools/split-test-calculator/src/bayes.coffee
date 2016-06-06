@@ -29,7 +29,6 @@ class Plots
     right: 20
     bottom: 30
     left: 50
-  WIDTH: 690 - Plots::MARGIN.left - Plots::MARGIN.right
   HEIGHT: 350 - Plots::MARGIN.top - Plots::MARGIN.bottom
 
   NUM_SAMPLES: 5000
@@ -38,13 +37,14 @@ class Plots
 
   constructor: (inputs) ->
     @models = {}
+    @width = document.getElementsByClassName('content')[0].offsetWidth - @MARGIN.left - @MARGIN.right - 20
     @update(inputs)
 
   getHistogramElements: ->
     controlData = @models.control.getRvs(@NUM_SAMPLES)
     testData = @models.test.getRvs(@NUM_SAMPLES)
     differenceData = (testData[i] - controlData[i] for i in [0..controlData.length - 1])
-    x = d3.scale.linear().domain([-1, 1]).range([0, @WIDTH])
+    x = d3.scale.linear().domain([-1, 1]).range([0, @width])
     histogram = d3.layout.histogram().bins(x.ticks(@NUM_HISTOGRAM_BINS))(differenceData)
     y = d3.scale.linear().domain([0, d3.max(histogram, (d) -> d.y)]).range([@HEIGHT, 0])
     el = {
@@ -59,7 +59,7 @@ class Plots
     controlData = @models.control.getPdf(@NUM_SAMPLES)
     testData = @models.test.getPdf(@NUM_SAMPLES)
     allData = controlData.concat(testData)
-    x = d3.scale.linear().domain(d3.extent(allData, (d) -> d.x)).range([0, @WIDTH])
+    x = d3.scale.linear().domain(d3.extent(allData, (d) -> d.x)).range([0, @width])
     y = d3.scale.linear().domain([0, d3.max(allData, (d) -> d.y) + 1]).range([@HEIGHT, 0])
     el = {
       'testLine': d3.svg.area().x((d) -> x d.x).y1(@HEIGHT).y0((d) -> y d.y).interpolate(@PDF_INTERPOLATION_MODE)
@@ -71,7 +71,6 @@ class Plots
 
   addCommonElements: (el, x, y) ->
     el.margin = @MARGIN
-    el.width = @WIDTH
     el.height = @HEIGHT
     el.xAxis = d3.svg.axis().scale(x).orient('bottom')
     el.yAxis = d3.svg.axis().scale(y).orient('left')
@@ -79,28 +78,29 @@ class Plots
 
   drawHistogram: ->
     el = @getHistogramElements()
-    svg = @drawSvg(el, '#histogram', 'Samples')
+    svg = @drawSvg(el, 'histogram', 'Samples')
     bar = svg.selectAll('.bar').data(el.histogram).enter().append('g').attr('class', 'bar')
                                                                       .attr('transform',
                                                                             (d) -> "translate(#{el.x(d.x)},0)")
     bar.append('rect').attr('x', 1)
                       .attr('y', (d) -> el.y(d.y))
-                      .attr('width', el.histogram[0].dx / 2 * el.width)
+                      .attr('width', el.histogram[0].dx / 2 * @width)
                       .attr('height', (d) -> el.height - el.y(d.y))
     @histogramSvg = svg
     @drawSummaryStatistics(el)
 
   drawPdf: ->
     el = @getPdfElements()
-    svg = @drawSvg(el, '#pdfplot', 'Density')
+    svg = @drawSvg(el, 'pdfplot', 'Density')
     svg.append('path').datum(el.testData).attr('class', 'line').attr('d', el.testLine).attr('id', 'testLine')
     svg.append('path').datum(el.controlData).attr('class', 'area').attr('d', el.controlLine).attr('id', 'controlLine')
     @pdfSvg = svg
 
   drawSvg: (el, plotId, plotTitle) ->
-    svg = d3.select(plotId).append('svg').attr('width', el.width + el.margin.left + el.margin.right)
-                                         .attr('height', el.height + el.margin.top + el.margin.bottom)
-                           .append('g').attr('transform', "translate(#{el.margin.left},#{el.margin.top})")
+    document.getElementById(plotId).innerHTML = ''
+    svg = d3.select('#' + plotId).append('svg').attr('width', @width + el.margin.left + el.margin.right)
+                                               .attr('height', el.height + el.margin.top + el.margin.bottom)
+                                 .append('g').attr('transform', "translate(#{el.margin.left},#{el.margin.top})")
     svg.append('g').attr('class', 'x axis').attr('transform', "translate(0,#{el.height})").call(el.xAxis)
     svg.append('g').attr('class', 'y axis').call(el.yAxis).append('text').attr('y', -10)
                                                                          .style('text-anchor', 'end')
@@ -110,13 +110,9 @@ class Plots
   drawSummaryStatistics: (el) ->
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99]
     differenceQuantiles = jStat.quantiles(el.differenceData, quantiles)
-    tb = '<tr><td class="table-row-title">Percentiles</td>'
-    for quantile in quantiles
-      tb += "<td>#{quantile * 100}%</td>"
-    tb += '</tr><tr><td class="table-row-title">Value</td>'
-    for differenceQuantile in differenceQuantiles
-      tb += "<td>#{round(differenceQuantile)}</td>"
-    tb += '</tr>'
+    tb = '<tr><td>Percentile</td><td>Value</td></tr>'
+    for i in [0..differenceQuantiles.length - 1]
+      tb += "<tr><td>#{quantiles[i] * 100}%</td><td>#{round(differenceQuantiles[i])}</td></tr>"
     document.getElementById('quantile-table').innerHTML = tb
     document.getElementById('test-success-probability').innerHTML =
       round(1.0 - BetaModel::percentileOfScore(el.differenceData, 0))
@@ -171,6 +167,7 @@ bindInputs = ->
     window.plots.redrawPdf()
     window.plots.redrawHistogram()
     return
+  window.onresize = initializePlots
 
 initializePlots()
 bindInputs()

@@ -1,3 +1,5 @@
+@import "grid";
+
 body {
   margin: 0;
   font-size: 14px;
@@ -121,7 +123,6 @@ input {
 input[type="number"] {
   padding: 5px 0 5px 5px;
   margin: 0;
-  width: 95px;
   float: left;
   font-size: 15px;
   background: none;
@@ -130,6 +131,13 @@ input[type="number"] {
   border: none;
   line-height: 30px;
   cursor: pointer;
+
+  -moz-appearance:textfield;
+
+  &::-webkit-outer-spin-button, &::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
 }
 
 input[type="submit"],
@@ -172,23 +180,9 @@ input[type="reset"] {
   padding: 0 10px;
 }
 
-/* Wrappers */
-.wrapper {
-  margin: 30px auto;
-  width: 940px;
-  overflow: hidden;
-  position: relative;
-}
-
-.wrapper,
-.sidebar,
-.content {
-  box-sizing: border-box;
-}
-
 /* Preamble Styling */
 .header {
-  padding: 35px 0 25px;
+  padding: 35px 10px 25px;
 }
 
 .logo {
@@ -214,10 +208,7 @@ input[type="reset"] {
 
 /* Sidebar Styling */
 .sidebar {
-  width: 210px;
-  position: absolute;
-  left: 0;
-  top: 0;
+  @include gridle(3 mobile 12 tablet 12);
   height: 100%;
   background: #FFF;
   border-radius: 3px 0 0 3px;
@@ -246,15 +237,14 @@ input[type="reset"] {
 
 /* Content Styling */
 .content {
-  width: 730px;
+  @include gridle(9 mobile 12 tablet 12);
   padding: 20px;
-  margin-left: 210px;
   background: #FCFCFC;
   border-radius: 0 3px 3px 0;
 
   &.full-width {
+    @include gridle(12);
     margin-left: 0;
-    width: 940px;
     border-radius: 3px;
     background: #FFF;
     padding: 20px 20px 40px 40px;
@@ -296,18 +286,6 @@ input[type="reset"] {
   fill: none;
 }
 
-/* Columns */
-.columns {
-  overflow: hidden;
-}
-
-.column {
-  box-sizing: border-box;
-  padding-right: 30px;
-  width: 50%;
-  float: left;
-}
-
 /* PDF Plot */
 #pdfplot #testLine,
 #pdfplot #controlLine {
@@ -332,22 +310,19 @@ input[type="reset"] {
 #quantile-table {
   border: none;
   border-collapse: collapse;
+  text-align: right;
+  margin: 0 auto;
 
   td {
-    cellspacing: 0px;
-    border-right: 1px solid #000;
     padding: 10px;
   }
 
-  td:last-child {
-    border-right: none;
+  td:first-child {
+    text-align: left;
   }
 
-  tr:nth-child(2n) {
-    border-top: 1px solid #000;
+  tr:first-child {
+    border-bottom: 1px solid #000;
+    font-weight: 500;
   }
-}
-
-.table-row-title {
-  font-weight: 500;
 }
