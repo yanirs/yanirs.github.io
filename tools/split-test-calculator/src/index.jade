@@ -31,6 +31,7 @@ html(lang="en")
           h3.form-title Your Data
           .form-group
             h4.form-group-title Prior Beliefs
+              span.prior-values &alpha;=<span id="prior-alpha"></span> &beta;=<span id="prior-beta"></span>
             fieldset
               label(for="prior-mean") Mean
               input#prior-mean(value="0.5", type="number", min="0.001", max="0.999", step="0.001", placeholder="> 0")
@@ -38,7 +39,6 @@ html(lang="en")
               label(for="prior-uncertainty") Uncertainty
               input#prior-uncertainty(value="0.05", type="number", min="0.001", max="0.999", step="0.001",
                                       placeholder="> 0")
-            p.prior-values &alpha; = <span id="prior-alpha"></span>, &beta; = <span id="prior-beta"></span>
 
           .form-group
             h4.form-group-title.control Control Results

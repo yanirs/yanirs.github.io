@@ -101,16 +101,12 @@ fieldset {
   border-bottom: 1px solid #E9E9E9;
   overflow: hidden;
   cursor: pointer;
-
-  &:hover {
-    background: #F7F7F7;
-  }
 }
 
 label {
   display: block;
   float: left;
-  width: 82px;
+  min-width: 40%;
   line-height: 40px;
   font-size: 14px;
   cursor: pointer;
@@ -125,9 +121,9 @@ input {
 }
 
 input[type="number"] {
-  padding: 5px 0 5px 5px;
-  margin: 0;
-  float: left;
+  padding: 5px;
+  margin: 5px 0;
+  float: right;
   font-size: 15px;
   background: none;
   box-sizing: border-box;
@@ -135,6 +131,8 @@ input[type="number"] {
   border: none;
   line-height: 30px;
   cursor: pointer;
+  background: #F0F8FF;
+  max-width: 50%;
 
   -moz-appearance:textfield;
 
@@ -181,7 +179,8 @@ input[type="reset"] {
   margin: 0;
   color: grey;
   font-size: 10px;
-  padding: 0 10px;
+  padding: 0 5px;
+  float: right;
 }
 
 /* Preamble Styling */
@@ -212,7 +211,7 @@ input[type="reset"] {
 
 /* Sidebar Styling */
 .sidebar {
-  @include gridle(3 mobile 12 tablet 12);
+  @include gridle(4 mobile 12 tablet 4);
   height: 100%;
   background: #FFF;
   border-radius: 3px 0 0 3px;
@@ -241,7 +240,7 @@ input[type="reset"] {
 
 /* Content Styling */
 .content {
-  @include gridle(9 mobile 12 tablet 12);
+  @include gridle(8 mobile 12 tablet 8);
   padding: 20px;
   background: #FCFCFC;
   border-radius: 0 3px 3px 0;
