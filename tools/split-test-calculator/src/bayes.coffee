@@ -35,10 +35,12 @@ class Plots
   NUM_HISTOGRAM_BINS: 200
   PDF_INTERPOLATION_MODE: 'cardinal'
 
-  constructor: (inputs) ->
+  constructor: ->
     @models = {}
     @width = document.getElementsByClassName('content')[0].offsetWidth - @MARGIN.left - @MARGIN.right - 20
-    @update(inputs)
+    @update(false)
+    @drawPdf()
+    @drawHistogram()
 
   getHistogramElements: ->
     controlData = @models.control.getRvs(@NUM_SAMPLES)
@@ -134,7 +136,9 @@ class Plots
     svg.select('.y.axis').transition().duration(1000).call(d.yAxis)
     svg.select('.x.axis').transition().call(d.xAxis)
 
-  update: (inputs) ->
+  update: (redraw = true) ->
+    inputs = @getInputs()
+    document.location.hash = ["#{key}=#{value}" for key, value of inputs].join(',')
     # See http://stats.stackexchange.com/a/12239 -- the mean is in (0, 1) and variance is in (0, mean * (1 - mean))
     mean = inputs['prior-mean']
     variance = Math.pow(inputs['prior-uncertainty'], 2) * mean * (1 - mean)
@@ -148,26 +152,22 @@ class Plots
         alert('Number of trials cannot be smaller than number of successes')
         return
       @models[group] = new BetaModel(priorAlpha + inputs["#{group}-successes"], priorBeta + failures)
+    if redraw
+      window.plots.redrawPdf()
+      window.plots.redrawHistogram()
 
-getInputs = ->
-  new class then constructor: ->
-    @[id] = Number(document.getElementById(id).value) for id in \
-      ['prior-mean', 'prior-uncertainty', 'control-trials', 'control-successes', 'test-trials', 'test-successes']
+  getInputs: ->
+    new class then constructor: ->
+      @[id] = Number(document.getElementById(id).value) for id in \
+        ['prior-mean', 'prior-uncertainty', 'control-trials', 'control-successes', 'test-trials', 'test-successes']
 
-initializePlots = ->
-  window.plots = new Plots(getInputs())
-  window.plots.drawPdf()
-  window.plots.drawHistogram()
-
-bindInputs = ->
-  form = document.getElementById('form')
-  form.onsubmit = form.onchange = (event) ->
-    event.preventDefault()
-    window.plots.update(getInputs())
-    window.plots.redrawPdf()
-    window.plots.redrawHistogram()
-    return
-  window.onresize = initializePlots
-
-initializePlots()
-bindInputs()
+# Read default inputs from the hash
+for inputPair in document.location.hash.slice(1).split(',')
+  [key, value] = inputPair.split('=')
+  document.getElementById(key).value = Number(value)
+window.plots = new Plots()
+form = document.getElementById('form')
+form.onsubmit = form.onchange = (event) ->
+  event.preventDefault()
+  window.plots.update()
+window.onresize = -> window.plots = new Plots()

@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var BetaModel, Plots, bindInputs, d3, getInputs, initializePlots, jStat, round;
+var BetaModel, Plots, d3, form, inputPair, j, jStat, key, len, ref, ref1, round, value;
 
 d3 = require('d3');
 
@@ -83,10 +83,12 @@ Plots = (function() {
 
   Plots.prototype.PDF_INTERPOLATION_MODE = 'cardinal';
 
-  function Plots(inputs) {
+  function Plots() {
     this.models = {};
     this.width = document.getElementsByClassName('content')[0].offsetWidth - this.MARGIN.left - this.MARGIN.right - 20;
-    this.update(inputs);
+    this.update(false);
+    this.drawPdf();
+    this.drawHistogram();
   }
 
   Plots.prototype.getHistogramElements = function() {
@@ -224,8 +226,23 @@ Plots = (function() {
     return svg.select('.x.axis').transition().call(d.xAxis);
   };
 
-  Plots.prototype.update = function(inputs) {
-    var failures, group, j, len, mean, priorAlpha, priorBeta, ref, variance;
+  Plots.prototype.update = function(redraw) {
+    var failures, group, inputs, j, key, len, mean, priorAlpha, priorBeta, ref, value, variance;
+    if (redraw == null) {
+      redraw = true;
+    }
+    inputs = this.getInputs();
+    document.location.hash = [
+      (function() {
+        var results;
+        results = [];
+        for (key in inputs) {
+          value = inputs[key];
+          results.push(key + "=" + value);
+        }
+        return results;
+      })()
+    ].join(',');
     mean = inputs['prior-mean'];
     variance = Math.pow(inputs['prior-uncertainty'], 2) * mean * (1 - mean);
     priorAlpha = Math.pow(mean, 2) * (((1 - mean) / variance) - (1 / mean));
@@ -242,49 +259,51 @@ Plots = (function() {
       }
       this.models[group] = new BetaModel(priorAlpha + inputs[group + "-successes"], priorBeta + failures);
     }
+    if (redraw) {
+      window.plots.redrawPdf();
+      return window.plots.redrawHistogram();
+    }
+  };
+
+  Plots.prototype.getInputs = function() {
+    return new ((function() {
+      function _Class() {
+        var id, j, len, ref;
+        ref = ['prior-mean', 'prior-uncertainty', 'control-trials', 'control-successes', 'test-trials', 'test-successes'];
+        for (j = 0, len = ref.length; j < len; j++) {
+          id = ref[j];
+          this[id] = Number(document.getElementById(id).value);
+        }
+      }
+
+      return _Class;
+
+    })());
   };
 
   return Plots;
 
 })();
 
-getInputs = function() {
-  return new ((function() {
-    function _Class() {
-      var id, j, len, ref;
-      ref = ['prior-mean', 'prior-uncertainty', 'control-trials', 'control-successes', 'test-trials', 'test-successes'];
-      for (j = 0, len = ref.length; j < len; j++) {
-        id = ref[j];
-        this[id] = Number(document.getElementById(id).value);
-      }
-    }
+ref = document.location.hash.slice(1).split(',');
+for (j = 0, len = ref.length; j < len; j++) {
+  inputPair = ref[j];
+  ref1 = inputPair.split('='), key = ref1[0], value = ref1[1];
+  document.getElementById(key).value = Number(value);
+}
 
-    return _Class;
+window.plots = new Plots();
 
-  })());
+form = document.getElementById('form');
+
+form.onsubmit = form.onchange = function(event) {
+  event.preventDefault();
+  return window.plots.update();
 };
 
-initializePlots = function() {
-  window.plots = new Plots(getInputs());
-  window.plots.drawPdf();
-  return window.plots.drawHistogram();
+window.onresize = function() {
+  return window.plots = new Plots();
 };
-
-bindInputs = function() {
-  var form;
-  form = document.getElementById('form');
-  form.onsubmit = form.onchange = function(event) {
-    event.preventDefault();
-    window.plots.update(getInputs());
-    window.plots.redrawPdf();
-    window.plots.redrawHistogram();
-  };
-  return window.onresize = initializePlots;
-};
-
-initializePlots();
-
-bindInputs();
 
 },{"d3":2,"jStat":3}],2:[function(require,module,exports){
 !function() {
