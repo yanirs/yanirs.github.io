@@ -137,6 +137,8 @@ class Plots
     svg.select('.x.axis').transition().call(d.xAxis)
 
   update: (redraw = true) ->
+    populateParamElement = (id, alpha, beta) ->
+      document.getElementById(id).innerHTML = """&alpha;=#{round(alpha)} &beta;=#{round(beta)}"""
     inputs = @getInputs()
     document.location.hash = ["#{key}=#{value}" for key, value of inputs].join(',')
     # See http://stats.stackexchange.com/a/12239 -- the mean is in (0, 1) and variance is in (0, mean * (1 - mean))
@@ -144,14 +146,16 @@ class Plots
     variance = Math.pow(inputs['prior-uncertainty'], 2) * mean * (1 - mean)
     priorAlpha = Math.pow(mean, 2) * (((1 - mean) / variance) - (1 / mean))
     priorBeta = priorAlpha * ((1 / mean) - 1)
-    document.getElementById('prior-alpha').innerHTML = round(priorAlpha)
-    document.getElementById('prior-beta').innerHTML = round(priorBeta)
+    populateParamElement('prior-params', priorAlpha, priorBeta)
     for group in ['control', 'test']
       failures = inputs["#{group}-trials"] - inputs["#{group}-successes"]
       if failures < 0
         alert('Number of trials cannot be smaller than number of successes')
         return
-      @models[group] = new BetaModel(priorAlpha + inputs["#{group}-successes"], priorBeta + failures)
+      groupAlpha = priorAlpha + inputs["#{group}-successes"]
+      groupBeta = priorBeta + failures
+      populateParamElement("#{group}-params", groupAlpha, groupBeta)
+      @models[group] = new BetaModel(groupAlpha, groupBeta)
     if redraw
       window.plots.redrawPdf()
       window.plots.redrawHistogram()

@@ -10,9 +10,9 @@ round = function(x) {
 };
 
 BetaModel = (function() {
-  function BetaModel(alpha, beta) {
-    this.alpha = alpha;
-    this.beta = beta;
+  function BetaModel(alpha1, beta1) {
+    this.alpha = alpha1;
+    this.beta = beta1;
   }
 
   BetaModel.prototype.getPdf = function(noPoints) {
@@ -227,10 +227,13 @@ Plots = (function() {
   };
 
   Plots.prototype.update = function(redraw) {
-    var failures, group, inputs, j, key, len, mean, priorAlpha, priorBeta, ref, value, variance;
+    var failures, group, groupAlpha, groupBeta, inputs, j, key, len, mean, populateParamElement, priorAlpha, priorBeta, ref, value, variance;
     if (redraw == null) {
       redraw = true;
     }
+    populateParamElement = function(id, alpha, beta) {
+      return document.getElementById(id).innerHTML = "&alpha;=" + (round(alpha)) + " &beta;=" + (round(beta));
+    };
     inputs = this.getInputs();
     document.location.hash = [
       (function() {
@@ -247,8 +250,7 @@ Plots = (function() {
     variance = Math.pow(inputs['prior-uncertainty'], 2) * mean * (1 - mean);
     priorAlpha = Math.pow(mean, 2) * (((1 - mean) / variance) - (1 / mean));
     priorBeta = priorAlpha * ((1 / mean) - 1);
-    document.getElementById('prior-alpha').innerHTML = round(priorAlpha);
-    document.getElementById('prior-beta').innerHTML = round(priorBeta);
+    populateParamElement('prior-params', priorAlpha, priorBeta);
     ref = ['control', 'test'];
     for (j = 0, len = ref.length; j < len; j++) {
       group = ref[j];
@@ -257,7 +259,10 @@ Plots = (function() {
         alert('Number of trials cannot be smaller than number of successes');
         return;
       }
-      this.models[group] = new BetaModel(priorAlpha + inputs[group + "-successes"], priorBeta + failures);
+      groupAlpha = priorAlpha + inputs[group + "-successes"];
+      groupBeta = priorBeta + failures;
+      populateParamElement(group + "-params", groupAlpha, groupBeta);
+      this.models[group] = new BetaModel(groupAlpha, groupBeta);
     }
     if (redraw) {
       window.plots.redrawPdf();
