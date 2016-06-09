@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var BetaModel, Plots, d3, form, inputPair, j, jStat, key, len, ref, ref1, round, value;
+var BetaModel, INPUTS, Plots, d3, form, inputPair, j, jStat, key, len, ref, ref1, ref2, round, value;
 
 d3 = require('d3');
 
@@ -8,6 +8,20 @@ jStat = require('jStat').jStat;
 round = function(x) {
   return Math.round(x * 1000) / 1000;
 };
+
+INPUTS = new ((function() {
+  function _Class() {
+    var id, j, len, ref;
+    ref = ['prior-mean', 'prior-uncertainty', 'control-trials', 'control-successes', 'test-trials', 'test-successes'];
+    for (j = 0, len = ref.length; j < len; j++) {
+      id = ref[j];
+      this[id] = document.getElementById(id);
+    }
+  }
+
+  return _Class;
+
+})());
 
 BetaModel = (function() {
   function BetaModel(alpha1, beta1) {
@@ -86,7 +100,7 @@ Plots = (function() {
   function Plots() {
     this.models = {};
     this.width = document.getElementsByClassName('content')[0].offsetWidth - this.MARGIN.left - this.MARGIN.right - 20;
-    this.update(false);
+    this.update();
     this.drawPdf();
     this.drawHistogram();
   }
@@ -170,7 +184,7 @@ Plots = (function() {
       return el.height - el.y(d.y);
     });
     this.histogramSvg = svg;
-    return this.drawSummaryStatistics(el);
+    return this.drawSummaryStatistics(el.differenceData);
   };
 
   Plots.prototype.drawPdf = function() {
@@ -191,46 +205,37 @@ Plots = (function() {
     return svg;
   };
 
-  Plots.prototype.drawSummaryStatistics = function(el) {
+  Plots.prototype.drawSummaryStatistics = function(differenceData) {
     var differenceQuantiles, i, j, quantiles, ref, tb;
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99];
-    differenceQuantiles = jStat.quantiles(el.differenceData, quantiles);
+    differenceQuantiles = jStat.quantiles(differenceData, quantiles);
     tb = '<tr><td>Percentile</td><td>Value</td></tr>';
     for (i = j = 0, ref = differenceQuantiles.length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
       tb += "<tr><td>" + (quantiles[i] * 100) + "%</td><td>" + (round(differenceQuantiles[i])) + "</td></tr>";
     }
     document.getElementById('quantile-table').innerHTML = tb;
-    document.getElementById('test-success-probability').innerHTML = round(1.0 - BetaModel.prototype.percentileOfScore(el.differenceData, 0));
-    return document.getElementById('difference-mean').innerHTML = (round(jStat.mean(el.differenceData))) + "±" + (round(jStat.stdev(el.differenceData)));
+    document.getElementById('test-success-probability').innerHTML = round(1.0 - BetaModel.prototype.percentileOfScore(differenceData, 0));
+    return document.getElementById('difference-mean').innerHTML = (round(jStat.mean(differenceData))) + "±" + (round(jStat.stdev(differenceData)));
   };
 
-  Plots.prototype.redrawHistogram = function() {
-    var el, svg;
-    el = this.getHistogramElements();
-    svg = this.histogramSvg;
-    svg.selectAll('rect').data(el.histogram).transition().duration(1000).attr('y', function(d) {
-      return el.y(d.y);
+  Plots.prototype.redraw = function() {
+    var histElems, pdfElems;
+    pdfElems = this.getPdfElements();
+    this.pdfSvg.select('#testLine').datum(pdfElems.testData).transition().duration(1000).attr('d', pdfElems.testLine);
+    this.pdfSvg.select('#controlLine').datum(pdfElems.controlData).transition().duration(1000).attr('d', pdfElems.controlLine);
+    this.pdfSvg.select('.y.axis').transition().duration(1000).call(pdfElems.yAxis);
+    this.pdfSvg.select('.x.axis').transition().call(pdfElems.xAxis);
+    histElems = this.getHistogramElements();
+    this.histogramSvg.selectAll('rect').data(histElems.histogram).transition().duration(1000).attr('y', function(d) {
+      return histElems.y(d.y);
     }).attr('height', function(d) {
-      return el.height - el.y(d.y);
+      return histElems.height - histElems.y(d.y);
     });
-    return this.drawSummaryStatistics(el);
+    return this.drawSummaryStatistics(histElems.differenceData);
   };
 
-  Plots.prototype.redrawPdf = function() {
-    var d, svg;
-    d = this.getPdfElements();
-    svg = this.pdfSvg;
-    svg.select('#testLine').datum(d.testData).transition().duration(1000).attr('d', d.testLine);
-    svg.select('#controlLine').datum(d.controlData).transition().duration(1000).attr('d', d.controlLine);
-    svg.select('.y.axis').transition().duration(1000).call(d.yAxis);
-    return svg.select('.x.axis').transition().call(d.xAxis);
-  };
-
-  Plots.prototype.update = function(redraw) {
+  Plots.prototype.update = function() {
     var failures, group, groupAlpha, groupBeta, inputs, j, key, len, mean, populateParamElement, priorAlpha, priorBeta, ref, value, variance;
-    if (redraw == null) {
-      redraw = true;
-    }
     populateParamElement = function(id, alpha, beta) {
       return document.getElementById(id).innerHTML = "&alpha;=" + (round(alpha)) + " &beta;=" + (round(beta));
     };
@@ -264,20 +269,15 @@ Plots = (function() {
       populateParamElement(group + "-params", groupAlpha, groupBeta);
       this.models[group] = new BetaModel(groupAlpha, groupBeta);
     }
-    if (redraw) {
-      window.plots.redrawPdf();
-      return window.plots.redrawHistogram();
-    }
   };
 
   Plots.prototype.getInputs = function() {
     return new ((function() {
       function _Class() {
-        var id, j, len, ref;
-        ref = ['prior-mean', 'prior-uncertainty', 'control-trials', 'control-successes', 'test-trials', 'test-successes'];
-        for (j = 0, len = ref.length; j < len; j++) {
-          id = ref[j];
-          this[id] = Number(document.getElementById(id).value);
+        var elem, id;
+        for (id in INPUTS) {
+          elem = INPUTS[id];
+          this[id] = Number(elem.value);
         }
       }
 
@@ -294,7 +294,9 @@ ref = document.location.hash.slice(1).split(',');
 for (j = 0, len = ref.length; j < len; j++) {
   inputPair = ref[j];
   ref1 = inputPair.split('='), key = ref1[0], value = ref1[1];
-  document.getElementById(key).value = Number(value);
+  if ((ref2 = INPUTS[key]) != null) {
+    ref2.value = Number(value);
+  }
 }
 
 window.plots = new Plots();
@@ -303,7 +305,8 @@ form = document.getElementById('form');
 
 form.onsubmit = form.onchange = function(event) {
   event.preventDefault();
-  return window.plots.update();
+  window.plots.update();
+  return window.plots.redraw();
 };
 
 window.onresize = function() {

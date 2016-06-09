@@ -2,6 +2,10 @@ d3 = require('d3')
 jStat = require('jStat').jStat
 
 round = (x) -> Math.round(x * 1000) / 1000
+INPUTS =
+  new class then constructor: ->
+    @[id] = document.getElementById(id) for id in \
+      ['prior-mean', 'prior-uncertainty', 'control-trials', 'control-successes', 'test-trials', 'test-successes']
 
 class BetaModel
   constructor: (@alpha, @beta) ->
@@ -38,7 +42,7 @@ class Plots
   constructor: ->
     @models = {}
     @width = document.getElementsByClassName('content')[0].offsetWidth - @MARGIN.left - @MARGIN.right - 20
-    @update(false)
+    @update()
     @drawPdf()
     @drawHistogram()
 
@@ -89,7 +93,7 @@ class Plots
                       .attr('width', el.histogram[0].dx / 2 * @width)
                       .attr('height', (d) -> el.height - el.y(d.y))
     @histogramSvg = svg
-    @drawSummaryStatistics(el)
+    @drawSummaryStatistics(el.differenceData)
 
   drawPdf: ->
     el = @getPdfElements()
@@ -109,34 +113,35 @@ class Plots
                                                                          .text(plotTitle)
     svg
 
-  drawSummaryStatistics: (el) ->
+  drawSummaryStatistics: (differenceData) ->
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99]
-    differenceQuantiles = jStat.quantiles(el.differenceData, quantiles)
+    differenceQuantiles = jStat.quantiles(differenceData, quantiles)
     tb = '<tr><td>Percentile</td><td>Value</td></tr>'
     for i in [0..differenceQuantiles.length - 1]
       tb += "<tr><td>#{quantiles[i] * 100}%</td><td>#{round(differenceQuantiles[i])}</td></tr>"
     document.getElementById('quantile-table').innerHTML = tb
     document.getElementById('test-success-probability').innerHTML =
-      round(1.0 - BetaModel::percentileOfScore(el.differenceData, 0))
+      round(1.0 - BetaModel::percentileOfScore(differenceData, 0))
     document.getElementById('difference-mean').innerHTML =
-      "#{round(jStat.mean(el.differenceData))}±#{round(jStat.stdev(el.differenceData))}"
+      "#{round(jStat.mean(differenceData))}±#{round(jStat.stdev(differenceData))}"
 
-  redrawHistogram: ->
-    el = @getHistogramElements()
-    svg = @histogramSvg
-    svg.selectAll('rect').data(el.histogram).transition().duration(1000).attr('y', (d) -> el.y(d.y))
-                                                                        .attr('height', (d) -> el.height - el.y(d.y))
-    @drawSummaryStatistics(el)
+  redraw: ->
+    pdfElems = @getPdfElements()
+    @pdfSvg.select('#testLine').datum(pdfElems.testData).transition().duration(1000).attr('d', pdfElems.testLine)
+    @pdfSvg.select('#controlLine').datum(pdfElems.controlData).transition().duration(1000).attr('d', pdfElems.controlLine)
+    @pdfSvg.select('.y.axis').transition().duration(1000).call(pdfElems.yAxis)
+    @pdfSvg.select('.x.axis').transition().call(pdfElems.xAxis)
 
-  redrawPdf: ->
-    d = @getPdfElements()
-    svg = @pdfSvg
-    svg.select('#testLine').datum(d.testData).transition().duration(1000).attr('d', d.testLine)
-    svg.select('#controlLine').datum(d.controlData).transition().duration(1000).attr('d', d.controlLine)
-    svg.select('.y.axis').transition().duration(1000).call(d.yAxis)
-    svg.select('.x.axis').transition().call(d.xAxis)
+    histElems = @getHistogramElements()
+    @histogramSvg.selectAll('rect')
+                 .data(histElems.histogram)
+                 .transition()
+                 .duration(1000)
+                 .attr('y', (d) -> histElems.y(d.y))
+                 .attr('height', (d) -> histElems.height - histElems.y(d.y))
+    @drawSummaryStatistics(histElems.differenceData)
 
-  update: (redraw = true) ->
+  update: ->
     populateParamElement = (id, alpha, beta) ->
       document.getElementById(id).innerHTML = """&alpha;=#{round(alpha)} &beta;=#{round(beta)}"""
     inputs = @getInputs()
@@ -156,22 +161,19 @@ class Plots
       groupBeta = priorBeta + failures
       populateParamElement("#{group}-params", groupAlpha, groupBeta)
       @models[group] = new BetaModel(groupAlpha, groupBeta)
-    if redraw
-      window.plots.redrawPdf()
-      window.plots.redrawHistogram()
 
   getInputs: ->
     new class then constructor: ->
-      @[id] = Number(document.getElementById(id).value) for id in \
-        ['prior-mean', 'prior-uncertainty', 'control-trials', 'control-successes', 'test-trials', 'test-successes']
+      @[id] = Number(elem.value) for id, elem of INPUTS
 
 # Read default inputs from the hash
 for inputPair in document.location.hash.slice(1).split(',')
   [key, value] = inputPair.split('=')
-  document.getElementById(key).value = Number(value)
+  INPUTS[key]?.value = Number(value)
 window.plots = new Plots()
 form = document.getElementById('form')
 form.onsubmit = form.onchange = (event) ->
   event.preventDefault()
   window.plots.update()
+  window.plots.redraw()
 window.onresize = -> window.plots = new Plots()
