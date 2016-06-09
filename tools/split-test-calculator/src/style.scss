@@ -303,16 +303,15 @@ input[type="reset"] {
 }
 
 /* PDF Plot */
-#pdfplot #testLine,
-#pdfplot #controlLine {
+#test-line, #control-line {
   opacity: 0.6;
 }
 
-#pdfplot #testLine {
+#test-line {
   fill: #E93A5E;
 }
 
-#pdfplot #controlLine {
+#control-line {
   fill: #007AFF;
 }
 

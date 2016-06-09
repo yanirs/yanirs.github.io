@@ -43,8 +43,7 @@ class Plots
     @models = {}
     @width = document.getElementsByClassName('content')[0].offsetWidth - @MARGIN.left - @MARGIN.right - 20
     @update()
-    @drawPdf()
-    @drawHistogram()
+    @draw()
 
   getHistogramElements: ->
     controlData = @models.control.getRvs(@NUM_SAMPLES)
@@ -53,12 +52,13 @@ class Plots
     x = d3.scale.linear().domain([-1, 1]).range([0, @width])
     histogram = d3.layout.histogram().bins(x.ticks(@NUM_HISTOGRAM_BINS))(differenceData)
     y = d3.scale.linear().domain([0, d3.max(histogram, (d) -> d.y)]).range([@HEIGHT, 0])
-    el = {
+    el =
       'x': x
       'y': y
+      'controlData': controlData
+      'testData': testData
       'differenceData': differenceData
       'histogram': histogram
-    }
     @addCommonElements(el, x, y)
 
   getPdfElements: ->
@@ -67,12 +67,11 @@ class Plots
     allData = controlData.concat(testData)
     x = d3.scale.linear().domain(d3.extent(allData, (d) -> d.x)).range([0, @width])
     y = d3.scale.linear().domain([0, d3.max(allData, (d) -> d.y) + 1]).range([@HEIGHT, 0])
-    el = {
+    el =
       'testLine': d3.svg.area().x((d) -> x d.x).y1(@HEIGHT).y0((d) -> y d.y).interpolate(@PDF_INTERPOLATION_MODE)
       'controlLine': d3.svg.area().x((d) -> x d.x).y1(@HEIGHT).y0((d) -> y d.y).interpolate(@PDF_INTERPOLATION_MODE)
       'testData': testData
       'controlData': controlData
-    }
     @addCommonElements(el, x, y)
 
   addCommonElements: (el, x, y) ->
@@ -82,25 +81,30 @@ class Plots
     el.yAxis = d3.svg.axis().scale(y).orient('left')
     el
 
-  drawHistogram: ->
-    el = @getHistogramElements()
-    svg = @drawSvg(el, 'histogram', 'Samples')
-    bar = svg.selectAll('.bar').data(el.histogram).enter().append('g').attr('class', 'bar')
-                                                                      .attr('transform',
-                                                                            (d) -> "translate(#{el.x(d.x)},0)")
-    bar.append('rect').attr('x', 1)
-                      .attr('y', (d) -> el.y(d.y))
-                      .attr('width', el.histogram[0].dx / 2 * @width)
-                      .attr('height', (d) -> el.height - el.y(d.y))
-    @histogramSvg = svg
-    @drawSummaryStatistics(el.differenceData)
+  draw: ->
+    pdfElems = @getPdfElements()
+    @pdfSvg = @drawSvg(pdfElems, 'pdfplot', 'Density')
+    for group in ['control', 'test']
+      @pdfSvg.append('path')
+             .datum(pdfElems["#{group}Data"])
+             .attr('class', 'line')
+             .attr('d', pdfElems["#{group}Line"])
+             .attr('id', "#{group}-line")
 
-  drawPdf: ->
-    el = @getPdfElements()
-    svg = @drawSvg(el, 'pdfplot', 'Density')
-    svg.append('path').datum(el.testData).attr('class', 'line').attr('d', el.testLine).attr('id', 'testLine')
-    svg.append('path').datum(el.controlData).attr('class', 'area').attr('d', el.controlLine).attr('id', 'controlLine')
-    @pdfSvg = svg
+    histElems = @getHistogramElements()
+    @histogramSvg = @drawSvg(histElems, 'histogram', 'Samples')
+    @histogramSvg.selectAll('.bar')
+                 .data(histElems.histogram)
+                 .enter()
+                 .append('g')
+                 .attr('class', 'bar')
+                 .attr('transform', (d) -> "translate(#{histElems.x(d.x)},0)")
+                 .append('rect').attr('x', 1)
+                 .attr('y', (d) -> histElems.y(d.y))
+                 .attr('width', histElems.histogram[0].dx / 2 * @width)
+                 .attr('height', (d) -> histElems.height - histElems.y(d.y))
+
+    @drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData)
 
   drawSvg: (el, plotId, plotTitle) ->
     document.getElementById(plotId).innerHTML = ''
@@ -113,29 +117,35 @@ class Plots
                                                                          .text(plotTitle)
     svg
 
-  drawSummaryStatistics: (differenceData) ->
+  drawSummaryStatistics: (differenceData, controlData, testData) ->
+    dataToMeanStd = (data) -> "#{round(jStat.mean(data))}±#{round(jStat.stdev(data))}"
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99]
     quantileDiffs = jStat.quantiles(differenceData, quantiles)
     tb = '<tr><td>Percentile</td><td>Value</td></tr>'
     for i in [0..quantileDiffs.length - 1]
       tb += "<tr><td>#{quantiles[i] * 100}%</td><td>#{round(quantileDiffs[i])}</td></tr>"
     document.getElementById('quantile-table').innerHTML = tb
-    document.getElementById('test-success-probability').innerHTML =
-      round(1.0 - BetaModel::percentileOfScore(differenceData, 0))
-    document.getElementById('difference-mean').innerHTML =
-      "#{round(jStat.mean(differenceData))}±#{round(jStat.stdev(differenceData))}"
+    document.getElementById('control-success-rate').innerHTML = dataToMeanStd(controlData)
+    document.getElementById('test-success-rate').innerHTML = dataToMeanStd(testData)
+    testSuccessProbability = round(1.0 - BetaModel::percentileOfScore(differenceData, 0))
+    document.getElementById('test-success-probability').innerHTML = testSuccessProbability
+    document.getElementById('difference-mean').innerHTML = dataToMeanStd(differenceData)
     document.getElementById('recommendation').innerHTML =
-      if quantileDiffs[1] > 0 and quantileDiffs[quantileDiffs.length - 2] > 0
+      if testSuccessProbability > 0.95
         'Implement test variant'
-      else if quantileDiffs[1] < 0 and quantileDiffs[quantileDiffs.length - 2] < 0
+      else if testSuccessProbability < 0.05
         'Implement control variant'
       else
         'Keep testing'
 
   redraw: ->
     pdfElems = @getPdfElements()
-    @pdfSvg.select('#testLine').datum(pdfElems.testData).transition().duration(1000).attr('d', pdfElems.testLine)
-    @pdfSvg.select('#controlLine').datum(pdfElems.controlData).transition().duration(1000).attr('d', pdfElems.controlLine)
+    for group in ['control', 'test']
+      @pdfSvg.select("##{group}-line")
+             .datum(pdfElems["#{group}Data"])
+             .transition()
+             .duration(1000)
+             .attr('d', pdfElems["#{group}Line"])
     @pdfSvg.select('.y.axis').transition().duration(1000).call(pdfElems.yAxis)
     @pdfSvg.select('.x.axis').transition().call(pdfElems.xAxis)
 
@@ -146,7 +156,8 @@ class Plots
                  .duration(1000)
                  .attr('y', (d) -> histElems.y(d.y))
                  .attr('height', (d) -> histElems.height - histElems.y(d.y))
-    @drawSummaryStatistics(histElems.differenceData)
+
+    @drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData)
 
   update: ->
     populateParamElement = (id, alpha, beta) ->

@@ -101,8 +101,7 @@ Plots = (function() {
     this.models = {};
     this.width = document.getElementsByClassName('content')[0].offsetWidth - this.MARGIN.left - this.MARGIN.right - 20;
     this.update();
-    this.drawPdf();
-    this.drawHistogram();
+    this.draw();
   }
 
   Plots.prototype.getHistogramElements = function() {
@@ -127,6 +126,8 @@ Plots = (function() {
     el = {
       'x': x,
       'y': y,
+      'controlData': controlData,
+      'testData': testData,
       'differenceData': differenceData,
       'histogram': histogram
     };
@@ -171,29 +172,25 @@ Plots = (function() {
     return el;
   };
 
-  Plots.prototype.drawHistogram = function() {
-    var bar, el, svg;
-    el = this.getHistogramElements();
-    svg = this.drawSvg(el, 'histogram', 'Samples');
-    bar = svg.selectAll('.bar').data(el.histogram).enter().append('g').attr('class', 'bar').attr('transform', function(d) {
-      return "translate(" + (el.x(d.x)) + ",0)";
+  Plots.prototype.draw = function() {
+    var group, histElems, j, len, pdfElems, ref;
+    pdfElems = this.getPdfElements();
+    this.pdfSvg = this.drawSvg(pdfElems, 'pdfplot', 'Density');
+    ref = ['control', 'test'];
+    for (j = 0, len = ref.length; j < len; j++) {
+      group = ref[j];
+      this.pdfSvg.append('path').datum(pdfElems[group + "Data"]).attr('class', 'line').attr('d', pdfElems[group + "Line"]).attr('id', group + "-line");
+    }
+    histElems = this.getHistogramElements();
+    this.histogramSvg = this.drawSvg(histElems, 'histogram', 'Samples');
+    this.histogramSvg.selectAll('.bar').data(histElems.histogram).enter().append('g').attr('class', 'bar').attr('transform', function(d) {
+      return "translate(" + (histElems.x(d.x)) + ",0)";
+    }).append('rect').attr('x', 1).attr('y', function(d) {
+      return histElems.y(d.y);
+    }).attr('width', histElems.histogram[0].dx / 2 * this.width).attr('height', function(d) {
+      return histElems.height - histElems.y(d.y);
     });
-    bar.append('rect').attr('x', 1).attr('y', function(d) {
-      return el.y(d.y);
-    }).attr('width', el.histogram[0].dx / 2 * this.width).attr('height', function(d) {
-      return el.height - el.y(d.y);
-    });
-    this.histogramSvg = svg;
-    return this.drawSummaryStatistics(el.differenceData);
-  };
-
-  Plots.prototype.drawPdf = function() {
-    var el, svg;
-    el = this.getPdfElements();
-    svg = this.drawSvg(el, 'pdfplot', 'Density');
-    svg.append('path').datum(el.testData).attr('class', 'line').attr('d', el.testLine).attr('id', 'testLine');
-    svg.append('path').datum(el.controlData).attr('class', 'area').attr('d', el.controlLine).attr('id', 'controlLine');
-    return this.pdfSvg = svg;
+    return this.drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData);
   };
 
   Plots.prototype.drawSvg = function(el, plotId, plotTitle) {
@@ -205,8 +202,11 @@ Plots = (function() {
     return svg;
   };
 
-  Plots.prototype.drawSummaryStatistics = function(differenceData) {
-    var i, j, quantileDiffs, quantiles, ref, tb;
+  Plots.prototype.drawSummaryStatistics = function(differenceData, controlData, testData) {
+    var dataToMeanStd, i, j, quantileDiffs, quantiles, ref, tb, testSuccessProbability;
+    dataToMeanStd = function(data) {
+      return (round(jStat.mean(data))) + "±" + (round(jStat.stdev(data)));
+    };
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99];
     quantileDiffs = jStat.quantiles(differenceData, quantiles);
     tb = '<tr><td>Percentile</td><td>Value</td></tr>';
@@ -214,16 +214,22 @@ Plots = (function() {
       tb += "<tr><td>" + (quantiles[i] * 100) + "%</td><td>" + (round(quantileDiffs[i])) + "</td></tr>";
     }
     document.getElementById('quantile-table').innerHTML = tb;
-    document.getElementById('test-success-probability').innerHTML = round(1.0 - BetaModel.prototype.percentileOfScore(differenceData, 0));
-    document.getElementById('difference-mean').innerHTML = (round(jStat.mean(differenceData))) + "±" + (round(jStat.stdev(differenceData)));
-    return document.getElementById('recommendation').innerHTML = quantileDiffs[1] > 0 && quantileDiffs[quantileDiffs.length - 2] > 0 ? 'Implement test variant' : quantileDiffs[1] < 0 && quantileDiffs[quantileDiffs.length - 2] < 0 ? 'Implement control variant' : 'Keep testing';
+    document.getElementById('control-success-rate').innerHTML = dataToMeanStd(controlData);
+    document.getElementById('test-success-rate').innerHTML = dataToMeanStd(testData);
+    testSuccessProbability = round(1.0 - BetaModel.prototype.percentileOfScore(differenceData, 0));
+    document.getElementById('test-success-probability').innerHTML = testSuccessProbability;
+    document.getElementById('difference-mean').innerHTML = dataToMeanStd(differenceData);
+    return document.getElementById('recommendation').innerHTML = testSuccessProbability > 0.95 ? 'Implement test variant' : testSuccessProbability < 0.05 ? 'Implement control variant' : 'Keep testing';
   };
 
   Plots.prototype.redraw = function() {
-    var histElems, pdfElems;
+    var group, histElems, j, len, pdfElems, ref;
     pdfElems = this.getPdfElements();
-    this.pdfSvg.select('#testLine').datum(pdfElems.testData).transition().duration(1000).attr('d', pdfElems.testLine);
-    this.pdfSvg.select('#controlLine').datum(pdfElems.controlData).transition().duration(1000).attr('d', pdfElems.controlLine);
+    ref = ['control', 'test'];
+    for (j = 0, len = ref.length; j < len; j++) {
+      group = ref[j];
+      this.pdfSvg.select("#" + group + "-line").datum(pdfElems[group + "Data"]).transition().duration(1000).attr('d', pdfElems[group + "Line"]);
+    }
     this.pdfSvg.select('.y.axis').transition().duration(1000).call(pdfElems.yAxis);
     this.pdfSvg.select('.x.axis').transition().call(pdfElems.xAxis);
     histElems = this.getHistogramElements();
@@ -232,7 +238,7 @@ Plots = (function() {
     }).attr('height', function(d) {
       return histElems.height - histElems.y(d.y);
     });
-    return this.drawSummaryStatistics(histElems.differenceData);
+    return this.drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData);
   };
 
   Plots.prototype.update = function() {
