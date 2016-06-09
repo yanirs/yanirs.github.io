@@ -64,15 +64,25 @@ html(lang="en")
             input(type="submit", value="Calculate")
             input(type="reset", value="Reset")
 
-        .text-center
+        .result-summary
           p
-            i Probability that test performs better than control:
+            i Approximate probability that test performs better than control:
             br
             b: span#test-success-probability
           p
             i Expected change in success rate if test is chosen:
             br
             b: span#difference-mean
+          p
+            i Recommendation:
+            br
+            b: span#recommendation
+          p.chart-description.
+            * Note: You can always decrease your risk of making the wrong decision by collecting more data. If your
+            sample size is small (less than a few hundred successes), or if it isn't representative of your population
+            (e.g., it was collected over a short period of time), it's probably worth continuing the experiment. If your
+            sample size is large and representative, but the difference between the control and test groups is small,
+            it's probably worth moving on to other experiments.
 
       .content
         .chart

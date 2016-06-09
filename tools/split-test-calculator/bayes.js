@@ -206,16 +206,17 @@ Plots = (function() {
   };
 
   Plots.prototype.drawSummaryStatistics = function(differenceData) {
-    var differenceQuantiles, i, j, quantiles, ref, tb;
+    var i, j, quantileDiffs, quantiles, ref, tb;
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99];
-    differenceQuantiles = jStat.quantiles(differenceData, quantiles);
+    quantileDiffs = jStat.quantiles(differenceData, quantiles);
     tb = '<tr><td>Percentile</td><td>Value</td></tr>';
-    for (i = j = 0, ref = differenceQuantiles.length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
-      tb += "<tr><td>" + (quantiles[i] * 100) + "%</td><td>" + (round(differenceQuantiles[i])) + "</td></tr>";
+    for (i = j = 0, ref = quantileDiffs.length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
+      tb += "<tr><td>" + (quantiles[i] * 100) + "%</td><td>" + (round(quantileDiffs[i])) + "</td></tr>";
     }
     document.getElementById('quantile-table').innerHTML = tb;
     document.getElementById('test-success-probability').innerHTML = round(1.0 - BetaModel.prototype.percentileOfScore(differenceData, 0));
-    return document.getElementById('difference-mean').innerHTML = (round(jStat.mean(differenceData))) + "±" + (round(jStat.stdev(differenceData)));
+    document.getElementById('difference-mean').innerHTML = (round(jStat.mean(differenceData))) + "±" + (round(jStat.stdev(differenceData)));
+    return document.getElementById('recommendation').innerHTML = quantileDiffs[1] > 0 && quantileDiffs[quantileDiffs.length - 2] > 0 ? 'Implement test variant' : quantileDiffs[1] < 0 && quantileDiffs[quantileDiffs.length - 2] < 0 ? 'Implement control variant' : 'Keep testing';
   };
 
   Plots.prototype.redraw = function() {

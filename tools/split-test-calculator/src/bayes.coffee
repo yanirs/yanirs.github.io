@@ -115,15 +115,22 @@ class Plots
 
   drawSummaryStatistics: (differenceData) ->
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99]
-    differenceQuantiles = jStat.quantiles(differenceData, quantiles)
+    quantileDiffs = jStat.quantiles(differenceData, quantiles)
     tb = '<tr><td>Percentile</td><td>Value</td></tr>'
-    for i in [0..differenceQuantiles.length - 1]
-      tb += "<tr><td>#{quantiles[i] * 100}%</td><td>#{round(differenceQuantiles[i])}</td></tr>"
+    for i in [0..quantileDiffs.length - 1]
+      tb += "<tr><td>#{quantiles[i] * 100}%</td><td>#{round(quantileDiffs[i])}</td></tr>"
     document.getElementById('quantile-table').innerHTML = tb
     document.getElementById('test-success-probability').innerHTML =
       round(1.0 - BetaModel::percentileOfScore(differenceData, 0))
     document.getElementById('difference-mean').innerHTML =
       "#{round(jStat.mean(differenceData))}±#{round(jStat.stdev(differenceData))}"
+    document.getElementById('recommendation').innerHTML =
+      if quantileDiffs[1] > 0 and quantileDiffs[quantileDiffs.length - 2] > 0
+        'Implement test variant'
+      else if quantileDiffs[1] < 0 and quantileDiffs[quantileDiffs.length - 2] < 0
+        'Implement control variant'
+      else
+        'Keep testing'
 
   redraw: ->
     pdfElems = @getPdfElements()

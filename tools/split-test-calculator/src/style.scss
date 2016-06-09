@@ -73,8 +73,16 @@ ol {
   }
 }
 
-.text-center {
+.result-summary {
   text-align: center;
+  border: 1px #888 solid;
+  border-radius: 4px;
+  margin-bottom: 10px;
+  padding: 5px;
+
+  .chart-description {
+    text-align: left;
+  }
 }
 
 /* Form Styling */
@@ -190,8 +198,8 @@ input[type="reset"] {
 
 /* Preamble Styling */
 .header {
-  background: #A4E3FA;
-  color: #8b8b80;
+  background: #94D3FA;
+  color: #FFF;
   padding: 20px 0;
 }
 
