@@ -1,5 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var BetaModel, INPUTS, Plots, d3, form, inputPair, j, jStat, key, len, ref, ref1, ref2, round, value;
+var BetaModel, INPUTS, Plots, d3, form, inputPair, j, jStat, key, len, ref, ref1, ref2, round, value,
+  bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 d3 = require('d3');
 
@@ -98,13 +99,18 @@ Plots = (function() {
   Plots.prototype.PDF_INTERPOLATION_MODE = 'cardinal';
 
   function Plots() {
+    this.resize = bind(this.resize, this);
     this.models = {};
-    this.width = document.getElementsByClassName('content')[0].offsetWidth - this.MARGIN.left - this.MARGIN.right - 20;
+    this.width = this._calculateWidth();
     this.update();
-    this.draw();
+    this._draw();
   }
 
-  Plots.prototype.getHistogramElements = function() {
+  Plots.prototype._calculateWidth = function() {
+    return document.getElementsByClassName('content')[0].offsetWidth - this.MARGIN.left - this.MARGIN.right - 20;
+  };
+
+  Plots.prototype._getHistogramElements = function() {
     var controlData, differenceData, el, histogram, i, testData, x, y;
     controlData = this.models.control.getRvs(this.NUM_SAMPLES);
     testData = this.models.test.getRvs(this.NUM_SAMPLES);
@@ -131,10 +137,10 @@ Plots = (function() {
       'differenceData': differenceData,
       'histogram': histogram
     };
-    return this.addCommonElements(el, x, y);
+    return this._addCommonElements(el, x, y);
   };
 
-  Plots.prototype.getPdfElements = function() {
+  Plots.prototype._getPdfElements = function() {
     var allData, controlData, el, testData, x, y;
     controlData = this.models.control.getPdf(this.NUM_SAMPLES);
     testData = this.models.test.getPdf(this.NUM_SAMPLES);
@@ -161,10 +167,10 @@ Plots = (function() {
       'testData': testData,
       'controlData': controlData
     };
-    return this.addCommonElements(el, x, y);
+    return this._addCommonElements(el, x, y);
   };
 
-  Plots.prototype.addCommonElements = function(el, x, y) {
+  Plots.prototype._addCommonElements = function(el, x, y) {
     el.margin = this.MARGIN;
     el.height = this.HEIGHT;
     el.xAxis = d3.svg.axis().scale(x).orient('bottom');
@@ -172,17 +178,17 @@ Plots = (function() {
     return el;
   };
 
-  Plots.prototype.draw = function() {
+  Plots.prototype._draw = function() {
     var group, histElems, j, len, pdfElems, ref;
-    pdfElems = this.getPdfElements();
-    this.pdfSvg = this.drawSvg(pdfElems, 'pdfplot', 'Density');
+    pdfElems = this._getPdfElements();
+    this.pdfSvg = this._drawSvg(pdfElems, 'pdfplot', 'Density');
     ref = ['control', 'test'];
     for (j = 0, len = ref.length; j < len; j++) {
       group = ref[j];
       this.pdfSvg.append('path').datum(pdfElems[group + "Data"]).attr('class', 'line').attr('d', pdfElems[group + "Line"]).attr('id', group + "-line");
     }
-    histElems = this.getHistogramElements();
-    this.histogramSvg = this.drawSvg(histElems, 'histogram', 'Samples');
+    histElems = this._getHistogramElements();
+    this.histogramSvg = this._drawSvg(histElems, 'histogram', 'Samples');
     this.histogramSvg.selectAll('.bar').data(histElems.histogram).enter().append('g').attr('class', 'bar').attr('transform', function(d) {
       return "translate(" + (histElems.x(d.x)) + ",0)";
     }).append('rect').attr('x', 1).attr('y', function(d) {
@@ -190,10 +196,10 @@ Plots = (function() {
     }).attr('width', histElems.histogram[0].dx / 2 * this.width).attr('height', function(d) {
       return histElems.height - histElems.y(d.y);
     });
-    return this.drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData);
+    return this._drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData);
   };
 
-  Plots.prototype.drawSvg = function(el, plotId, plotTitle) {
+  Plots.prototype._drawSvg = function(el, plotId, plotTitle) {
     var svg;
     document.getElementById(plotId).innerHTML = '';
     svg = d3.select('#' + plotId).append('svg').attr('width', this.width + el.margin.left + el.margin.right).attr('height', el.height + el.margin.top + el.margin.bottom).append('g').attr('transform', "translate(" + el.margin.left + "," + el.margin.top + ")");
@@ -202,7 +208,7 @@ Plots = (function() {
     return svg;
   };
 
-  Plots.prototype.drawSummaryStatistics = function(differenceData, controlData, testData) {
+  Plots.prototype._drawSummaryStatistics = function(differenceData, controlData, testData) {
     var dataToMeanStd, i, j, quantileDiffs, quantiles, ref, tb, testSuccessProbability;
     dataToMeanStd = function(data) {
       return (round(jStat.mean(data))) + "±" + (round(jStat.stdev(data)));
@@ -224,7 +230,7 @@ Plots = (function() {
 
   Plots.prototype.redraw = function() {
     var group, histElems, j, len, pdfElems, ref;
-    pdfElems = this.getPdfElements();
+    pdfElems = this._getPdfElements();
     ref = ['control', 'test'];
     for (j = 0, len = ref.length; j < len; j++) {
       group = ref[j];
@@ -232,13 +238,13 @@ Plots = (function() {
     }
     this.pdfSvg.select('.y.axis').transition().duration(1000).call(pdfElems.yAxis);
     this.pdfSvg.select('.x.axis').transition().call(pdfElems.xAxis);
-    histElems = this.getHistogramElements();
+    histElems = this._getHistogramElements();
     this.histogramSvg.selectAll('rect').data(histElems.histogram).transition().duration(1000).attr('y', function(d) {
       return histElems.y(d.y);
     }).attr('height', function(d) {
       return histElems.height - histElems.y(d.y);
     });
-    return this.drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData);
+    return this._drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData);
   };
 
   Plots.prototype.update = function() {
@@ -246,7 +252,7 @@ Plots = (function() {
     populateParamElement = function(id, alpha, beta) {
       return document.getElementById(id).innerHTML = "&alpha;=" + (round(alpha)) + " &beta;=" + (round(beta));
     };
-    inputs = this.getInputs();
+    inputs = this._getInputs();
     document.location.hash = [
       (function() {
         var results;
@@ -278,7 +284,7 @@ Plots = (function() {
     }
   };
 
-  Plots.prototype.getInputs = function() {
+  Plots.prototype._getInputs = function() {
     return new ((function() {
       function _Class() {
         var elem, id;
@@ -291,6 +297,15 @@ Plots = (function() {
       return _Class;
 
     })());
+  };
+
+  Plots.prototype.resize = function() {
+    var newWidth;
+    newWidth = this._calculateWidth();
+    if (newWidth !== this.width) {
+      this.width = newWidth;
+      return this._draw();
+    }
   };
 
   return Plots;
@@ -316,9 +331,7 @@ form.onsubmit = form.onchange = function(event) {
   return window.plots.redraw();
 };
 
-window.onresize = function() {
-  return window.plots = new Plots();
-};
+window.onresize = window.plots.resize;
 
 },{"d3":2,"jStat":3}],2:[function(require,module,exports){
 !function() {

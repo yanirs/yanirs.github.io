@@ -41,11 +41,14 @@ class Plots
 
   constructor: ->
     @models = {}
-    @width = document.getElementsByClassName('content')[0].offsetWidth - @MARGIN.left - @MARGIN.right - 20
+    @width = @_calculateWidth()
     @update()
-    @draw()
+    @_draw()
 
-  getHistogramElements: ->
+  _calculateWidth: ->
+    document.getElementsByClassName('content')[0].offsetWidth - @MARGIN.left - @MARGIN.right - 20
+
+  _getHistogramElements: ->
     controlData = @models.control.getRvs(@NUM_SAMPLES)
     testData = @models.test.getRvs(@NUM_SAMPLES)
     differenceData = (testData[i] - controlData[i] for i in [0..controlData.length - 1])
@@ -59,9 +62,9 @@ class Plots
       'testData': testData
       'differenceData': differenceData
       'histogram': histogram
-    @addCommonElements(el, x, y)
+    @_addCommonElements(el, x, y)
 
-  getPdfElements: ->
+  _getPdfElements: ->
     controlData = @models.control.getPdf(@NUM_SAMPLES)
     testData = @models.test.getPdf(@NUM_SAMPLES)
     allData = controlData.concat(testData)
@@ -72,18 +75,18 @@ class Plots
       'controlLine': d3.svg.area().x((d) -> x d.x).y1(@HEIGHT).y0((d) -> y d.y).interpolate(@PDF_INTERPOLATION_MODE)
       'testData': testData
       'controlData': controlData
-    @addCommonElements(el, x, y)
+    @_addCommonElements(el, x, y)
 
-  addCommonElements: (el, x, y) ->
+  _addCommonElements: (el, x, y) ->
     el.margin = @MARGIN
     el.height = @HEIGHT
     el.xAxis = d3.svg.axis().scale(x).orient('bottom')
     el.yAxis = d3.svg.axis().scale(y).orient('left')
     el
 
-  draw: ->
-    pdfElems = @getPdfElements()
-    @pdfSvg = @drawSvg(pdfElems, 'pdfplot', 'Density')
+  _draw: ->
+    pdfElems = @_getPdfElements()
+    @pdfSvg = @_drawSvg(pdfElems, 'pdfplot', 'Density')
     for group in ['control', 'test']
       @pdfSvg.append('path')
              .datum(pdfElems["#{group}Data"])
@@ -91,8 +94,8 @@ class Plots
              .attr('d', pdfElems["#{group}Line"])
              .attr('id', "#{group}-line")
 
-    histElems = @getHistogramElements()
-    @histogramSvg = @drawSvg(histElems, 'histogram', 'Samples')
+    histElems = @_getHistogramElements()
+    @histogramSvg = @_drawSvg(histElems, 'histogram', 'Samples')
     @histogramSvg.selectAll('.bar')
                  .data(histElems.histogram)
                  .enter()
@@ -104,9 +107,9 @@ class Plots
                  .attr('width', histElems.histogram[0].dx / 2 * @width)
                  .attr('height', (d) -> histElems.height - histElems.y(d.y))
 
-    @drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData)
+    @_drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData)
 
-  drawSvg: (el, plotId, plotTitle) ->
+  _drawSvg: (el, plotId, plotTitle) ->
     document.getElementById(plotId).innerHTML = ''
     svg = d3.select('#' + plotId).append('svg').attr('width', @width + el.margin.left + el.margin.right)
                                                .attr('height', el.height + el.margin.top + el.margin.bottom)
@@ -117,7 +120,7 @@ class Plots
                                                                          .text(plotTitle)
     svg
 
-  drawSummaryStatistics: (differenceData, controlData, testData) ->
+  _drawSummaryStatistics: (differenceData, controlData, testData) ->
     dataToMeanStd = (data) -> "#{round(jStat.mean(data))}±#{round(jStat.stdev(data))}"
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99]
     quantileDiffs = jStat.quantiles(differenceData, quantiles)
@@ -139,7 +142,7 @@ class Plots
         'Keep testing'
 
   redraw: ->
-    pdfElems = @getPdfElements()
+    pdfElems = @_getPdfElements()
     for group in ['control', 'test']
       @pdfSvg.select("##{group}-line")
              .datum(pdfElems["#{group}Data"])
@@ -149,7 +152,7 @@ class Plots
     @pdfSvg.select('.y.axis').transition().duration(1000).call(pdfElems.yAxis)
     @pdfSvg.select('.x.axis').transition().call(pdfElems.xAxis)
 
-    histElems = @getHistogramElements()
+    histElems = @_getHistogramElements()
     @histogramSvg.selectAll('rect')
                  .data(histElems.histogram)
                  .transition()
@@ -157,12 +160,12 @@ class Plots
                  .attr('y', (d) -> histElems.y(d.y))
                  .attr('height', (d) -> histElems.height - histElems.y(d.y))
 
-    @drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData)
+    @_drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData)
 
   update: ->
     populateParamElement = (id, alpha, beta) ->
       document.getElementById(id).innerHTML = """&alpha;=#{round(alpha)} &beta;=#{round(beta)}"""
-    inputs = @getInputs()
+    inputs = @_getInputs()
     document.location.hash = ["#{key}=#{value}" for key, value of inputs].join(',')
     # See http://stats.stackexchange.com/a/12239 -- the mean is in (0, 1) and variance is in (0, mean * (1 - mean))
     mean = inputs['prior-mean']
@@ -180,9 +183,15 @@ class Plots
       populateParamElement("#{group}-params", groupAlpha, groupBeta)
       @models[group] = new BetaModel(groupAlpha, groupBeta)
 
-  getInputs: ->
+  _getInputs: ->
     new class then constructor: ->
       @[id] = Number(elem.value) for id, elem of INPUTS
+
+  resize: =>
+    newWidth = @_calculateWidth()
+    if newWidth != @width
+      @width = newWidth
+      @_draw()
 
 # Read default inputs from the hash
 for inputPair in document.location.hash.slice(1).split(',')
@@ -194,4 +203,4 @@ form.onsubmit = form.onchange = (event) ->
   event.preventDefault()
   window.plots.update()
   window.plots.redraw()
-window.onresize = -> window.plots = new Plots()
+window.onresize = window.plots.resize
