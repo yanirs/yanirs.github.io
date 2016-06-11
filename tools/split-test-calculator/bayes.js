@@ -251,12 +251,43 @@ Plots = (function() {
   };
 
   Plots.prototype.update = function() {
-    var failures, group, groupAlpha, groupBeta, inputs, j, key, len, mean, populateParamElement, priorAlpha, priorBeta, ref, value, variance;
+    var errorMessage, failures, group, groupAlpha, groupBeta, inputs, j, key, len, mean, populateParamElement, priorAlpha, priorBeta, ref, setError, uncertainty, value, variance;
     populateParamElement = function(id, alpha, beta) {
       return document.getElementById(id).innerHTML = "&alpha;=" + (round(alpha)) + " &beta;=" + (round(beta));
     };
+    errorMessage = document.getElementById('error-message');
+    setError = function(msg) {
+      errorMessage.hidden = false;
+      return errorMessage.innerHTML = msg;
+    };
+    errorMessage.hidden = true;
     inputs = this._getInputs();
-    document.location.hash = [
+    mean = inputs['prior-mean'];
+    if (mean <= 0 || mean >= 1) {
+      return setError('Success rate must be between 0 and 1 (exclusive)');
+    }
+    uncertainty = inputs['prior-uncertainty'];
+    if (uncertainty <= 0 || uncertainty >= 1) {
+      return setError('Uncertainty must be between 0 and 1 (exclusive)');
+    }
+    variance = Math.pow(uncertainty, 2) * mean * (1 - mean);
+    priorAlpha = Math.pow(mean, 2) * (((1 - mean) / variance) - (1 / mean));
+    priorBeta = priorAlpha * ((1 / mean) - 1);
+    populateParamElement('prior-params', priorAlpha, priorBeta);
+    ref = ['control', 'test'];
+    for (j = 0, len = ref.length; j < len; j++) {
+      group = ref[j];
+      failures = inputs[group + "-trials"] - inputs[group + "-successes"];
+      if (failures < 0) {
+        return setError('Number of trials cannot be smaller than number of successes');
+      }
+      groupAlpha = priorAlpha + inputs[group + "-successes"];
+      groupBeta = priorBeta + failures;
+      populateParamElement(group + "-params", groupAlpha, groupBeta);
+      this.models[group] = new BetaModel(groupAlpha, groupBeta);
+    }
+    this._generatePlotData();
+    return document.location.hash = [
       (function() {
         var results;
         results = [];
@@ -267,25 +298,6 @@ Plots = (function() {
         return results;
       })()
     ].join(',');
-    mean = inputs['prior-mean'];
-    variance = Math.pow(inputs['prior-uncertainty'], 2) * mean * (1 - mean);
-    priorAlpha = Math.pow(mean, 2) * (((1 - mean) / variance) - (1 / mean));
-    priorBeta = priorAlpha * ((1 / mean) - 1);
-    populateParamElement('prior-params', priorAlpha, priorBeta);
-    ref = ['control', 'test'];
-    for (j = 0, len = ref.length; j < len; j++) {
-      group = ref[j];
-      failures = inputs[group + "-trials"] - inputs[group + "-successes"];
-      if (failures < 0) {
-        alert('Number of trials cannot be smaller than number of successes');
-        return;
-      }
-      groupAlpha = priorAlpha + inputs[group + "-successes"];
-      groupBeta = priorBeta + failures;
-      populateParamElement(group + "-params", groupAlpha, groupBeta);
-      this.models[group] = new BetaModel(groupAlpha, groupBeta);
-    }
-    return this._generatePlotData();
   };
 
   Plots.prototype._getInputs = function() {

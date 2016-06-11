@@ -164,24 +164,30 @@ class Plots
   update: ->
     populateParamElement = (id, alpha, beta) ->
       document.getElementById(id).innerHTML = """&alpha;=#{round(alpha)} &beta;=#{round(beta)}"""
+    errorMessage = document.getElementById('error-message')
+    setError = (msg) ->
+      errorMessage.hidden = false
+      errorMessage.innerHTML = msg
+    errorMessage.hidden = true
     inputs = @_getInputs()
-    document.location.hash = ["#{key}=#{value}" for key, value of inputs].join(',')
     # See http://stats.stackexchange.com/a/12239 -- the mean is in (0, 1) and variance is in (0, mean * (1 - mean))
     mean = inputs['prior-mean']
-    variance = Math.pow(inputs['prior-uncertainty'], 2) * mean * (1 - mean)
+    return setError('Success rate must be between 0 and 1 (exclusive)') if mean <= 0 or mean >= 1
+    uncertainty = inputs['prior-uncertainty']
+    return setError('Uncertainty must be between 0 and 1 (exclusive)') if uncertainty <= 0 or uncertainty >= 1
+    variance = Math.pow(uncertainty, 2) * mean * (1 - mean)
     priorAlpha = Math.pow(mean, 2) * (((1 - mean) / variance) - (1 / mean))
     priorBeta = priorAlpha * ((1 / mean) - 1)
     populateParamElement('prior-params', priorAlpha, priorBeta)
     for group in ['control', 'test']
       failures = inputs["#{group}-trials"] - inputs["#{group}-successes"]
-      if failures < 0
-        alert('Number of trials cannot be smaller than number of successes')
-        return
+      return setError('Number of trials cannot be smaller than number of successes') if failures < 0
       groupAlpha = priorAlpha + inputs["#{group}-successes"]
       groupBeta = priorBeta + failures
       populateParamElement("#{group}-params", groupAlpha, groupBeta)
       @models[group] = new BetaModel(groupAlpha, groupBeta)
     @_generatePlotData()
+    document.location.hash = ["#{key}=#{value}" for key, value of inputs].join(',')
 
   _getInputs: ->
     new class then constructor: ->
