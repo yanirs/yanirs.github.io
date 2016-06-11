@@ -9,16 +9,24 @@ html(lang="en")
   body
     .container.header
       h1.logo Split testing calculator
+      h2.tagline Bayesian A/B experiments made easy
 
     .container
       .sidebar.note-wrapper
-        h3 Need Help?
+        h3 Why another calculator?
         p.note.
-          See <a href="#explanation">here</a> or read more about Bayesian inference in A/B testing on
-          <a href="http://developers.lyst.com/2014/05/10/bayesian-ab-testing">Lyst's blog</a>.
+          There are many split testing calculators out there. Those based on frequentist statistics, <a
+          href="http://www.evanmiller.org/ab-testing/chi-squared.html" rel="nofollow" target="_blank">like the one by
+          Evan Miller</a>, assume a closed formula that requires <a
+          href="http://www.evanmiller.org/ab-testing/sample-size.html" rel="nofollow" target="_blank">setting the sample
+          size in advance</a>. Bayesian calculators, like <a href="http://developers.lyst.com/bayesian-calculator/"
+          rel="nofollow" target="_blank">Lyst's calculator</a>, allow users to encode their prior knowledge about the
+          data, and do not require committing to a sample size in advance. This calculator enhances Lyst's work, making
+          it easier for users to specify prior knowledge and interpret the results.<br>
+          Questions/comments? <a href="https://yanirseroussi.com/about" target="_blank">Drop me a line</a>
 
       .content
-        h3.instructions-title TL:DR; Instructions
+        h3.instructions-title Instructions
         ol
           li <span class="number">1</span>Specify the prior alpha and beta parameters.
           li <span class="number">2</span>Plot the priors and revise parameters as necessary.
