@@ -2,6 +2,7 @@ d3 = require('d3')
 jStat = require('jStat').jStat
 
 round = (x) -> Math.round(x * 1000) / 1000
+roundPct = (x) -> Math.round(x * 10000) / 100
 INPUTS =
   new class then constructor: ->
     @[id] = document.getElementById(id) for id in \
@@ -120,12 +121,12 @@ class Plots
     svg
 
   _drawSummaryStatistics: ->
-    dataToMeanStd = (data) -> "#{round(jStat.mean(data))}±#{round(jStat.stdev(data))}"
+    dataToMeanStd = (data) -> "#{roundPct(jStat.mean(data))}±#{roundPct(jStat.stdev(data))}%"
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99]
     quantileDiffs = jStat.quantiles(@histData.diffs, quantiles)
     tb = '<tr><td>Percentile</td><td>Value</td></tr>'
     for i in [0..quantileDiffs.length - 1]
-      tb += "<tr><td>#{quantiles[i] * 100}%</td><td>#{round(quantileDiffs[i])}</td></tr>"
+      tb += "<tr><td>#{quantiles[i] * 100}%</td><td>#{roundPct(quantileDiffs[i])}%</td></tr>"
     document.getElementById('quantile-table').innerHTML = tb
     document.getElementById('control-success-rate').innerHTML = dataToMeanStd(@histData.control)
     document.getElementById('test-success-rate').innerHTML = dataToMeanStd(@histData.test)
@@ -171,10 +172,10 @@ class Plots
     errorMessage.hidden = true
     inputs = @_getInputs()
     # See http://stats.stackexchange.com/a/12239 -- the mean is in (0, 1) and variance is in (0, mean * (1 - mean))
-    mean = inputs['prior-mean']
-    return setError('Success rate must be between 0 and 1 (exclusive)') if mean <= 0 or mean >= 1
-    uncertainty = inputs['prior-uncertainty']
-    return setError('Uncertainty must be between 0 and 1 (exclusive)') if uncertainty <= 0 or uncertainty >= 1
+    mean = inputs['prior-mean'] / 100
+    return setError('Success rate must be between 0 and 100% (exclusive)') if mean <= 0 or mean >= 1
+    uncertainty = inputs['prior-uncertainty'] / 100
+    return setError('Uncertainty must be between 0 and 100% (exclusive)') if uncertainty <= 0 or uncertainty >= 1
     variance = Math.pow(uncertainty, 2) * mean * (1 - mean)
     priorAlpha = Math.pow(mean, 2) * (((1 - mean) / variance) - (1 / mean))
     priorBeta = priorAlpha * ((1 / mean) - 1)

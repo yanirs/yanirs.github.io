@@ -44,12 +44,11 @@ html(lang="en")
             h4.form-group-title Prior knowledge
               span#prior-params.dist-values
             fieldset
-              label(for="prior-mean") Success rate
-              input#prior-mean(value="0.5", type="number", min="0.001", max="0.999", step="0.001", placeholder="> 0")
+              label(for="prior-mean") Success rate [%]
+              input#prior-mean(value="50", type="number", min="0", max="100", step="any", placeholder="> 0")
             fieldset
-              label(for="prior-uncertainty") Uncertainty
-              input#prior-uncertainty(value="0.05", type="number", min="0.001", max="0.999", step="0.001",
-                                      placeholder="> 0")
+              label(for="prior-uncertainty") Uncertainty [%]
+              input#prior-uncertainty(value="5", type="number", min="0", max="100", step="any", placeholder="> 0")
 
           .form-group
             h4.form-group-title.control Control
@@ -89,7 +88,7 @@ html(lang="en")
             br
             b: span#test-success-probability
           p
-            i Expected change in success rate if test is chosen:
+            i Expected absolute change in success rate if test is chosen:
             br
             b: span#difference-mean
           p
@@ -97,7 +96,7 @@ html(lang="en")
             br
             b: span#recommendation
           p.chart-description.
-            * Note: You can always decrease your risk of making the wrong decision by collecting more data. If your
+            * Note: You can always decrease the risk of making the wrong decision by collecting more data. If your
             sample size is small (less than a few hundred successes), or if it isn't representative of your population
             (e.g., it was collected over a short period of time), it's probably worth continuing the experiment. If your
             sample size is large and representative, but the difference between the control and test groups is small,

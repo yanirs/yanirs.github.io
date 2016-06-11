@@ -1,5 +1,5 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
-var BetaModel, INPUTS, Plots, d3, form, inputPair, j, jStat, key, len, ref, ref1, ref2, round, value,
+var BetaModel, INPUTS, Plots, d3, form, inputPair, j, jStat, key, len, ref, ref1, ref2, round, roundPct, value,
   bind = function(fn, me){ return function(){ return fn.apply(me, arguments); }; };
 
 d3 = require('d3');
@@ -8,6 +8,10 @@ jStat = require('jStat').jStat;
 
 round = function(x) {
   return Math.round(x * 1000) / 1000;
+};
+
+roundPct = function(x) {
+  return Math.round(x * 10000) / 100;
 };
 
 INPUTS = new ((function() {
@@ -214,13 +218,13 @@ Plots = (function() {
   Plots.prototype._drawSummaryStatistics = function() {
     var dataToMeanStd, i, j, quantileDiffs, quantiles, ref, tb, testSuccessProbability;
     dataToMeanStd = function(data) {
-      return (round(jStat.mean(data))) + "±" + (round(jStat.stdev(data)));
+      return (roundPct(jStat.mean(data))) + "±" + (roundPct(jStat.stdev(data))) + "%";
     };
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99];
     quantileDiffs = jStat.quantiles(this.histData.diffs, quantiles);
     tb = '<tr><td>Percentile</td><td>Value</td></tr>';
     for (i = j = 0, ref = quantileDiffs.length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
-      tb += "<tr><td>" + (quantiles[i] * 100) + "%</td><td>" + (round(quantileDiffs[i])) + "</td></tr>";
+      tb += "<tr><td>" + (quantiles[i] * 100) + "%</td><td>" + (roundPct(quantileDiffs[i])) + "%</td></tr>";
     }
     document.getElementById('quantile-table').innerHTML = tb;
     document.getElementById('control-success-rate').innerHTML = dataToMeanStd(this.histData.control);
@@ -262,13 +266,13 @@ Plots = (function() {
     };
     errorMessage.hidden = true;
     inputs = this._getInputs();
-    mean = inputs['prior-mean'];
+    mean = inputs['prior-mean'] / 100;
     if (mean <= 0 || mean >= 1) {
-      return setError('Success rate must be between 0 and 1 (exclusive)');
+      return setError('Success rate must be between 0 and 100% (exclusive)');
     }
-    uncertainty = inputs['prior-uncertainty'];
+    uncertainty = inputs['prior-uncertainty'] / 100;
     if (uncertainty <= 0 || uncertainty >= 1) {
-      return setError('Uncertainty must be between 0 and 1 (exclusive)');
+      return setError('Uncertainty must be between 0 and 100% (exclusive)');
     }
     variance = Math.pow(uncertainty, 2) * mean * (1 - mean);
     priorAlpha = Math.pow(mean, 2) * (((1 - mean) / variance) - (1 / mean));
