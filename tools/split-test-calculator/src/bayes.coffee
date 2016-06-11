@@ -48,33 +48,32 @@ class Plots
   _calculateWidth: ->
     document.getElementsByClassName('content')[0].offsetWidth - @MARGIN.left - @MARGIN.right - 20
 
+  _generatePlotData: ->
+    @histData =
+      control: @models.control.getRvs(@NUM_SAMPLES)
+      test: @models.test.getRvs(@NUM_SAMPLES)
+    @histData.diffs = (@histData.test[i] - @histData.control[i] for i in [0..@histData.control.length - 1])
+    @pdfData =
+      control: @models.control.getPdf(@NUM_SAMPLES)
+      test: @models.test.getPdf(@NUM_SAMPLES)
+    @pdfData.all = @pdfData.control.concat(@pdfData.test)
+
   _getHistogramElements: ->
-    controlData = @models.control.getRvs(@NUM_SAMPLES)
-    testData = @models.test.getRvs(@NUM_SAMPLES)
-    differenceData = (testData[i] - controlData[i] for i in [0..controlData.length - 1])
     x = d3.scale.linear().domain([-1, 1]).range([0, @width])
-    histogram = d3.layout.histogram().bins(x.ticks(@NUM_HISTOGRAM_BINS))(differenceData)
+    histogram = d3.layout.histogram().bins(x.ticks(@NUM_HISTOGRAM_BINS))(@histData.diffs)
     y = d3.scale.linear().domain([0, d3.max(histogram, (d) -> d.y)]).range([@HEIGHT, 0])
     el =
       'x': x
       'y': y
-      'controlData': controlData
-      'testData': testData
-      'differenceData': differenceData
       'histogram': histogram
     @_addCommonElements(el, x, y)
 
   _getPdfElements: ->
-    controlData = @models.control.getPdf(@NUM_SAMPLES)
-    testData = @models.test.getPdf(@NUM_SAMPLES)
-    allData = controlData.concat(testData)
-    x = d3.scale.linear().domain(d3.extent(allData, (d) -> d.x)).range([0, @width])
-    y = d3.scale.linear().domain([0, d3.max(allData, (d) -> d.y) + 1]).range([@HEIGHT, 0])
+    x = d3.scale.linear().domain(d3.extent(@pdfData.all, (d) -> d.x)).range([0, @width])
+    y = d3.scale.linear().domain([0, d3.max(@pdfData.all, (d) -> d.y) + 1]).range([@HEIGHT, 0])
     el =
       'testLine': d3.svg.area().x((d) -> x d.x).y1(@HEIGHT).y0((d) -> y d.y).interpolate(@PDF_INTERPOLATION_MODE)
       'controlLine': d3.svg.area().x((d) -> x d.x).y1(@HEIGHT).y0((d) -> y d.y).interpolate(@PDF_INTERPOLATION_MODE)
-      'testData': testData
-      'controlData': controlData
     @_addCommonElements(el, x, y)
 
   _addCommonElements: (el, x, y) ->
@@ -89,7 +88,7 @@ class Plots
     @pdfSvg = @_drawSvg(pdfElems, 'pdfplot', 'Density')
     for group in ['control', 'test']
       @pdfSvg.append('path')
-             .datum(pdfElems["#{group}Data"])
+             .datum(@pdfData[group])
              .attr('class', 'line')
              .attr('d', pdfElems["#{group}Line"])
              .attr('id', "#{group}-line")
@@ -107,7 +106,7 @@ class Plots
                  .attr('width', histElems.histogram[0].dx / 2 * @width)
                  .attr('height', (d) -> histElems.height - histElems.y(d.y))
 
-    @_drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData)
+    @_drawSummaryStatistics()
 
   _drawSvg: (el, plotId, plotTitle) ->
     document.getElementById(plotId).innerHTML = ''
@@ -120,19 +119,19 @@ class Plots
                                                                          .text(plotTitle)
     svg
 
-  _drawSummaryStatistics: (differenceData, controlData, testData) ->
+  _drawSummaryStatistics: ->
     dataToMeanStd = (data) -> "#{round(jStat.mean(data))}±#{round(jStat.stdev(data))}"
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99]
-    quantileDiffs = jStat.quantiles(differenceData, quantiles)
+    quantileDiffs = jStat.quantiles(@histData.diffs, quantiles)
     tb = '<tr><td>Percentile</td><td>Value</td></tr>'
     for i in [0..quantileDiffs.length - 1]
       tb += "<tr><td>#{quantiles[i] * 100}%</td><td>#{round(quantileDiffs[i])}</td></tr>"
     document.getElementById('quantile-table').innerHTML = tb
-    document.getElementById('control-success-rate').innerHTML = dataToMeanStd(controlData)
-    document.getElementById('test-success-rate').innerHTML = dataToMeanStd(testData)
-    testSuccessProbability = round(1.0 - BetaModel::percentileOfScore(differenceData, 0))
+    document.getElementById('control-success-rate').innerHTML = dataToMeanStd(@histData.control)
+    document.getElementById('test-success-rate').innerHTML = dataToMeanStd(@histData.test)
+    testSuccessProbability = round(1.0 - BetaModel::percentileOfScore(@histData.diffs, 0))
     document.getElementById('test-success-probability').innerHTML = testSuccessProbability
-    document.getElementById('difference-mean').innerHTML = dataToMeanStd(differenceData)
+    document.getElementById('difference-mean').innerHTML = dataToMeanStd(@histData.diffs)
     document.getElementById('recommendation').innerHTML =
       if testSuccessProbability > 0.95
         'Implement test variant'
@@ -145,7 +144,7 @@ class Plots
     pdfElems = @_getPdfElements()
     for group in ['control', 'test']
       @pdfSvg.select("##{group}-line")
-             .datum(pdfElems["#{group}Data"])
+             .datum(@pdfData[group])
              .transition()
              .duration(1000)
              .attr('d', pdfElems["#{group}Line"])
@@ -160,7 +159,7 @@ class Plots
                  .attr('y', (d) -> histElems.y(d.y))
                  .attr('height', (d) -> histElems.height - histElems.y(d.y))
 
-    @_drawSummaryStatistics(histElems.differenceData, histElems.controlData, histElems.testData)
+    @_drawSummaryStatistics()
 
   update: ->
     populateParamElement = (id, alpha, beta) ->
@@ -182,6 +181,7 @@ class Plots
       groupBeta = priorBeta + failures
       populateParamElement("#{group}-params", groupAlpha, groupBeta)
       @models[group] = new BetaModel(groupAlpha, groupBeta)
+    @_generatePlotData()
 
   _getInputs: ->
     new class then constructor: ->
