@@ -17,7 +17,7 @@ roundPct = function(x) {
 INPUTS = new ((function() {
   function _Class() {
     var id, j, len, ref;
-    ref = ['prior-mean', 'prior-uncertainty', 'control-trials', 'control-successes', 'test-trials', 'test-successes'];
+    ref = ['prior-mean', 'prior-uncertainty', 'minimum-effect', 'control-trials', 'control-successes', 'test-trials', 'test-successes'];
     for (j = 0, len = ref.length; j < len; j++) {
       id = ref[j];
       this[id] = document.getElementById(id);
@@ -154,9 +154,7 @@ Plots = (function() {
 
   Plots.prototype._getPdfElements = function() {
     var el, x, y;
-    x = d3.scale.linear().domain(d3.extent(this.pdfData.all, function(d) {
-      return d.x;
-    })).range([0, this.width]);
+    x = d3.scale.linear().domain([0, 1]).range([0, this.width]);
     y = d3.scale.linear().domain([
       0, d3.max(this.pdfData.all, function(d) {
         return d.y;
@@ -215,24 +213,51 @@ Plots = (function() {
     return svg;
   };
 
+  Plots.prototype._generateRecommendation = function(hdiMin, hdiMax, precision) {
+    var confidence, explanation, ref, variant, variantExplanation;
+    if (precision == null) {
+      precision = 0.8;
+    }
+    ref = hdiMin > -this.ropeMax && hdiMax < this.ropeMax ? ['either', 'the HDI is contained in the ROPE'] : hdiMin > this.ropeMax ? ['the test', 'the HDI is outside the ROPE and positive'] : hdiMax < -this.ropeMax ? ['the control', 'the HDI is outside the ROPE and negative'] : [null, 'HDI and ROPE overlap'], variant = ref[0], variantExplanation = ref[1];
+    explanation = "The 95% high density interval (HDI) of the difference distribution is from " + (roundPct(hdiMin)) + "% to " + (roundPct(hdiMax)) + "%.\nGiven the minimum effect setting, the region of practical equivalence (ROPE) to zero is from\n" + (roundPct(-this.ropeMax)) + "% to " + (roundPct(this.ropeMax)) + "%.\nTherefore, " + variantExplanation + ", and the recommendation is to";
+    if (variant) {
+      confidence = hdiMax - hdiMin < precision * 2 * this.ropeMax ? 'high' : 'low';
+      explanation += " implement " + variant + " variant.\nThe " + confidence + " confidence level is derived from the preset precision: The HDI width of\n" + (roundPct(hdiMax - hdiMin)) + "% is " + (confidence === 'high' ? 'narrower' : 'wider') + " than precision times\nthe ROPE width (" + precision + " &times; 2 &times; " + (roundPct(this.ropeMax)) + "% = " + (roundPct(precision * 2 * this.ropeMax)) + "%).\nCollecting more data is likely to decrease the HDI width and increase confidence (see <a target=\"_blank\"\nhref=\"http://doingbayesiandataanalysis.blogspot.com.au/2013/11/optional-stopping-in-data-collection-p.html\">\nJohn K. Kruschke (2013)</a> for details).";
+      return ["End exepriment (confidence: " + confidence + ").<br>Implement " + variant + " variant.", explanation];
+    } else {
+      explanation += " keep testing.";
+      return ['Keep testing.', explanation];
+    }
+  };
+
   Plots.prototype._drawSummaryStatistics = function() {
-    var dataToMeanStd, i, j, quantileDiffs, quantiles, ref, tb, testSuccessProbability;
+    var content, dataToMeanStd, i, id, idToContent, j, quantileDiffs, quantiles, recommendation, recommendationExplanation, ref, ref1, results, tb, testSuccessProbability;
     dataToMeanStd = function(data) {
       return (roundPct(jStat.mean(data))) + "±" + (roundPct(jStat.stdev(data))) + "%";
     };
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99];
     quantileDiffs = jStat.quantiles(this.histData.diffs, quantiles);
+    testSuccessProbability = round(1.0 - BetaModel.prototype.percentileOfScore(this.histData.diffs, 0));
     tb = '<tr><td>Percentile</td><td>Value</td></tr>';
     for (i = j = 0, ref = quantileDiffs.length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
       tb += "<tr><td>" + (quantiles[i] * 100) + "%</td><td>" + (roundPct(quantileDiffs[i])) + "%</td></tr>";
     }
-    document.getElementById('quantile-table').innerHTML = tb;
-    document.getElementById('control-success-rate').innerHTML = dataToMeanStd(this.histData.control);
-    document.getElementById('test-success-rate').innerHTML = dataToMeanStd(this.histData.test);
-    testSuccessProbability = round(1.0 - BetaModel.prototype.percentileOfScore(this.histData.diffs, 0));
-    document.getElementById('test-success-probability').innerHTML = testSuccessProbability;
-    document.getElementById('difference-mean').innerHTML = dataToMeanStd(this.histData.diffs);
-    return document.getElementById('recommendation').innerHTML = testSuccessProbability > 0.95 ? 'Implement test variant' : testSuccessProbability < 0.05 ? 'Implement control variant' : 'Keep testing';
+    ref1 = this._generateRecommendation(quantileDiffs[1], quantileDiffs[quantileDiffs.length - 2]), recommendation = ref1[0], recommendationExplanation = ref1[1];
+    idToContent = {
+      'quantile-table': tb,
+      'control-success-rate': dataToMeanStd(this.histData.control),
+      'test-success-rate': dataToMeanStd(this.histData.test),
+      'test-success-probability': testSuccessProbability,
+      'difference-mean': dataToMeanStd(this.histData.diffs),
+      'recommendation': recommendation,
+      'recommendation-explanation': recommendationExplanation
+    };
+    results = [];
+    for (id in idToContent) {
+      content = idToContent[id];
+      results.push(document.getElementById(id).innerHTML = content);
+    }
+    return results;
   };
 
   Plots.prototype.redraw = function() {
@@ -266,6 +291,7 @@ Plots = (function() {
     };
     errorMessage.hidden = true;
     inputs = this._getInputs();
+    this.ropeMax = inputs['minimum-effect'] / 100;
     mean = inputs['prior-mean'] / 100;
     if (mean <= 0 || mean >= 1) {
       return setError('Success rate must be between 0 and 100% (exclusive)');

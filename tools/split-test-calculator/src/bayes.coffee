@@ -6,7 +6,8 @@ roundPct = (x) -> Math.round(x * 10000) / 100
 INPUTS =
   new class then constructor: ->
     @[id] = document.getElementById(id) for id in \
-      ['prior-mean', 'prior-uncertainty', 'control-trials', 'control-successes', 'test-trials', 'test-successes']
+      ['prior-mean', 'prior-uncertainty', 'minimum-effect', 'control-trials', 'control-successes',
+       'test-trials', 'test-successes']
 
 class BetaModel
   constructor: (@alpha, @beta) ->
@@ -70,7 +71,7 @@ class Plots
     @_addCommonElements(el, x, y)
 
   _getPdfElements: ->
-    x = d3.scale.linear().domain(d3.extent(@pdfData.all, (d) -> d.x)).range([0, @width])
+    x = d3.scale.linear().domain([0, 1]).range([0, @width])
     y = d3.scale.linear().domain([0, d3.max(@pdfData.all, (d) -> d.y) + 1]).range([@HEIGHT, 0])
     el =
       'testLine': d3.svg.area().x((d) -> x d.x).y1(@HEIGHT).y0((d) -> y d.y).interpolate(@PDF_INTERPOLATION_MODE)
@@ -120,26 +121,74 @@ class Plots
                                                                          .text(plotTitle)
     svg
 
+  # Make a recommendation based on the precision rule from
+  # http://doingbayesiandataanalysis.blogspot.com.au/2013/11/optional-stopping-in-data-collection-p.html
+  #
+  # Definitions:
+  #  * HDI - high density interval (the 95% from 2.5% to 97.5%)
+  #  * ROPE - region of practical equivalence (to zero in this case), i.e., what kind of of effect is considered
+  #           negligible?
+  #  * Precision - how narrow do we want our HDI to be in comparison to the ROPE
+  #
+  # The decision on which variant to implement is based on whether the HDI is contained in the ROPE (i.e., no
+  # significant difference) or is completely outside the ROPE (i.e., a significant difference was found).
+  #
+  # A confident recommendation to stop the experiment is made when the HDI is narrower than precision * ROPE width.
+  # Otherwise, the recommendation is less confident. To keep things relatively simple, we use precision = 0.8 from the
+  # blog post, rather than letting users set the precision.
+  _generateRecommendation: (hdiMin, hdiMax, precision = 0.8) ->
+    [variant, variantExplanation] =
+      if hdiMin > -@ropeMax and hdiMax < @ropeMax
+        ['either', 'the HDI is contained in the ROPE']
+      else if hdiMin > @ropeMax
+        ['the test', 'the HDI is outside the ROPE and positive']
+      else if hdiMax < -@ropeMax
+        ['the control', 'the HDI is outside the ROPE and negative']
+      else
+        [null, 'HDI and ROPE overlap']
+    explanation = """
+      The 95% high density interval (HDI) of the difference distribution is from #{roundPct(hdiMin)}% to #{roundPct(hdiMax)}%.
+      Given the minimum effect setting, the region of practical equivalence (ROPE) to zero is from
+      #{roundPct(-@ropeMax)}% to #{roundPct(@ropeMax)}%.
+      Therefore, #{variantExplanation}, and the recommendation is to
+    """
+    if variant
+      confidence = if hdiMax - hdiMin < precision * 2 * @ropeMax then 'high' else 'low'
+      explanation += """
+         implement #{variant} variant.
+        The #{confidence} confidence level is derived from the preset precision: The HDI width of
+        #{roundPct(hdiMax - hdiMin)}% is #{if confidence == 'high' then 'narrower' else 'wider'} than precision times
+        the ROPE width (#{precision} &times; 2 &times; #{roundPct(@ropeMax)}% = #{roundPct(precision * 2 * @ropeMax)}%).
+        Collecting more data is likely to decrease the HDI width and increase confidence (see <a target="_blank"
+        href="http://doingbayesiandataanalysis.blogspot.com.au/2013/11/optional-stopping-in-data-collection-p.html">
+        John K. Kruschke (2013)</a> for details).
+      """
+      ["End exepriment (confidence: #{confidence}).<br>Implement #{variant} variant.", explanation]
+    else
+      explanation += " keep testing."
+      ['Keep testing.', explanation]
+
   _drawSummaryStatistics: ->
     dataToMeanStd = (data) -> "#{roundPct(jStat.mean(data))}±#{roundPct(jStat.stdev(data))}%"
     quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99]
     quantileDiffs = jStat.quantiles(@histData.diffs, quantiles)
+    testSuccessProbability = round(1.0 - BetaModel::percentileOfScore(@histData.diffs, 0))
     tb = '<tr><td>Percentile</td><td>Value</td></tr>'
     for i in [0..quantileDiffs.length - 1]
       tb += "<tr><td>#{quantiles[i] * 100}%</td><td>#{roundPct(quantileDiffs[i])}%</td></tr>"
-    document.getElementById('quantile-table').innerHTML = tb
-    document.getElementById('control-success-rate').innerHTML = dataToMeanStd(@histData.control)
-    document.getElementById('test-success-rate').innerHTML = dataToMeanStd(@histData.test)
-    testSuccessProbability = round(1.0 - BetaModel::percentileOfScore(@histData.diffs, 0))
-    document.getElementById('test-success-probability').innerHTML = testSuccessProbability
-    document.getElementById('difference-mean').innerHTML = dataToMeanStd(@histData.diffs)
-    document.getElementById('recommendation').innerHTML =
-      if testSuccessProbability > 0.95
-        'Implement test variant'
-      else if testSuccessProbability < 0.05
-        'Implement control variant'
-      else
-        'Keep testing'
+    # TODO: add advanced recommendation explanation (all the parameters)
+    [recommendation, recommendationExplanation] = @_generateRecommendation(quantileDiffs[1],
+                                                                           quantileDiffs[quantileDiffs.length - 2])
+    idToContent =
+      'quantile-table': tb
+      'control-success-rate': dataToMeanStd(@histData.control)
+      'test-success-rate': dataToMeanStd(@histData.test)
+      'test-success-probability': testSuccessProbability
+      'difference-mean': dataToMeanStd(@histData.diffs)
+      'recommendation': recommendation
+      'recommendation-explanation': recommendationExplanation
+    for id, content of idToContent
+      document.getElementById(id).innerHTML = content
 
   redraw: ->
     pdfElems = @_getPdfElements()
@@ -171,6 +220,7 @@ class Plots
       errorMessage.innerHTML = msg
     errorMessage.hidden = true
     inputs = @_getInputs()
+    @ropeMax = inputs['minimum-effect'] / 100
     # See http://stats.stackexchange.com/a/12239 -- the mean is in (0, 1) and variance is in (0, mean * (1 - mean))
     mean = inputs['prior-mean'] / 100
     return setError('Success rate must be between 0 and 100% (exclusive)') if mean <= 0 or mean >= 1
