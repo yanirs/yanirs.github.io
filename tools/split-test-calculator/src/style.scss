@@ -102,6 +102,17 @@ ol {
   }
 }
 
+.description {
+  font-size: 13px;
+  text-align: left;
+  margin: 0 0 20px;
+  color: #999;
+
+  a {
+    color: inherit;
+  }
+}
+
 .result-summary {
   text-align: center;
   border: 1px #888 solid;
@@ -109,8 +120,7 @@ ol {
   margin-bottom: 10px;
   padding: 5px;
 
-  .chart-description {
-    text-align: left;
+  .description {
     line-height: 15px;
     font-size: 12px;
     margin-bottom: 5px;
@@ -305,17 +315,6 @@ input[type="reset"] {
   &-title {
     text-align: center;
     margin-bottom: 5px;
-  }
-
-  &-description {
-    font-size: 13px;
-    text-align: center;
-    margin: 0 0 20px;
-    color: #999;
-
-    a {
-      color: inherit;
-    }
   }
 
   text { /* Axis labels */

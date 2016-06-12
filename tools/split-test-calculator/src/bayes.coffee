@@ -169,15 +169,22 @@ class Plots
 
   _drawSummaryStatistics: ->
     dataToMeanStd = (data) -> "#{roundPct(jStat.mean(data))}±#{roundPct(jStat.stdev(data))}%"
-    quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99]
-    quantileDiffs = jStat.quantiles(@histData.diffs, quantiles)
+    quantiles = [0.005, 0.025, 0.05, 0.25, 0.75, 0.95, 0.975, 0.995]
+    quantileValues = {}
+    dists = ['control', 'test', 'diffs']
+    for dist in dists
+      quantileValues[dist] = jStat.quantiles(@histData[dist], quantiles)
+    tb = '<tr><td>Interval</td><td>Control</td><td>Test</td><td>Diffs</td></tr>'
+    for min in [0..quantiles.length / 2 - 1]
+      max = quantiles.length - 1 - min
+      tb += "<tr><td>#{Math.round((quantiles[max] - quantiles[min]) * 100)}%</td>"
+      for dist in dists
+        tb += "<td>#{roundPct(quantileValues[dist][min])}%<br>#{roundPct(quantileValues[dist][max])}%</td>"
+      tb += "</tr>"
+
     testSuccessProbability = round(1.0 - BetaModel::percentileOfScore(@histData.diffs, 0))
-    tb = '<tr><td>Percentile</td><td>Value</td></tr>'
-    for i in [0..quantileDiffs.length - 1]
-      tb += "<tr><td>#{quantiles[i] * 100}%</td><td>#{roundPct(quantileDiffs[i])}%</td></tr>"
-    # TODO: add advanced recommendation explanation (all the parameters)
-    [recommendation, recommendationExplanation] = @_generateRecommendation(quantileDiffs[1],
-                                                                           quantileDiffs[quantileDiffs.length - 2])
+    [recommendation, recommendationExplanation] = @_generateRecommendation(quantileValues.diffs[1],
+                                                                           quantileValues.diffs[quantiles.length - 2])
     idToContent =
       'quantile-table': tb
       'control-success-rate': dataToMeanStd(@histData.control)

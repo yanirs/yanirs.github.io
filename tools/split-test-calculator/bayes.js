@@ -231,18 +231,29 @@ Plots = (function() {
   };
 
   Plots.prototype._drawSummaryStatistics = function() {
-    var content, dataToMeanStd, i, id, idToContent, j, quantileDiffs, quantiles, recommendation, recommendationExplanation, ref, ref1, results, tb, testSuccessProbability;
+    var content, dataToMeanStd, dist, dists, id, idToContent, j, k, l, len, len1, max, min, quantileValues, quantiles, recommendation, recommendationExplanation, ref, ref1, results, tb, testSuccessProbability;
     dataToMeanStd = function(data) {
       return (roundPct(jStat.mean(data))) + "±" + (roundPct(jStat.stdev(data))) + "%";
     };
-    quantiles = [0.01, 0.025, 0.05, 0.25, 0.5, 0.75, 0.95, 0.975, 0.99];
-    quantileDiffs = jStat.quantiles(this.histData.diffs, quantiles);
-    testSuccessProbability = round(1.0 - BetaModel.prototype.percentileOfScore(this.histData.diffs, 0));
-    tb = '<tr><td>Percentile</td><td>Value</td></tr>';
-    for (i = j = 0, ref = quantileDiffs.length - 1; 0 <= ref ? j <= ref : j >= ref; i = 0 <= ref ? ++j : --j) {
-      tb += "<tr><td>" + (quantiles[i] * 100) + "%</td><td>" + (roundPct(quantileDiffs[i])) + "%</td></tr>";
+    quantiles = [0.005, 0.025, 0.05, 0.25, 0.75, 0.95, 0.975, 0.995];
+    quantileValues = {};
+    dists = ['control', 'test', 'diffs'];
+    for (j = 0, len = dists.length; j < len; j++) {
+      dist = dists[j];
+      quantileValues[dist] = jStat.quantiles(this.histData[dist], quantiles);
     }
-    ref1 = this._generateRecommendation(quantileDiffs[1], quantileDiffs[quantileDiffs.length - 2]), recommendation = ref1[0], recommendationExplanation = ref1[1];
+    tb = '<tr><td>Interval</td><td>Control</td><td>Test</td><td>Diffs</td></tr>';
+    for (min = k = 0, ref = quantiles.length / 2 - 1; 0 <= ref ? k <= ref : k >= ref; min = 0 <= ref ? ++k : --k) {
+      max = quantiles.length - 1 - min;
+      tb += "<tr><td>" + (Math.round((quantiles[max] - quantiles[min]) * 100)) + "%</td>";
+      for (l = 0, len1 = dists.length; l < len1; l++) {
+        dist = dists[l];
+        tb += "<td>" + (roundPct(quantileValues[dist][min])) + "%<br>" + (roundPct(quantileValues[dist][max])) + "%</td>";
+      }
+      tb += "</tr>";
+    }
+    testSuccessProbability = round(1.0 - BetaModel.prototype.percentileOfScore(this.histData.diffs, 0));
+    ref1 = this._generateRecommendation(quantileValues.diffs[1], quantileValues.diffs[quantiles.length - 2]), recommendation = ref1[0], recommendationExplanation = ref1[1];
     idToContent = {
       'quantile-table': tb,
       'control-success-rate': dataToMeanStd(this.histData.control),

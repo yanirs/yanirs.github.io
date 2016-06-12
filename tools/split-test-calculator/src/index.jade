@@ -103,29 +103,41 @@ html(lang="en")
             i Recommendation:
             br
             b: span#recommendation
-          p.chart-description.
+          p.description.
             * Note: You can always decrease the risk of making the wrong decision by collecting more data. If your
             sample size is small (less than a few hundred successes), or if it isn't representative of your population
             (e.g., it was collected over a short period of time), it's probably worth continuing the experiment. If your
             sample size is large and representative, but the difference between the control and test groups is
             negligible, it's probably worth moving on to other experiments.
-          p.chart-description.
+          p.description.
             ** Recommendation explanation: <span id="recommendation-explanation"></span>
 
       .content
         .chart
-          h2.chart-title Test and Control Probability Density Functions
-          p.chart-description The success probability distributions in test and control groups.
+          h2.chart-title Control and test probability density functions
+          p.description.
+            The success rate distributions in control and test groups. The blue and red areas show the density
+            of the control and test distributions, respectively (the distributions completely overlap if you don't enter
+            any data). Success rates that fall within a high density interval are more likely than those that fall in
+            areas of low density.
           #pdfplot
 
         .chart
-          h2.chart-title Histogram of Test - Control Probability
-          p.chart-description Distribution of differences in success probability between test and control groups.
+          h2.chart-title Difference between test and control
+          p.description.
+            Distribution of differences in success probability between test and control groups. Obtained by simulating
+            draws from the test and control distributions, where each sample is a possible success probability for the
+            given group. Each control sample is paired with a test sample, and a difference sample is obtained by
+            subtracting control from test.
           #histogram
 
         .chart
-          h2.chart-title Quantiles of the differences distribution.
-          p.chart-description Posterior probability that the difference lies below the value x.
+          h2.chart-title Distribution intervals
+          p.description.
+            The range of values contained in each central interval. For example, the first row shows the minimum and
+            maximum values of the control, test, and difference distributions, for the 99% interval (i.e., where 99%
+            of the values of each distribution fall &ndash; between the 0.5% and 99.5% percentiles). Note that the
+            difference bounds aren't necessarily the same as test minus the control bounds.
           table#quantile-table
 
     script(type="text/javascript", src="bayes.min.js")
