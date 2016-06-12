@@ -33,10 +33,29 @@ html(lang="en")
       .content
         h3.instructions-title Instructions
         ol
-          li <span class="number">1</span>Specify the prior alpha and beta parameters.
-          li <span class="number">2</span>Plot the priors and revise parameters as necessary.
-          li <span class="number">3</span>Enter data on the number of successes and failures in the test and control groups.
-          li <span class="number">4</span>Plot to see posterior distributions.
+          li.
+            <span class="number">1</span>Specify your prior knowledge. Set the success rate to what you think the
+            average success rate is, and quantify your uncertainty (from 0 to 100, exclusive). For example, if you're
+            running an experiment optimising the conversion rate of a landing page, and historical conversion rates are
+            around 30%, set the success rate to 30, and use a low uncertainty value (e.g., 5).
+          li.
+            <span class="number">2</span>Specify the minimum effect that you care about. For example, if you only care
+            about absolute changes in conversion rate that exceed 2.5%, set the minimum to 2.5.
+          li.
+            <span class="number">3</span>Enter data on the number of trials and success in the control and test groups,
+            respectively.
+          li.
+            <span class="number">4</span>Plot the distributions and choose whether to follow the recommendation. Note
+            that each time you press <i>calculate</i>, you will get slightly different results due to the random
+            simulation procedure. This is completely normal &ndash; it is very important to remember that few things
+            are completely certain when it comes to experimentation!
+          li.
+            <span class="number">5</span> Share your results by copying the link of this page &ndash; it automatically
+            changes as you fill the form.
+        p.description.
+          Note: I tried to strike a balance between making this a useful tool for laypeople, and providing rich
+          information for the more statistically-inclined. Feel free to ignore greyed-out text like this if you don't
+          want to dig too deep!
 
     .container
       .sidebar

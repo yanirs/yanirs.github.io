@@ -103,10 +103,11 @@ ol {
 }
 
 .description {
-  font-size: 13px;
+  font-size: 12px;
   text-align: left;
-  margin: 0 0 20px;
+  margin-bottom: 5px;
   color: #999;
+  line-height: 15px;
 
   a {
     color: inherit;
@@ -119,12 +120,6 @@ ol {
   border-radius: 4px;
   margin-bottom: 10px;
   padding: 5px;
-
-  .description {
-    line-height: 15px;
-    font-size: 12px;
-    margin-bottom: 5px;
-  }
 }
 
 #error-message {
@@ -266,8 +261,8 @@ input[type="reset"] {
 
 .note {
   font-size: 14px;
-  line-height: 22px;
-  margin-bottom: 15px;
+  line-height: 24px;
+  margin-bottom: 10px;
 }
 
 /* Sidebar Styling */
@@ -302,7 +297,6 @@ input[type="reset"] {
   @include gridle(8 mobile 12 tablet 7);
   padding: 20px;
   background: #f5f5f5;
-  border-radius: 0 3px 3px 0;
 }
 
 .chart {
@@ -350,6 +344,10 @@ input[type="reset"] {
 #histogram .bar rect {
   fill: #007AFF;
   shape-rendering: crispEdges;
+}
+
+#pdfplot, #histogram {
+  margin-top: 15px;
 }
 
 /* Quantile Table */
