@@ -147,10 +147,9 @@ class Plots
       else
         [null, 'HDI and ROPE overlap']
     explanation = """
-      The 95% high density interval (HDI) of the difference distribution is from #{roundPct(hdiMin)}% to #{roundPct(hdiMax)}%.
-      Given the minimum effect setting, the region of practical equivalence (ROPE) to zero is from
-      #{roundPct(-@ropeMax)}% to #{roundPct(@ropeMax)}%.
-      Therefore, #{variantExplanation}, and the recommendation is to
+      The 95% high density interval (HDI) of the distribution of differences is from #{roundPct(hdiMin)}% to
+      #{roundPct(hdiMax)}%. Given the minimum effect setting, the region of practical equivalence (ROPE) to zero is from
+      #{roundPct(-@ropeMax)}% to #{roundPct(@ropeMax)}%. Therefore, #{variantExplanation}, and the recommendation is to
     """
     if variant
       confidence = if hdiMax - hdiMin < precision * 2 * @ropeMax then 'high' else 'low'

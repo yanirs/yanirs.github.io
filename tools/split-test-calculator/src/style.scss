@@ -1,7 +1,36 @@
-@import "grid";
+@import 'gridle/gridle';
+
+// setup the grid
+@include gridle_setup((
+  context: 12,
+  gutter-width: 20px,
+  states-classes: true
+));
+
+// register special columns
+@include gridle_register_column("1on5", 1, 5);
+@include gridle_register_clear_each(2, left);
+@include gridle_register_clear_each(3, left);
+@include gridle_register_clear_each(12, both);
+@include gridle_register_default_states();
+@include gridle_generate_classes();
 
 .container {
+  margin: 0 auto;
+  max-width: 960px;
   background: #FFF;
+}
+
+[class*="gr-"] {
+  @include gridle_set((
+    mobile: (
+      grid: 12,
+      push: 0,
+      pull: 0,
+      prefix: 0,
+      suffix: 0
+    )
+  ));
 }
 
 body {
@@ -197,11 +226,9 @@ input[type="reset"] {
 }
 
 .dist-values {
-  text-align: right;
-  margin: 0;
   color: grey;
   font-size: 10px;
-  padding: 0 5px;
+  padding: 5px 0;
   float: right;
 }
 
@@ -235,7 +262,7 @@ input[type="reset"] {
 
 /* Sidebar Styling */
 .sidebar {
-  @include gridle(4 mobile 12 tablet 4);
+  @include gridle(4 mobile 12 tablet 5);
   height: 100%;
   background: #FFF;
 }
@@ -262,18 +289,10 @@ input[type="reset"] {
 
 /* Content Styling */
 .content {
-  @include gridle(8 mobile 12 tablet 8);
+  @include gridle(8 mobile 12 tablet 7);
   padding: 20px;
   background: #f5f5f5;
   border-radius: 0 3px 3px 0;
-
-  &.full-width {
-    @include gridle(12);
-    margin-left: 0;
-    border-radius: 3px;
-    background: #FFF;
-    padding: 20px 20px 40px 40px;
-  }
 }
 
 .chart {

@@ -44,13 +44,13 @@ html(lang="en")
           h3.form-title Your Data
           .form-group
             h4.form-group-title Prior knowledge
-              span#prior-params.dist-values
             fieldset
               label(for="prior-mean") Success rate [%]
               input#prior-mean(value="50", type="number", min="0", max="100", step="any", placeholder="> 0")
             fieldset
               label(for="prior-uncertainty") Uncertainty [%]
               input#prior-uncertainty(value="5", type="number", min="0", max="100", step="any", placeholder="> 0")
+            #prior-params.dist-values
 
           .form-group
             h4.form-group-title Decision criterion
@@ -60,23 +60,23 @@ html(lang="en")
 
           .form-group
             h4.form-group-title.control Control
-              span#control-params.dist-values
             fieldset
               label(for="control-trials") Trials
               input#control-trials(value="0", type="number", min="0", placeholder=">= 0")
             fieldset
               label(for="control-successes") Successes
               input#control-successes(value="0", type="number", min="0", placeholder=">= 0")
+            #control-params.dist-values
 
           .form-group
             h4.form-group-title.test Test
-              span#test-params.dist-values
             fieldset
               label(for="test-trials") Trials
               input#test-trials(value="0", type="number", min="0", placeholder=">= 0")
             fieldset
               label(for="test-successes") Successes
               input#test-successes(value="0", type="number", min="0", placeholder=">= 0")
+            #test-params.dist-values
 
           .form-buttons
             input(type="submit", value="Calculate")
