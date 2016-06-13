@@ -262,7 +262,7 @@ for inputPair in document.location.hash.slice(1).split(',')
   INPUTS[key]?.value = Number(value)
 window.plots = new Plots()
 form = document.getElementById('form')
-form.onsubmit = form.onchange = (event) ->
+form.onsubmit = (event) ->
   event.preventDefault()
   window.plots.update()
   window.plots.redraw()

@@ -382,7 +382,7 @@ window.plots = new Plots();
 
 form = document.getElementById('form');
 
-form.onsubmit = form.onchange = function(event) {
+form.onsubmit = function(event) {
   event.preventDefault();
   window.plots.update();
   return window.plots.redraw();
