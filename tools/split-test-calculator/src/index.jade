@@ -42,20 +42,19 @@ html(lang="en")
             <span class="number">2</span>Specify the minimum effect that you care about. For example, if you only care
             about absolute changes in conversion rate that exceed 2.5%, set the minimum to 2.5.
           li.
-            <span class="number">3</span>Enter data on the number of trials and success in the control and test groups,
-            respectively.
+            <span class="number">3</span>Enter the number of trials and successes in the control and test groups.
           li.
             <span class="number">4</span>Plot the distributions and choose whether to follow the recommendation. Note
             that each time you press <i>calculate</i>, you will get slightly different results due to the random
             simulation procedure. This is completely normal &ndash; it is very important to remember that few things
-            are completely certain when it comes to experimentation!
+            are completely certain when it comes to experimentation.
           li.
-            <span class="number">5</span> Share your results by copying the link of this page &ndash; it automatically
-            changes when you press calculate.
+            <span class="number">5</span> Share your results by copying this page's link &ndash; it automatically
+            changes to save your input when you press <i>calculate</i>.
         p.description.
-          Note: I tried to strike a balance between making this a useful tool for laypeople, and providing rich
+          Note: I tried to strike a balance between making this a useful tool for laypeople and providing rich
           information for the more statistically-inclined. Feel free to ignore greyed-out text like this if you don't
-          want to dig too deep!
+          want to dig too deep.
 
     .container
       .sidebar
@@ -135,10 +134,9 @@ html(lang="en")
         .chart
           h2.chart-title Control and test probability density functions
           p.description.
-            The success rate distributions in control and test groups. The blue and red areas show the density
-            of the control and test distributions, respectively (the distributions completely overlap if you don't enter
-            any data). Success rates that fall within a high density interval are more likely than those that fall in
-            areas of low density.
+            The success rate distributions for the control (blue) and test (red) groups.  The distributions completely
+            overlap if no data is entered, or if the counts for each group are identical. Success rates that fall within
+            high density intervals are more likely than those that fall in areas of low density.
           #pdfplot
 
         .chart
@@ -147,7 +145,7 @@ html(lang="en")
             Distribution of differences in success probability between test and control groups. Obtained by simulating
             draws from the test and control distributions, where each sample is a possible success probability for the
             given group. Each control sample is paired with a test sample, and a difference sample is obtained by
-            subtracting control from test.
+            subtracting the control value from the test value.
           #histogram
 
         .chart
@@ -156,7 +154,7 @@ html(lang="en")
             The range of values contained in each central interval. For example, the first row shows the minimum and
             maximum values of the control, test, and difference distributions, for the 99% interval (i.e., where 99%
             of the values of each distribution fall &ndash; between the 0.5% and 99.5% percentiles). Note that the
-            difference bounds aren't necessarily the same as test minus the control bounds.
+            bounds for the difference distribution aren't necessarily the same as test minus the control bounds.
           table#quantile-table
 
     script(type="text/javascript", src="bayes.min.js")
