@@ -214,18 +214,19 @@ Plots = (function() {
   };
 
   Plots.prototype._generateRecommendation = function(hdiMin, hdiMax, precision) {
-    var confidence, explanation, ref, variant, variantExplanation;
+    var confidence, explanation, ref, seeKruschke, variant, variantExplanation;
     if (precision == null) {
       precision = 0.8;
     }
     ref = hdiMin > -this.ropeMax && hdiMax < this.ropeMax ? ['either', 'the HDI is contained in the ROPE'] : hdiMin > this.ropeMax ? ['the test', 'the HDI is outside the ROPE and positive'] : hdiMax < -this.ropeMax ? ['the control', 'the HDI is outside the ROPE and negative'] : [null, 'HDI and ROPE overlap'], variant = ref[0], variantExplanation = ref[1];
     explanation = "The 95% high density interval (HDI) of the distribution of differences is from " + (roundPct(hdiMin)) + "% to\n" + (roundPct(hdiMax)) + "%. Given the minimum effect setting, the region of practical equivalence (ROPE) to zero is from\n" + (roundPct(-this.ropeMax)) + "% to " + (roundPct(this.ropeMax)) + "%. Therefore, " + variantExplanation + ", and the recommendation is to";
+    seeKruschke = "(see <a target=\"_blank\"\n href=\"http://doingbayesiandataanalysis.blogspot.com.au/2013/11/optional-stopping-in-data-collection-p.html\">\n John K. Kruschke (2013)</a> for details)";
     if (variant) {
       confidence = hdiMax - hdiMin < precision * 2 * this.ropeMax ? 'high' : 'low';
-      explanation += " implement " + variant + " variant.\nThe " + confidence + " confidence level is derived from the preset precision: The HDI width of\n" + (roundPct(hdiMax - hdiMin)) + "% is " + (confidence === 'high' ? 'narrower' : 'wider') + " than precision times\nthe ROPE width (" + precision + " &times; 2 &times; " + (roundPct(this.ropeMax)) + "% = " + (roundPct(precision * 2 * this.ropeMax)) + "%).\nCollecting more data is likely to decrease the HDI width and increase confidence (see <a target=\"_blank\"\nhref=\"http://doingbayesiandataanalysis.blogspot.com.au/2013/11/optional-stopping-in-data-collection-p.html\">\nJohn K. Kruschke (2013)</a> for details).";
+      explanation += " implement " + variant + " variant.\nThe " + confidence + " confidence level is derived from the preset precision: The HDI width of\n" + (roundPct(hdiMax - hdiMin)) + "% is " + (confidence === 'high' ? 'narrower' : 'wider') + " than precision times\nthe ROPE width (" + precision + " &times; 2 &times; " + (roundPct(this.ropeMax)) + "% = " + (roundPct(precision * 2 * this.ropeMax)) + "%).\nCollecting more data is likely to decrease the HDI width and increase confidence " + seeKruschke + ".";
       return ["End exepriment (confidence: " + confidence + ").<br>Implement " + variant + " variant.", explanation];
     } else {
-      explanation += " keep testing.";
+      explanation += " keep testing " + seeKruschke + ".";
       return ['Keep testing.', explanation];
     }
   };

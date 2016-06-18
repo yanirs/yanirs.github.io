@@ -151,6 +151,11 @@ class Plots
       #{roundPct(hdiMax)}%. Given the minimum effect setting, the region of practical equivalence (ROPE) to zero is from
       #{roundPct(-@ropeMax)}% to #{roundPct(@ropeMax)}%. Therefore, #{variantExplanation}, and the recommendation is to
     """
+    seeKruschke = """
+      (see <a target="_blank"
+       href="http://doingbayesiandataanalysis.blogspot.com.au/2013/11/optional-stopping-in-data-collection-p.html">
+       John K. Kruschke (2013)</a> for details)
+    """
     if variant
       confidence = if hdiMax - hdiMin < precision * 2 * @ropeMax then 'high' else 'low'
       explanation += """
@@ -158,13 +163,11 @@ class Plots
         The #{confidence} confidence level is derived from the preset precision: The HDI width of
         #{roundPct(hdiMax - hdiMin)}% is #{if confidence == 'high' then 'narrower' else 'wider'} than precision times
         the ROPE width (#{precision} &times; 2 &times; #{roundPct(@ropeMax)}% = #{roundPct(precision * 2 * @ropeMax)}%).
-        Collecting more data is likely to decrease the HDI width and increase confidence (see <a target="_blank"
-        href="http://doingbayesiandataanalysis.blogspot.com.au/2013/11/optional-stopping-in-data-collection-p.html">
-        John K. Kruschke (2013)</a> for details).
+        Collecting more data is likely to decrease the HDI width and increase confidence #{seeKruschke}.
       """
       ["End exepriment (confidence: #{confidence}).<br>Implement #{variant} variant.", explanation]
     else
-      explanation += " keep testing."
+      explanation += " keep testing #{seeKruschke}."
       ['Keep testing.', explanation]
 
   _drawSummaryStatistics: ->
