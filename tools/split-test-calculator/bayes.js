@@ -218,7 +218,7 @@ Plots = (function() {
     if (precision == null) {
       precision = 0.8;
     }
-    ref = hdiMin > -this.ropeMax && hdiMax < this.ropeMax ? ['either', 'the HDI is contained in the ROPE'] : hdiMin > this.ropeMax ? ['the test', 'the HDI is outside the ROPE and positive'] : hdiMax < -this.ropeMax ? ['the control', 'the HDI is outside the ROPE and negative'] : [null, 'HDI and ROPE overlap'], variant = ref[0], variantExplanation = ref[1];
+    ref = hdiMin > -this.ropeMax && hdiMax < this.ropeMax ? ['either', 'the HDI is contained in the ROPE'] : hdiMin > this.ropeMax ? ['the test', 'the HDI is outside the ROPE and positive'] : hdiMax < -this.ropeMax ? ['the control', 'the HDI is outside the ROPE and negative'] : [null, 'HDI and ROPE partly overlap'], variant = ref[0], variantExplanation = ref[1];
     explanation = "The 95% high density interval (HDI) of the distribution of differences is from " + (roundPct(hdiMin)) + "% to\n" + (roundPct(hdiMax)) + "%. Given the minimum effect setting, the region of practical equivalence (ROPE) to zero is from\n" + (roundPct(-this.ropeMax)) + "% to " + (roundPct(this.ropeMax)) + "%. Therefore, " + variantExplanation + ", and the recommendation is to";
     seeKruschke = "(see <a target=\"_blank\"\n href=\"http://doingbayesiandataanalysis.blogspot.com.au/2013/11/optional-stopping-in-data-collection-p.html\">\n John K. Kruschke (2013)</a> for details)";
     if (variant) {

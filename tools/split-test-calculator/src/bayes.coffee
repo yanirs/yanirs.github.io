@@ -145,7 +145,7 @@ class Plots
       else if hdiMax < -@ropeMax
         ['the control', 'the HDI is outside the ROPE and negative']
       else
-        [null, 'HDI and ROPE overlap']
+        [null, 'HDI and ROPE partly overlap']
     explanation = """
       The 95% high density interval (HDI) of the distribution of differences is from #{roundPct(hdiMin)}% to
       #{roundPct(hdiMax)}%. Given the minimum effect setting, the region of practical equivalence (ROPE) to zero is from
