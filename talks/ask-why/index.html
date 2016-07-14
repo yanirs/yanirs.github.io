@@ -34,6 +34,7 @@
             <a href="https://twitter.com/yanirseroussi" target="_blank">@yanirseroussi</a>
             |
             <a href="https://linkedin.com/in/yanirseroussi" target="_blank">linkedin.com/in/yanirseroussi</a>
+            
           </h6>
         </section>
         <section>
@@ -65,6 +66,16 @@
                 <td class="right"><i>[hopefully thought-provoking]</i></td>
               </tr>
             </table>
+          </section>
+          <section>
+            <h3>Thanks Eugene and Fabian! <small class="muted">[Sydney Special]</small></h3>
+            <blockquote>
+              Hi Fabian and Yanir,<br>
+              Time for Yanir to tell us something new. Could you please arrange for him to present.<br>
+              Cheers,<br>
+              Eugene
+            </blockquote>
+            <div class="img-source-caption">- Eugene Dubossarsky, 6 May 2016</div>
           </section>
         </section>
         <section>
@@ -191,36 +202,12 @@
               
             </div>
           </section>
-          <!--section-->
-          <!--  h3 What's going on here?-->
-          <!---->
-          <!--  ol-->
-          <!--    li P(E|C) &cong; 0.5 > P(E|&not;C) &cong; 0.4-->
-          <!--    li P(E|C,F) &cong; 0.2 < P(E|&not;C,F) &cong; 0.3-->
-          <!--    li P(E|C,&not;F) &cong; 0.6 < P(E|&not;C,&not;F) &cong; 0.7-->
-          <!---->
-          <!--  p where C - treatment (cause), E - recovery (effect), F - female (feature)-->
           <section>
             <h3>Should we prescribe the treatment to a patient?</h3>
             <p class="fragment">If we don't know their gender...<span class="fragment indent">Yes! P(E|C) > P(E|&not;C)</span></p>
             <p class="fragment">If they're female...<span class="fragment indent">No! P(E|C, F) < P(E|&not;C, F)</span></p>
             <p class="fragment">If they're male...<span class="fragment indent">No! P(E|C, &not;F) < P(E|&not;C, &not;F)</span></p><img src="img/lol-srsly.jpg" class="fragment">
           </section>
-          <!--section-->
-          <!--  h3 Pearl: Probability calculus isn't enough-->
-          <!---->
-          <!--  blockquote.full-width.fragment(data-fragment-index=0).-->
-          <!--    The explanation for Simpson's paradox should be clear to readers of this book, since we have taken great-->
-          <!--    care in distinguishing <i>seeing</i> from <i>doing</i>. The conditioning operator in probability calculus-->
-          <!--    stands for the evidential conditional "given that we see," whereas the do() operator was devised to-->
-          <!--    represent the causal conditional "given that we do." Accordingly, the inequality P(E|C) > P(E|&not;C) is-->
-          <!--    not a statement about C being a positive causal factor for E, properly written P(E|do(C)) > P(E|do(&not;C)),-->
-          <!--    but rather about C being positive evidence for E, which may be due to spurious confounding factors that-->
-          <!--    cause both C and E.-->
-          <!---->
-          <!--  .img-source-caption.fragment(data-fragment-index=0).-->
-          <!--    - Judea Pearl,-->
-          <!--    <a href="http://bayes.cs.ucla.edu/R264.pdf" target="_blank">Simpson's Paradox: An Anatomy</a>-->
           <section class="causal-assumptions">
             <h3>Pearl: Causal assumptions are essential</h3>
             <p class="fragment"><b>Assumption:</b> Gender affects treatment uptake and recovery</p>
@@ -241,38 +228,6 @@
               
             </p>
           </section>
-          <!--section-->
-          <!--  h3 One last scenario-->
-          <!---->
-          <!--  p.no-margin.fragment.-->
-          <!--    F is brown eye colour, which is caused by two different genes, one that also affects treatment uptake, and-->
-          <!--    another that also affects recovery-->
-          <!--  p.no-margin.indent.fragment.-->
-          <!--    &rarr; Follow the aggregated measures and always prescribe C-->
-          <!---->
-          <!--  p.fragment.-->
-          <!--    <b>Generally:</b> The decision whether to use F to predict E can't only depend on the data-->
-          <!--section-->
-          <!--  h3 Pearl: Causal assumptions are essential-->
-          <!---->
-          <!--  img.fragment(src="img/simpsons-paradox-causal-assumptions-full.png", height=150)-->
-          <!---->
-          <!--  p.fragment <b>Original scenario:</b> Gender affects treatment selection and recovery-->
-          <!---->
-          <!--  p.fragment.-->
-          <!--    <b>Different scenario:</b> F is high blood pressure, the treatment affects blood pressure, and-->
-          <!--    blood pressure affects recovery-->
-          <!---->
-          <!--  p.fragment.-->
-          <!--    <b>Last scenario:</b> F is brown eye colour, which is caused by two different genes, one that affects-->
-          <!--    treatment selection, and another that affects recovery-->
-          <!---->
-          <!--section-->
-          <!--  h3 Variable choice is a critical modelling decision-->
-          <!--  h4.fragment "Big data" just makes it a bigger problem-->
-          <!---->
-          <!--  a.fragment(href="http://tylervigen.com/spurious-correlations", target="_blank")-->
-          <!--    img(src="img/spurious-correlations.png")-->
           <section>
             <h3>Some flavours of causality</h3>
             <ul>
@@ -295,37 +250,6 @@
               </li>
             </ul>
           </section>
-          <!--section-->
-          <!--  h3 Limitations and frustrations-->
-          <!---->
-          <!--  .fragment-->
-          <!--    h6.left Causal plurality-->
-          <!--    blockquote.full-width.medium.-->
-          <!--      There is simply no unified philosophical theory of what causes are, and no single foolproof computational-->
-          <!--      method for finding them with absolute certainty.-->
-          <!--    .img-source-caption.-->
-          <!--      - Samantha Kleinberg,-->
-          <!--      <a href="http://www.skleinberg.org/why/" target="_blank">Why: A Guide to Finding and Using Causes</a>-->
-          <!---->
-          <!--  .fragment-->
-          <!--    h6.left Need for untested assumptions-->
-          <!--    blockquote.full-width.medium.-->
-          <!--      For any model yielding a conclusion C, one can construct a statistically equivalent model that refutes C-->
-          <!--      and fits the data equally well.-->
-          <!--    .img-source-caption.-->
-          <!--      - Judea Pearl, <a href="http://ftp.cs.ucla.edu/pub/stat_ser/r391.pdf" target="_blank">Trygve Haavelmo and-->
-          <!--      the Emergence of Causal Calculus</a>-->
-          <!---->
-          <!--  .fragment-->
-          <!--    h6.left Unreasonable people-->
-          <!--    blockquote.full-width.medium.-->
-          <!--      We additionally show that, above and beyond endorsement of free markets, endorsement of a cluster of-->
-          <!--      conspiracy theories (e.g., that the Federal Bureau of Investigation killed Martin Luther King, Jr.)-->
-          <!--      predicted rejection of climate science as well as other scientific findings.-->
-          <!--    .img-source-caption.-->
-          <!--      - Lewandowsky et al.,-->
-          <!--      <a href="http://pss.sagepub.com/content/24/5/622" target="_blank">NASA Faked the Moon-->
-          <!--      Landing&mdash;Therefore, (Climate) Science Is a Hoax: An Anatomy of the Motivated Rejection of Science</a>-->
           <section>
             <h3>Cause of frustration #1:<br>No single definition</h3>
             <blockquote class="full-width">
@@ -384,90 +308,80 @@
               <li>Deal with political implications</li>
             </ul>
           </section>
+          <section>
+            <h3>Coming up with causal assumptions <small class="muted">[Sydney Special]</small></h3>
+            <h6 class="fragment">Bradford Hill criteria for separating association from causation</h6>
+            <table class="medium">
+              <tr class="fragment">
+                <td>Strength</td>
+                <td>How strong is the association?</td>
+              </tr>
+              <tr class="fragment">
+                <td>Consistency</td>
+                <td>Has association been repeatedly observed in various cases?</td>
+              </tr>
+              <tr class="fragment">
+                <td>Specificity</td>
+                <td>Are specific X instances associated with specific Y instances?</td>
+              </tr>
+              <tr class="fragment">
+                <td>Temporality</td>
+                <td>Do we know that X leads to Y or are they observed together?</td>
+              </tr>
+              <tr class="fragment">
+                <td>Biological gradient</td>
+                <td>Is Y a known function of X, e.g., dose-response curve?</td>
+              </tr>
+              <tr class="fragment">
+                <td>Plausibility</td>
+                <td>Is there a mechanism that can explain how X causes Y?</td>
+              </tr>
+              <tr class="fragment">
+                <td>Coherence</td>
+                <td>Does the association conflict with our current knowledge?</td>
+              </tr>
+              <tr class="fragment">
+                <td>Experiment</td>
+                <td>Can controlled experiments support a causal hypothesis?</td>
+              </tr>
+              <tr class="fragment">
+                <td>Analogy</td>
+                <td>Do we know of any similar cause-and-effect relationships?</td>
+              </tr>
+            </table>
+          </section>
+          <section>
+            <h3>Experiments are great! <small class="muted">[Sydney Special]</small></h3>
+            <blockquote>
+              Counterfactuals without experiments: DIRTY<br>
+              Counterfactuals WITH experiments: CLEAN<br>
+              If you can run an experiment, you should!<br>
+              (if it counts and can be counted, then count it)
+            </blockquote>
+            <div class="img-source-caption">
+              - Tiberio Caetano,
+              <a href="https://drive.google.com/file/d/0B4u2T5tlDOAPYUhPZ0VXSlhVaTA/view" target="_blank">How to
+              demonstrably make money with personalisation</a>
+              
+            </div>
+          </section>
+          <section>
+            <h3>Experiments can be hard <small class="muted">[Sydney Special]</small></h3>
+            <p data-fragment-index='0' class="fragment">A/B testing: selection biases, multiple comparisons</p>
+            <p data-fragment-index='1' class="fragment">Well-designed experiments yielding surprising results</p>
+            <blockquote data-fragment-index='1' class="fragment">
+              Remote, retroactive intercessory prayer said for a group is associated with a shorter stay in hospital and
+              shorter duration of fever in patients with a bloodstream infection and should be considered for use in
+              clinical practice.
+            </blockquote>
+            <div data-fragment-index='1' class="img-source-caption fragment">- <a href="http://www.bmj.com/content/323/7327/1450" target="_blank">Leibovici (2001)</a></div>
+            <p data-fragment-index='2' class="fragment">The classics: smoking, climate, nutrition</p>
+          </section>
         </section>
         <section>
           <section>
             <h2>Finding your purpose</h2><a href="http://johnriordan.bigcartel.com/product/exploited-ape" target="_blank"><img src="img/exploited-ape-john-riordan.jpg" alt="Exploited Ape by John Riordan"></a>
           </section>
-          <!--section-->
-          <!--  h3 My path and motivations so far-->
-          <!---->
-          <!--  - var vmark = '&#x2714;';-->
-          <!--  - var xmark = '&#x2718;';-->
-          <!---->
-          <!--  table.medium.center-cell-text.left-first-column-->
-          <!--    thead-->
-          <!--      tr-->
-          <!--        td-->
-          <!--        td Interest?-->
-          <!--        td Experience?-->
-          <!--        td Location?-->
-          <!--        td Lifestyle?-->
-          <!--        td Impact?-->
-          <!--    tbody-->
-          <!--      tr.fragment-->
-          <!--        td Technion BSc-->
-          <!--        td !{vmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{xmark}-->
-          <!--        td !{xmark}-->
-          <!--        td !{xmark}-->
-          <!--      tr.fragment-->
-          <!--        td Intel-->
-          <!--        td !{xmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{xmark}-->
-          <!--        td !{xmark}-->
-          <!--        td !{xmark}-->
-          <!--      tr.fragment-->
-          <!--        td Qualcomm-->
-          <!--        td !{vmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{xmark}-->
-          <!--        td !{xmark}-->
-          <!--        td !{xmark}-->
-          <!--      tr.fragment-->
-          <!--        td Monash PhD-->
-          <!--        td !{vmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{xmark}-->
-          <!--        td !{xmark}-->
-          <!--      tr.fragment-->
-          <!--        td Google-->
-          <!--        td !{vmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{xmark}-->
-          <!--        td !{xmark}-->
-          <!--      tr.fragment-->
-          <!--        td Giveable-->
-          <!--        td !{vmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{xmark}-->
-          <!--        td !{xmark}-->
-          <!--      tr.fragment-->
-          <!--        td Next Commerce-->
-          <!--        td !{vmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{xmark}-->
-          <!--        td !{xmark}-->
-          <!--      tr.fragment-->
-          <!--        td Projects & Consulting-->
-          <!--        td !{vmark}-->
-          <!--        td !{xmark}-->
-          <!--        td !{xmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{xmark}-->
-          <!--      tr.fragment-->
-          <!--        td Car Next Door-->
-          <!--        td !{vmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{vmark}-->
-          <!--        td !{xmark}-->
-          <!--        td !{vmark}-->
           <section>
             <h3>My path and motivations so far</h3>
             <ul>
@@ -492,26 +406,6 @@
             <div>&darr;</div>
             <div class="flow-box">Why do I even bother?</div>
           </section>
-          <!--section-->
-          <!--  h3 Generalised useless models-->
-          <!---->
-          <!--  blockquote.full-width.fragment.-->
-          <!--    In the year 1930, John Maynard Keynes predicted that technology would have advanced sufficiently by-->
-          <!--    century's end that countries like Great Britain or the United States would achieve a 15-hour work week.-->
-          <!--    There's every reason to believe he was right. In technological terms, we are quite capable of this. And yet-->
-          <!--    it didn't happen. Instead, technology has been marshaled, if anything, to figure out ways to make us all-->
-          <!--    work more. In order to achieve this, jobs have had to be created that are, effectively, pointless.-->
-          <!--    Huge swathes of people, in Europe and North America in particular, spend their entire working lives-->
-          <!--    performing tasks they secretly believe do not really need to be performed.-->
-          <!---->
-          <!--  .img-source-caption.-->
-          <!--    - David Graeber,-->
-          <!--    <a href="http://strikemag.org/bullshit-jobs/" target="_blank">On the Phenomenon of Bullshit Jobs</a>-->
-          <!--section-->
-          <!--  img(src="img/bullshit-jobs.jpg")-->
-          <!--  .img-source-caption.-->
-          <!--    - David Graeber,-->
-          <!--    <a href="http://strikemag.org/bullshit-jobs/" target="_blank">On the Phenomenon of Bullshit Jobs</a>-->
           <section>
             <h3>Are you building generalised useless models? Why do you bother?</h3>
             <ul>

@@ -114,3 +114,7 @@ table.left-first-column td:first-child {
 .causal-assumptions p {
   margin: 5px;
 }
+
+.muted {
+  color: #888;
+}

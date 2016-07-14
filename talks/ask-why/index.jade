@@ -39,13 +39,6 @@ html(lang="en")
           <a href="https://twitter.com/yanirseroussi" target="_blank">@yanirseroussi</a>
           |
           <a href="https://linkedin.com/in/yanirseroussi" target="_blank">linkedin.com/in/yanirseroussi</a>
-        //- TODOs:
-          - grid for small images? (e.g., Philface, client dialogue)
-          - Tentative timings:
-           - 2min Thanks Phil:
-           - 5min Stakeholder motives
-           - 13min Causal inference
-           - 5min Purpose
 
       section
         section
@@ -73,6 +66,15 @@ html(lang="en")
             tr
               td.left Find your purpose
               td.right: i [hopefully thought-provoking]
+
+        section
+          h3 Thanks Eugene and Fabian! <small class="muted">[Sydney Special]</small>
+          blockquote.
+            Hi Fabian and Yanir,<br>
+            Time for Yanir to tell us something new. Could you please arrange for him to present.<br>
+            Cheers,<br>
+            Eugene
+          .img-source-caption - Eugene Dubossarsky, 6 May 2016
 
       section
         section
@@ -187,16 +189,6 @@ html(lang="en")
             - Judea Pearl,
             <a href="http://bayes.cs.ucla.edu/R264.pdf" target="_blank">Simpson's Paradox: An Anatomy</a>
 
-        //section
-        //  h3 What's going on here?
-        //
-        //  ol
-        //    li P(E|C) &cong; 0.5 > P(E|&not;C) &cong; 0.4
-        //    li P(E|C,F) &cong; 0.2 < P(E|&not;C,F) &cong; 0.3
-        //    li P(E|C,&not;F) &cong; 0.6 < P(E|&not;C,&not;F) &cong; 0.7
-        //
-        //  p where C - treatment (cause), E - recovery (effect), F - female (feature)
-
         section
           h3 Should we prescribe the treatment to a patient?
 
@@ -210,22 +202,6 @@ html(lang="en")
             span.fragment.indent No! P(E|C, &not;F) < P(E|&not;C, &not;F)
 
           img.fragment(src="img/lol-srsly.jpg")
-
-        //section
-        //  h3 Pearl: Probability calculus isn't enough
-        //
-        //  blockquote.full-width.fragment(data-fragment-index=0).
-        //    The explanation for Simpson's paradox should be clear to readers of this book, since we have taken great
-        //    care in distinguishing <i>seeing</i> from <i>doing</i>. The conditioning operator in probability calculus
-        //    stands for the evidential conditional "given that we see," whereas the do() operator was devised to
-        //    represent the causal conditional "given that we do." Accordingly, the inequality P(E|C) > P(E|&not;C) is
-        //    not a statement about C being a positive causal factor for E, properly written P(E|do(C)) > P(E|do(&not;C)),
-        //    but rather about C being positive evidence for E, which may be due to spurious confounding factors that
-        //    cause both C and E.
-        //
-        //  .img-source-caption.fragment(data-fragment-index=0).
-        //    - Judea Pearl,
-        //    <a href="http://bayes.cs.ucla.edu/R264.pdf" target="_blank">Simpson's Paradox: An Anatomy</a>
 
         section.causal-assumptions
           h3 Pearl: Causal assumptions are essential
@@ -245,40 +221,6 @@ html(lang="en")
           p.fragment.
             <b>Generally:</b> The decision whether to use F to predict E can't only depend on the data
 
-        //section
-        //  h3 One last scenario
-        //
-        //  p.no-margin.fragment.
-        //    F is brown eye colour, which is caused by two different genes, one that also affects treatment uptake, and
-        //    another that also affects recovery
-        //  p.no-margin.indent.fragment.
-        //    &rarr; Follow the aggregated measures and always prescribe C
-        //
-        //  p.fragment.
-        //    <b>Generally:</b> The decision whether to use F to predict E can't only depend on the data
-
-        //section
-        //  h3 Pearl: Causal assumptions are essential
-        //
-        //  img.fragment(src="img/simpsons-paradox-causal-assumptions-full.png", height=150)
-        //
-        //  p.fragment <b>Original scenario:</b> Gender affects treatment selection and recovery
-        //
-        //  p.fragment.
-        //    <b>Different scenario:</b> F is high blood pressure, the treatment affects blood pressure, and
-        //    blood pressure affects recovery
-        //
-        //  p.fragment.
-        //    <b>Last scenario:</b> F is brown eye colour, which is caused by two different genes, one that affects
-        //    treatment selection, and another that affects recovery
-        //
-        //section
-        //  h3 Variable choice is a critical modelling decision
-        //  h4.fragment "Big data" just makes it a bigger problem
-        //
-        //  a.fragment(href="http://tylervigen.com/spurious-correlations", target="_blank")
-        //    img(src="img/spurious-correlations.png")
-
         section
           h3 Some flavours of causality
 
@@ -294,38 +236,6 @@ html(lang="en")
               ul
                 li Doesn't shy away from philosophical discussions
                 li Still early days, practical use unclear
-
-        //section
-        //  h3 Limitations and frustrations
-        //
-        //  .fragment
-        //    h6.left Causal plurality
-        //    blockquote.full-width.medium.
-        //      There is simply no unified philosophical theory of what causes are, and no single foolproof computational
-        //      method for finding them with absolute certainty.
-        //    .img-source-caption.
-        //      - Samantha Kleinberg,
-        //      <a href="http://www.skleinberg.org/why/" target="_blank">Why: A Guide to Finding and Using Causes</a>
-        //
-        //  .fragment
-        //    h6.left Need for untested assumptions
-        //    blockquote.full-width.medium.
-        //      For any model yielding a conclusion C, one can construct a statistically equivalent model that refutes C
-        //      and fits the data equally well.
-        //    .img-source-caption.
-        //      - Judea Pearl, <a href="http://ftp.cs.ucla.edu/pub/stat_ser/r391.pdf" target="_blank">Trygve Haavelmo and
-        //      the Emergence of Causal Calculus</a>
-        //
-        //  .fragment
-        //    h6.left Unreasonable people
-        //    blockquote.full-width.medium.
-        //      We additionally show that, above and beyond endorsement of free markets, endorsement of a cluster of
-        //      conspiracy theories (e.g., that the Federal Bureau of Investigation killed Martin Luther King, Jr.)
-        //      predicted rejection of climate science as well as other scientific findings.
-        //    .img-source-caption.
-        //      - Lewandowsky et al.,
-        //      <a href="http://pss.sagepub.com/content/24/5/622" target="_blank">NASA Faked the Moon
-        //      Landing&mdash;Therefore, (Climate) Science Is a Hoax: An Anatomy of the Motivated Rejection of Science</a>
 
         section
           h3 Cause of frustration #1:<br>No single definition
@@ -379,92 +289,71 @@ html(lang="en")
             li Schedule effective interventions
             li Deal with political implications
 
+        section
+          h3 Coming up with causal assumptions <small class="muted">[Sydney Special]</small>
+          h6.fragment Bradford Hill criteria for separating association from causation
+
+          table.medium
+            tr.fragment
+              td Strength
+              td How strong is the association?
+            tr.fragment
+              td Consistency
+              td Has association been repeatedly observed in various cases?
+            tr.fragment
+              td Specificity
+              td Are specific X instances associated with specific Y instances?
+            tr.fragment
+              td Temporality
+              td Do we know that X leads to Y or are they observed together?
+            tr.fragment
+              td Biological gradient
+              td Is Y a known function of X, e.g., dose-response curve?
+            tr.fragment
+              td Plausibility
+              td Is there a mechanism that can explain how X causes Y?
+            tr.fragment
+              td Coherence
+              td Does the association conflict with our current knowledge?
+            tr.fragment
+              td Experiment
+              td Can controlled experiments support a causal hypothesis?
+            tr.fragment
+              td Analogy
+              td Do we know of any similar cause-and-effect relationships?
+
+        section
+          h3 Experiments are great! <small class="muted">[Sydney Special]</small>
+
+          blockquote.
+            Counterfactuals without experiments: DIRTY<br>
+            Counterfactuals WITH experiments: CLEAN<br>
+            If you can run an experiment, you should!<br>
+            (if it counts and can be counted, then count it)
+          .img-source-caption.
+            - Tiberio Caetano,
+            <a href="https://drive.google.com/file/d/0B4u2T5tlDOAPYUhPZ0VXSlhVaTA/view" target="_blank">How to
+            demonstrably make money with personalisation</a>
+
+        section
+          h3 Experiments can be hard <small class="muted">[Sydney Special]</small>
+
+          p.fragment(data-fragment-index=0) A/B testing: selection biases, multiple comparisons
+          p.fragment(data-fragment-index=1) Well-designed experiments yielding surprising results
+          blockquote.fragment(data-fragment-index=1).
+            Remote, retroactive intercessory prayer said for a group is associated with a shorter stay in hospital and
+            shorter duration of fever in patients with a bloodstream infection and should be considered for use in
+            clinical practice.
+          .img-source-caption.fragment(data-fragment-index=1).
+            - <a href="http://www.bmj.com/content/323/7327/1450" target="_blank">Leibovici (2001)</a>
+          p.fragment(data-fragment-index=2) The classics: smoking, climate, nutrition
+
       section
         section
           h2 Finding your purpose
 
           a(href="http://johnriordan.bigcartel.com/product/exploited-ape", target="_blank")
             img(src="img/exploited-ape-john-riordan.jpg", alt="Exploited Ape by John Riordan")
-
-        //section
-        //  h3 My path and motivations so far
-        //
-        //  - var vmark = '&#x2714;';
-        //  - var xmark = '&#x2718;';
-        //
-        //  table.medium.center-cell-text.left-first-column
-        //    thead
-        //      tr
-        //        td
-        //        td Interest?
-        //        td Experience?
-        //        td Location?
-        //        td Lifestyle?
-        //        td Impact?
-        //    tbody
-        //      tr.fragment
-        //        td Technion BSc
-        //        td !{vmark}
-        //        td !{vmark}
-        //        td !{xmark}
-        //        td !{xmark}
-        //        td !{xmark}
-        //      tr.fragment
-        //        td Intel
-        //        td !{xmark}
-        //        td !{vmark}
-        //        td !{xmark}
-        //        td !{xmark}
-        //        td !{xmark}
-        //      tr.fragment
-        //        td Qualcomm
-        //        td !{vmark}
-        //        td !{vmark}
-        //        td !{xmark}
-        //        td !{xmark}
-        //        td !{xmark}
-        //      tr.fragment
-        //        td Monash PhD
-        //        td !{vmark}
-        //        td !{vmark}
-        //        td !{vmark}
-        //        td !{xmark}
-        //        td !{xmark}
-        //      tr.fragment
-        //        td Google
-        //        td !{vmark}
-        //        td !{vmark}
-        //        td !{vmark}
-        //        td !{xmark}
-        //        td !{xmark}
-        //      tr.fragment
-        //        td Giveable
-        //        td !{vmark}
-        //        td !{vmark}
-        //        td !{vmark}
-        //        td !{xmark}
-        //        td !{xmark}
-        //      tr.fragment
-        //        td Next Commerce
-        //        td !{vmark}
-        //        td !{vmark}
-        //        td !{vmark}
-        //        td !{xmark}
-        //        td !{xmark}
-        //      tr.fragment
-        //        td Projects & Consulting
-        //        td !{vmark}
-        //        td !{xmark}
-        //        td !{xmark}
-        //        td !{vmark}
-        //        td !{xmark}
-        //      tr.fragment
-        //        td Car Next Door
-        //        td !{vmark}
-        //        td !{vmark}
-        //        td !{vmark}
-        //        td !{xmark}
-        //        td !{vmark}
 
         section
           h3 My path and motivations so far
@@ -491,28 +380,6 @@ html(lang="en")
           div &darr;
           .flow-box Why do I even bother?
 
-        //section
-        //  h3 Generalised useless models
-        //
-        //  blockquote.full-width.fragment.
-        //    In the year 1930, John Maynard Keynes predicted that technology would have advanced sufficiently by
-        //    century's end that countries like Great Britain or the United States would achieve a 15-hour work week.
-        //    There's every reason to believe he was right. In technological terms, we are quite capable of this. And yet
-        //    it didn't happen. Instead, technology has been marshaled, if anything, to figure out ways to make us all
-        //    work more. In order to achieve this, jobs have had to be created that are, effectively, pointless.
-        //    Huge swathes of people, in Europe and North America in particular, spend their entire working lives
-        //    performing tasks they secretly believe do not really need to be performed.
-        //
-        //  .img-source-caption.
-        //    - David Graeber,
-        //    <a href="http://strikemag.org/bullshit-jobs/" target="_blank">On the Phenomenon of Bullshit Jobs</a>
-
-        //section
-        //  img(src="img/bullshit-jobs.jpg")
-        //  .img-source-caption.
-        //    - David Graeber,
-        //    <a href="http://strikemag.org/bullshit-jobs/" target="_blank">On the Phenomenon of Bullshit Jobs</a>
-
         section
           h3 Are you building generalised useless models? Why do you bother?
 
@@ -521,22 +388,6 @@ html(lang="en")
             li.fragment Totally fine to be doing it for money/experience, just be honest
             li.fragment Money doesn't necessarily compensate for Dilbertian suffering and lack of pride in your work
             li.fragment Most data scientists have a choice &ndash; make sure you choose well
-
-        //-
-          section
-            h3 One last preachy word of advice
-
-            .fragment
-              blockquote.
-                People who sell their souls for the promise of a secure job and a secure salary are spat out as soon as
-                they become dispensable. The more loyal to an institution you are, the more exploitable, and ultimately
-                expendable, you become.
-
-              .img-source-caption.
-                - George Monbiot, <a href="http://www.monbiot.com/career-advice/" target="_blank">Career Advice</a>
-
-            h3.fragment.pad-top Do not give up on doing something that would make you proud
-            h3.fragment Do not be afraid to question why
 
       section
         h1 Questions?
