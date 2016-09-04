@@ -1,0 +1,54 @@
+doctype html
+html(lang='en')
+  head
+    meta(charset='UTF-8')
+    title Reef Life Survey frequency explorer
+    link(rel='stylesheet', href='style.min.css')
+
+  body
+    .container-fluid
+      .row
+        .col-sm-8.col-sm-offset-2
+          h1.text-center RLS Species Frequency Explorer
+          .control-group
+            label(for='select-site') Site
+            select#select-site.demo-default
+              option(value='') Select a site...
+      .row
+        #site-info.col-sm-8.col-sm-offset-2
+
+    script#site-info-template(type='text/template')
+      h2 <%= name %>
+      p <b>Number of surveys:</b> <%= num_surveys %>
+      p <b>Code:</b> <%= code %>
+      p <b>Realm:</b> <%= realm %>
+      p <b>Ecoregion:</b> <%= ecoregion %>
+      p <b>Coordinates:</b> <%= latitude %> <%= longtitude %>
+      .row
+        .col-sm-6.col-sm-offset-3
+          iframe#site-map(allowfullscreen,
+                          src!='https://www.google.com/maps/embed/v1/search?q=' +
+                               '<%= latitude %>+<%= longtitude %>&key=AIzaSyAECDOrTujNBQt6lfvKSEGmWzrAyRPPz0w&zoom=6')
+      h3 Species
+      .row: #top-species-chart.col-sm-10.col-sm-offset-1
+      .row: .col-sm-12: table.table.table-striped
+        thead
+          tr
+            th #
+            th Name
+            th Links
+            th Surveys seen
+        tbody#species-table-body
+
+    script#species-count-row-template(type='text/template')
+      tr
+        td <%= index + 1 %>
+        td <%= title %>
+        td
+          a(href='http://www.fishbase.se/summary/<%= name.replace(" ", "-") %>.html', target='_blank') FishBase
+          = ' | '
+          a(href='http://images.google.com/images?hl=en&q=<%= name.replace(" ", "+") %>&btnG=Search+Images&gbv=2',
+            target='_blank') Google Image
+        td.text-left <%= count %> (<%= percentage %>%)
+
+    script(src='main.min.js')

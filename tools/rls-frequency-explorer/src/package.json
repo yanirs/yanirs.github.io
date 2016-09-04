@@ -1,0 +1,25 @@
+{
+  "name": "rls-frequency-explorer",
+  "description": "A simple tool to explore the species frequencies reported in Reef Life Surveys",
+  "dependencies": {
+    "jquery": "^3.1.0",
+    "selectize": "^0.12.3",
+    "underscore": "^1.8.3",
+    "plotly.js": "^1.16.3",
+    "bootstrap": "^3.3.7"
+  },
+  "devDependencies": {
+    "grunt": "^0.4.5",
+    "grunt-contrib-uglify": "^0.4.0",
+    "browserify": "^4.1.5",
+    "grunt-browserify": "^2.1.0",
+    "grunt-contrib-cssmin": "^0.9.0",
+    "grunt-contrib-copy": "^0.5.0",
+    "grunt-contrib-watch": "^0.6.1",
+    "pug": "^2.0.0-beta6",
+    "grunt-contrib-jade": "^1.0.0",
+    "grunt-contrib-coffee": "^1.0.0",
+    "less": "^2.7.1",
+    "grunt-contrib-less": "^1.4.0"
+  }
+}
