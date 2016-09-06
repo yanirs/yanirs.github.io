@@ -21,7 +21,7 @@ module.exports = (grunt) ->
       css:
         files: [ 'style.less' ]
         tasks: [
-          'sass:dist'
+          'less:build'
           'cssmin:build'
         ]
       coffee:

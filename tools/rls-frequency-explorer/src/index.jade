@@ -5,12 +5,13 @@ html(lang='en')
     title Reef Life Survey frequency explorer
     link(rel='stylesheet', href='style.min.css')
 
-  body
+  body.loading
     .container-fluid
       .row
         .col-sm-8.col-sm-offset-2
           h1.text-center RLS Species Frequency Explorer
-          .control-group
+          .js-error-container.hidden: .alert.alert-danger Data loading failed.
+          .js-site-select-container.control-group.hidden
             label(for='select-site') Site
             select#select-site.demo-default
               option(value='') Select a site...
@@ -45,9 +46,9 @@ html(lang='en')
         td <%= index + 1 %>
         td <%= title %>
         td
-          a(href='http://www.fishbase.se/summary/<%= name.replace(" ", "-") %>.html', target='_blank') FishBase
+          a(href!='http://www.fishbase.se/summary/<%= name.replace(" ", "-") %>.html', target='_blank') FishBase
           = ' | '
-          a(href='http://images.google.com/images?hl=en&q=<%= name.replace(" ", "+") %>&btnG=Search+Images&gbv=2',
+          a(href!='http://images.google.com/images?hl=en&q=<%= name.replace(" ", "+") %>&btnG=Search+Images&gbv=2',
             target='_blank') Google Image
         td.text-left <%= count %> (<%= percentage %>%)
 
