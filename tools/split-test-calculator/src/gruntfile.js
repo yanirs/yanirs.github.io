@@ -15,14 +15,14 @@ module.exports = function (grunt) {
       },
       compile: {
         files: {
-          'bayes.js': ['bayes.coffee']
+          'bayes.js.tmp': ['bayes.coffee']
         }
       }
     },
     browserify: {
       build: {
         files: {
-          '../bayes.js': ['bayes.js']
+          '../bayes.js': ['bayes.js.tmp']
         }
       }
     },
@@ -41,14 +41,14 @@ module.exports = function (grunt) {
           'loadPath': 'node_modules/gridle/sass/'
         },
         files: {
-          'style.css': 'style.scss'
+          'style.css.tmp': 'style.scss'
         }
       }
     },
     cssmin: {
       build: {
         files: {
-          '../style.css': ['style.css']
+          '../style.css': ['style.css.tmp']
         }
       }
     },
