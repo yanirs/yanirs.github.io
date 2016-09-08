@@ -4,24 +4,20 @@ global._ = require('underscore')
 Plotly = require('plotly.js/lib/core')
 Plotly.register([require('plotly.js/lib/bar')])
 
-deferredJsons = $.when($.getJSON('sites.json'), $.getJSON('species.json'))
-deferredJsons.always ->
-  $('body').removeClass('loading')
-deferredJsons.fail ->
-  $('.js-error-container').removeClass('hidden')
-deferredJsons.done (sites, species) ->
-  $('.js-site-select-container').removeClass('hidden')
+createSiteObject = (code, [realm, ecoregion, name, longtitude, latitude, numSurveys, speciesCounts]) ->
+  {
+    code: code
+    realm: realm
+    ecoregion: ecoregion
+    name: name
+    longtitude: longtitude
+    latitude: latitude
+    numSurveys: numSurveys
+    speciesCounts: speciesCounts
+  }
 
-  sites = sites[0]
-  species = species[0]
+createEcoregionSites = (sites) ->
   ecoregionToSite = {}
-
-  compareSites = (siteA, siteB) ->
-    if siteA.ecoregion == siteB.ecoregion
-      siteA.code.localeCompare(siteB.code)
-    else
-      siteA.ecoregion.localeCompare(siteB.ecoregion)
-
   _.each sites, (site) ->
     unless ecoregionToSite[site.ecoregion]
       ecoregionToSite[site.ecoregion] =
@@ -30,18 +26,29 @@ deferredJsons.done (sites, species) ->
         code: 'ECO' + _.size(ecoregionToSite)
         latitude: site.latitude
         longtitude: site.longtitude
-        num_surveys: 0
-        species_counts: {}
+        numSurveys: 0
+        speciesCounts: {}
     ecoregionSite = ecoregionToSite[site.ecoregion]
-    ecoregionSite.num_surveys += site.num_surveys
-    _.each site.species_counts, (count, species) ->
-      unless ecoregionSite.species_counts[species]
-        ecoregionSite.species_counts[species] = 0
-      ecoregionSite.species_counts[species] += count
+    ecoregionSite.numSurveys += site.numSurveys
+    _.each site.speciesCounts, (count, species) ->
+      unless ecoregionSite.speciesCounts[species]
+        ecoregionSite.speciesCounts[species] = 0
+      ecoregionSite.speciesCounts[species] += count
+  _.values(ecoregionToSite)
 
+deferredJsons = $.when($.getJSON('api-site-surveys.json'), $.getJSON('api-species.json'))
+deferredJsons.always ->
+  $('body').removeClass('loading')
+deferredJsons.fail ->
+  $('.js-error-container').removeClass('hidden')
+deferredJsons.done (sites, species) ->
+  sites = (createSiteObject(code, data) for code, data of sites[0])
+  species = species[0]
   $selectSite = $('#select-site')
-  sites.sort(compareSites)
-  sites = _.sortBy(_.values(ecoregionToSite), 'ecoregion').concat(sites)
+  sites.sort (siteA, siteB) ->
+    property = if siteA.ecoregion == siteB.ecoregion then 'code' else 'ecoregion'
+    siteA[property].localeCompare(siteB[property])
+  sites = _.sortBy(createEcoregionSites(sites), 'ecoregion').concat(sites)
   siteCodeToSite = {}
   _.each sites, (site) ->
     if site.name
@@ -55,16 +62,17 @@ deferredJsons.done (sites, species) ->
 
   $selectSite.selectize
     onChange: (siteCode, numTopCounts = 25) ->
+      return unless siteCode
       site = siteCodeToSite[siteCode]
       $('#site-info').html(siteInfoTemplate(site))
       $speciesTable = $('#species-table-body')
-      sortedCounts = _.map(_.pairs(site.species_counts).sort((a, b) -> b[1] - (a[1])), (nameCount) ->
-        commonName = species[nameCount[0]]
+      sortedCounts = _.map(_.pairs(site.speciesCounts).sort((a, b) -> b[1] - (a[1])), ([id, count]) ->
+        [name, commonName] = species[id]
         {
-          name: nameCount[0]
-          count: nameCount[1]
-          percentage: (100 * nameCount[1] / site.num_surveys).toFixed(2)
-          title: "<i>#{nameCount[0]}</i>" + (if commonName then " (#{commonName})" else '')
+          name: name
+          count: count
+          percentage: (100 * count / site.numSurveys).toFixed(2)
+          title: "<i>#{name}</i>" + (if commonName then " (#{commonName})" else '')
         }
       )
       _.each sortedCounts, (species, index) ->
@@ -92,3 +100,5 @@ deferredJsons.done (sites, species) ->
           dtick: 10
     onDropdownClose: (dropdown) ->
       $(dropdown).prev().find('input').blur()
+
+  $('.js-site-select-container').removeClass('hidden')

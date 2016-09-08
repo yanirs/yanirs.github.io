@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var Plotly, deferredJsons;
+var Plotly, createEcoregionSites, createSiteObject, deferredJsons;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -12,7 +12,50 @@ Plotly = require('plotly.js/lib/core');
 
 Plotly.register([require('plotly.js/lib/bar')]);
 
-deferredJsons = $.when($.getJSON('sites.json'), $.getJSON('species.json'));
+createSiteObject = function(code, arg) {
+  var ecoregion, latitude, longtitude, name, numSurveys, realm, speciesCounts;
+  realm = arg[0], ecoregion = arg[1], name = arg[2], longtitude = arg[3], latitude = arg[4], numSurveys = arg[5], speciesCounts = arg[6];
+  return {
+    code: code,
+    realm: realm,
+    ecoregion: ecoregion,
+    name: name,
+    longtitude: longtitude,
+    latitude: latitude,
+    numSurveys: numSurveys,
+    speciesCounts: speciesCounts
+  };
+};
+
+createEcoregionSites = function(sites) {
+  var ecoregionToSite;
+  ecoregionToSite = {};
+  _.each(sites, function(site) {
+    var ecoregionSite;
+    if (!ecoregionToSite[site.ecoregion]) {
+      ecoregionToSite[site.ecoregion] = {
+        realm: site.realm,
+        ecoregion: site.ecoregion,
+        code: 'ECO' + _.size(ecoregionToSite),
+        latitude: site.latitude,
+        longtitude: site.longtitude,
+        numSurveys: 0,
+        speciesCounts: {}
+      };
+    }
+    ecoregionSite = ecoregionToSite[site.ecoregion];
+    ecoregionSite.numSurveys += site.numSurveys;
+    return _.each(site.speciesCounts, function(count, species) {
+      if (!ecoregionSite.speciesCounts[species]) {
+        ecoregionSite.speciesCounts[species] = 0;
+      }
+      return ecoregionSite.speciesCounts[species] += count;
+    });
+  });
+  return _.values(ecoregionToSite);
+};
+
+deferredJsons = $.when($.getJSON('api-site-surveys.json'), $.getJSON('api-species.json'));
 
 deferredJsons.always(function() {
   return $('body').removeClass('loading');
@@ -23,43 +66,25 @@ deferredJsons.fail(function() {
 });
 
 deferredJsons.done(function(sites, species) {
-  var $selectSite, compareSites, ecoregionToSite, siteCodeToSite, siteInfoTemplate, speciesCountRowTemplate;
-  sites = sites[0];
+  var $selectSite, code, data, siteCodeToSite, siteInfoTemplate, speciesCountRowTemplate;
+  sites = (function() {
+    var ref, results;
+    ref = sites[0];
+    results = [];
+    for (code in ref) {
+      data = ref[code];
+      results.push(createSiteObject(code, data));
+    }
+    return results;
+  })();
   species = species[0];
-  $('.js-site-select-container').removeClass('hidden');
-  ecoregionToSite = {};
-  compareSites = function(siteA, siteB) {
-    if (siteA.ecoregion === siteB.ecoregion) {
-      return siteA.code.localeCompare(siteB.code);
-    } else {
-      return siteA.ecoregion.localeCompare(siteB.ecoregion);
-    }
-  };
-  _.each(sites, function(site) {
-    var ecoregionSite;
-    if (!ecoregionToSite[site.ecoregion]) {
-      ecoregionToSite[site.ecoregion] = {
-        realm: site.realm,
-        ecoregion: site.ecoregion,
-        code: 'ECO' + _.size(ecoregionToSite),
-        latitude: site.latitude,
-        longtitude: site.longtitude,
-        num_surveys: 0,
-        species_counts: {}
-      };
-    }
-    ecoregionSite = ecoregionToSite[site.ecoregion];
-    ecoregionSite.num_surveys += site.num_surveys;
-    return _.each(site.species_counts, function(count, species) {
-      if (!ecoregionSite.species_counts[species]) {
-        ecoregionSite.species_counts[species] = 0;
-      }
-      return ecoregionSite.species_counts[species] += count;
-    });
-  });
   $selectSite = $('#select-site');
-  sites.sort(compareSites);
-  sites = _.sortBy(_.values(ecoregionToSite), 'ecoregion').concat(sites);
+  sites.sort(function(siteA, siteB) {
+    var property;
+    property = siteA.ecoregion === siteB.ecoregion ? 'code' : 'ecoregion';
+    return siteA[property].localeCompare(siteB[property]);
+  });
+  sites = _.sortBy(createEcoregionSites(sites), 'ecoregion').concat(sites);
   siteCodeToSite = {};
   _.each(sites, function(site) {
     if (site.name) {
@@ -71,25 +96,29 @@ deferredJsons.done(function(sites, species) {
   });
   siteInfoTemplate = _.template($('#site-info-template').html());
   speciesCountRowTemplate = _.template($('#species-count-row-template').html());
-  return $selectSite.selectize({
+  $selectSite.selectize({
     onChange: function(siteCode, numTopCounts) {
       var $speciesTable, site, sortedCounts, topCounts;
       if (numTopCounts == null) {
         numTopCounts = 25;
       }
+      if (!siteCode) {
+        return;
+      }
       site = siteCodeToSite[siteCode];
       $('#site-info').html(siteInfoTemplate(site));
       $speciesTable = $('#species-table-body');
-      sortedCounts = _.map(_.pairs(site.species_counts).sort(function(a, b) {
+      sortedCounts = _.map(_.pairs(site.speciesCounts).sort(function(a, b) {
         return b[1] - a[1];
-      }), function(nameCount) {
-        var commonName;
-        commonName = species[nameCount[0]];
+      }), function(arg) {
+        var commonName, count, id, name, ref;
+        id = arg[0], count = arg[1];
+        ref = species[id], name = ref[0], commonName = ref[1];
         return {
-          name: nameCount[0],
-          count: nameCount[1],
-          percentage: (100 * nameCount[1] / site.num_surveys).toFixed(2),
-          title: ("<i>" + nameCount[0] + "</i>") + (commonName ? " (" + commonName + ")" : '')
+          name: name,
+          count: count,
+          percentage: (100 * count / site.numSurveys).toFixed(2),
+          title: ("<i>" + name + "</i>") + (commonName ? " (" + commonName + ")" : '')
         };
       });
       _.each(sortedCounts, function(species, index) {
@@ -136,6 +165,7 @@ deferredJsons.done(function(sites, species) {
       return $(dropdown).prev().find('input').blur();
     }
   });
+  return $('.js-site-select-container').removeClass('hidden');
 });
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
