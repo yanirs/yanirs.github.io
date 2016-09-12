@@ -111,20 +111,42 @@ deferredJsons.done(function(sites, species) {
       sortedCounts = _.map(_.pairs(site.speciesCounts).sort(function(a, b) {
         return b[1] - a[1];
       }), function(arg) {
-        var commonName, count, id, name, ref;
+        var commonName, count, id, method, name, ref, speciesClass, speciesUrl;
         id = arg[0], count = arg[1];
-        ref = species[id], name = ref[0], commonName = ref[1];
+        ref = species[id], name = ref[0], commonName = ref[1], speciesUrl = ref[2], method = ref[3], speciesClass = ref[4];
         return {
           name: name,
+          commonName: commonName,
           count: count,
           percentage: (100 * count / site.numSurveys).toFixed(2),
-          title: ("<i>" + name + "</i>") + (commonName ? " (" + commonName + ")" : '')
+          title: ("<i>" + name + "</i>") + (commonName ? " (" + commonName + ")" : ''),
+          speciesClass: speciesClass,
+          method: (function() {
+            switch (method) {
+              case 0:
+                return 'M1';
+              case 1:
+                return 'M2';
+              default:
+                return 'Both';
+            }
+          })()
         };
       });
       _.each(sortedCounts, function(species, index) {
         return $speciesTable.append(speciesCountRowTemplate(_.extend(species, {
           index: index
         })));
+      });
+      $('.js-export').click(function() {
+        var csvData, i, len, row;
+        csvData = 'Scientific name,Common name,Method,Species class,Surveys seen,Total surveys\n';
+        for (i = 0, len = sortedCounts.length; i < len; i++) {
+          row = sortedCounts[i];
+          csvData += row.name + "," + row.commonName + "," + row.method + "," + row.speciesClass + "," + row.count + "," + site.numSurveys + "\n";
+        }
+        $(this).attr('download', "rls-" + (siteCode.toLowerCase()) + ".csv");
+        return $(this).attr('href', encodeURI("data:text/csv;charset=utf-8," + csvData));
       });
       topCounts = sortedCounts.slice(0, numTopCounts);
       topCounts.reverse();

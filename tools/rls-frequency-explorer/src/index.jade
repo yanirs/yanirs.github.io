@@ -25,6 +25,7 @@ html(lang='en')
       p <b>Realm:</b> <%= realm %>
       p <b>Ecoregion:</b> <%= ecoregion %>
       p <b>Coordinates:</b> <%= latitude %> <%= longtitude %>
+      p.text-right: a.btn.btn-primary.js-export Export data
       .row
         .col-sm-6.col-sm-offset-3
           iframe#site-map(allowfullscreen,
@@ -37,6 +38,8 @@ html(lang='en')
           tr
             th #
             th Name
+            th Method
+            th Class
             th Links
             th Surveys seen
         tbody#species-table-body
@@ -45,6 +48,8 @@ html(lang='en')
       tr
         td <%= index + 1 %>
         td <%= title %>
+        td <%= method %>
+        td <%= speciesClass %>
         td
           a(href!='http://www.fishbase.se/summary/<%= name.replace(" ", "-") %>.html', target='_blank') FishBase
           = ' | '
