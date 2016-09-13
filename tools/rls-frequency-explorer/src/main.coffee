@@ -1,8 +1,6 @@
 global.jQuery = global.$ = require('jquery')
 require('selectize')
 global._ = require('underscore')
-Plotly = require('plotly.js/lib/core')
-Plotly.register([require('plotly.js/lib/bar')])
 
 createSiteObject = (code, [realm, ecoregion, name, longtitude, latitude, numSurveys, speciesCounts]) ->
   {
@@ -65,51 +63,43 @@ deferredJsons.done (sites, species) ->
       return unless siteCode
       site = siteCodeToSite[siteCode]
       $('#site-info').html(siteInfoTemplate(site))
-      $speciesTable = $('#species-table-body')
-      sortedCounts = _.map(_.pairs(site.speciesCounts).sort((a, b) -> b[1] - (a[1])), ([id, count]) ->
+      siteTableData = []
+      for id, count of site.speciesCounts
         [name, commonName, speciesUrl, method, speciesClass] = species[id]
-        {
-          name: name
-          commonName: commonName
-          count: count
-          percentage: (100 * count / site.numSurveys).toFixed(2)
-          title: "<i>#{name}</i>" + (if commonName then " (#{commonName})" else '')
-          speciesClass: speciesClass
-          method: switch method
-                  when 0 then 'M1'
-                  when 1 then 'M2'
-                  else 'Both'
-        }
-      )
-      _.each sortedCounts, (species, index) ->
-        $speciesTable.append(speciesCountRowTemplate(_.extend(species, index: index)))
+        siteTableData.push({
+            name: name
+            commonName: commonName
+            count: count
+            percentage: (100 * count / site.numSurveys).toFixed(2)
+            speciesClass: speciesClass
+            method: switch method
+                    when 0 then 'M1'
+                    when 1 then 'M2'
+                    else 'Both'
+        })
+
+      $speciesTableBody = $('.js-species-table tbody')
+      renderTableBody = (sortColumn = '-count') ->
+        $speciesTableBody.html('')
+        if sortColumn[0] == '-'
+          sortColumn = sortColumn.slice(1)
+          cmp = (elem) -> -elem[sortColumn]
+        else
+          cmp = sortColumn
+        for rowData in _.sortBy(siteTableData, cmp)
+          $speciesTableBody.append(speciesCountRowTemplate(rowData))
+      $('.js-species-table thead a').click (event) ->
+        event.preventDefault()
+        renderTableBody($(this).data().sortColumn)
+      renderTableBody()
+
       $('.js-export').click ->
         csvData = 'Scientific name,Common name,Method,Species class,Surveys seen,Total surveys\n'
-        for row in sortedCounts
+        for row in siteTableData
           csvData += "#{row.name},#{row.commonName},#{row.method},#{row.speciesClass},#{row.count},#{site.numSurveys}\n"
         $(this).attr('download', "rls-#{siteCode.toLowerCase()}.csv")
         $(this).attr('href', encodeURI("data:text/csv;charset=utf-8,#{csvData}"))
-      topCounts = sortedCounts.slice(0, numTopCounts)
-      topCounts.reverse()
-      Plotly.newPlot 'top-species-chart', [ {
-        type: 'bar'
-        orientation: 'h'
-        x: _.map(topCounts, (sc) -> sc.percentage)
-        y: _.map(topCounts, (sc) -> sc.name)
-        text: _.map(topCounts, (sc) -> sc.title)
-      } ],
-        title: 'Top species'
-        autosize: true
-        margin:
-          l: 200
-          r: 0
-          t: 40
-          b: 40
-        yaxis: nticks: numTopCounts
-        xaxis:
-          title: 'Frequency [%]'
-          tickmode: 'linear'
-          dtick: 10
+
     onDropdownClose: (dropdown) ->
       $(dropdown).prev().find('input').blur()
 

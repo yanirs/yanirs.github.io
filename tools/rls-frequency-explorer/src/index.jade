@@ -32,22 +32,21 @@ html(lang='en')
                           src!='https://www.google.com/maps/embed/v1/search?q=' +
                                '<%= latitude %>+<%= longtitude %>&key=AIzaSyAECDOrTujNBQt6lfvKSEGmWzrAyRPPz0w&zoom=6')
       h3 Species
-      .row: #top-species-chart.col-sm-10.col-sm-offset-1
-      .row: .col-sm-12: table.table.table-striped
+      .row: .col-sm-12: table.table.table-striped.js-species-table
         thead
           tr
-            th #
-            th Name
-            th Method
-            th Class
+            th: a(href='#', data-sort-column='name') Scientific name
+            th: a(href='#', data-sort-column='commonName') Common name
+            th: a(href='#', data-sort-column='method') Method
+            th: a(href='#', data-sort-column='speciesClass') Class
             th Links
-            th Surveys seen
-        tbody#species-table-body
+            th: a(href='#', data-sort-column='-count') Surveys seen
+        tbody
 
     script#species-count-row-template(type='text/template')
       tr
-        td <%= index + 1 %>
-        td <%= title %>
+        td <%= name %>
+        td <%= commonName %>
         td <%= method %>
         td <%= speciesClass %>
         td
