@@ -23,7 +23,7 @@ createSiteObject = function(code, arg) {
   };
 };
 
-deferredJsons = $.when($.getJSON('api-site-surveys.json'), $.getJSON('api-species.json'), $.getScript('https://maps.googleapis.com/maps/api/js'));
+deferredJsons = $.when($.getJSON('api-site-surveys.json'), $.getJSON('api-species.json'), $.getScript('https://maps.googleapis.com/maps/api/js?key=AIzaSyCB7yf2Q30bz9qnsd0wy6KvtdTGyke7Fag'));
 
 deferredJsons.always(function() {
   return $('body').removeClass('loading');

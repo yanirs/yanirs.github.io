@@ -15,7 +15,7 @@ createSiteObject = (code, [realm, ecoregion, name, longtitude, latitude, numSurv
 deferredJsons = $.when(
   $.getJSON('api-site-surveys.json'),
   $.getJSON('api-species.json'),
-  $.getScript('https://maps.googleapis.com/maps/api/js')
+  $.getScript('https://maps.googleapis.com/maps/api/js?key=AIzaSyCB7yf2Q30bz9qnsd0wy6KvtdTGyke7Fag')
 )
 deferredJsons.always ->
   $('body').removeClass('loading')
