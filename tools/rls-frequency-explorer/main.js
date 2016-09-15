@@ -42,7 +42,9 @@ deferredJsons.done(function(arg, arg1) {
       lat: -30,
       lng: 150
     },
-    zoom: 3
+    zoom: 3,
+    scrollwheel: false,
+    streetViewControl: false
   });
   currentSiteMarker = null;
   sites = (function() {

@@ -26,6 +26,8 @@ deferredJsons.done ([sites], [species]) ->
   map = new google.maps.Map($('.js-map')[0], {
     center: { lat: -30, lng: 150 }
     zoom: 3
+    scrollwheel: false
+    streetViewControl: false
   })
   currentSiteMarker = null
 
