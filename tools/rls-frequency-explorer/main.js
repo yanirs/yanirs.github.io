@@ -1,12 +1,16 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var createSiteObject, deferredJsons;
+var Map, createSiteObject, deferredJsons, siteInfoTemplate, speciesCountRowTemplate;
 
 global.jQuery = global.$ = require('jquery');
 
 require('selectize');
 
 global._ = require('underscore');
+
+siteInfoTemplate = _.template($('#site-info-template').html());
+
+speciesCountRowTemplate = _.template($('#species-count-row-template').html());
 
 createSiteObject = function(code, arg) {
   var ecoregion, latitude, longtitude, name, numSurveys, realm, speciesCounts;
@@ -23,6 +27,66 @@ createSiteObject = function(code, arg) {
   };
 };
 
+Map = (function() {
+  function Map() {
+    this.gmap = new google.maps.Map($('.js-map')[0], {
+      center: {
+        lat: -30,
+        lng: 150
+      },
+      zoom: 3,
+      scrollwheel: false,
+      streetViewControl: false
+    });
+    this.siteCodeToMarker = {};
+    this.siteCodeToInfoWindow = {};
+  }
+
+  Map.prototype.showSiteInfoWindow = function(siteCode) {
+    if (this.openInfoWindow) {
+      this.openInfoWindow.close();
+    }
+    this.openInfoWindow = this.siteCodeToInfoWindow[siteCode];
+    return this.openInfoWindow.open(this.gmap, this.siteCodeToMarker[siteCode]);
+  };
+
+  Map.prototype.createSiteMarker = function(site, handleSiteSelection) {
+    var marker, siteLatLng;
+    siteLatLng = {
+      lat: site.latitude,
+      lng: site.longtitude
+    };
+    marker = new google.maps.Marker({
+      position: siteLatLng,
+      map: this.gmap,
+      title: site.name
+    });
+    this.siteCodeToMarker[site.code] = marker;
+    this.siteCodeToInfoWindow[site.code] = new google.maps.InfoWindow({
+      content: "<b>" + site.name + " (" + site.code + ")</b><br> " + site.realm + " &ndash; " + site.ecoregion + "<br> <i>" + site.latitude + ", " + site.longtitude + "</i>"
+    });
+    return google.maps.event.addListener(marker, 'click', function() {
+      return handleSiteSelection(site.code);
+    });
+  };
+
+  Map.prototype.animateSiteMarker = function(siteCode, bounceTimeout) {
+    var marker;
+    if (bounceTimeout == null) {
+      bounceTimeout = 2500;
+    }
+    marker = this.siteCodeToMarker[siteCode];
+    this.gmap.panTo(marker.getPosition());
+    marker.setAnimation(google.maps.Animation.BOUNCE);
+    return window.setTimeout((function() {
+      return marker.setAnimation(null);
+    }), bounceTimeout);
+  };
+
+  return Map;
+
+})();
+
 deferredJsons = $.when($.getJSON('api-site-surveys.json'), $.getJSON('api-species.json'), $.getScript('https://maps.googleapis.com/maps/api/js?key=AIzaSyCB7yf2Q30bz9qnsd0wy6KvtdTGyke7Fag'));
 
 deferredJsons.always(function() {
@@ -34,19 +98,10 @@ deferredJsons.fail(function() {
 });
 
 deferredJsons.done(function(arg, arg1) {
-  var $selectSite, code, currentSiteMarker, data, map, siteCodeToSite, siteInfoTemplate, sites, species, speciesCountRowTemplate;
+  var $selectSite, code, data, handleSiteSelection, i, len, map, populateSiteInfo, site, siteCodeToSite, sites, species;
   sites = arg[0];
   species = arg1[0];
-  map = new google.maps.Map($('.js-map')[0], {
-    center: {
-      lat: -30,
-      lng: 150
-    },
-    zoom: 3,
-    scrollwheel: false,
-    streetViewControl: false
-  });
-  currentSiteMarker = null;
+  map = new Map();
   sites = (function() {
     var results;
     results = [];
@@ -63,107 +118,88 @@ deferredJsons.done(function(arg, arg1) {
     return siteA[property].localeCompare(siteB[property]);
   });
   siteCodeToSite = {};
-  _.each(sites, function(site) {
-    $('<option>').val(site.code).html(site.realm + ": " + site.ecoregion + " &rarr; " + site.code + ": " + site.name).appendTo($selectSite);
-    return siteCodeToSite[site.code] = site;
-  });
-  siteInfoTemplate = _.template($('#site-info-template').html());
-  speciesCountRowTemplate = _.template($('#species-count-row-template').html());
-  $selectSite.selectize({
-    onChange: function(siteCode, numTopCounts) {
-      var $speciesTableBody, commonName, count, id, method, name, ref, ref1, renderTableBody, site, siteLatLng, siteTableData, speciesClass, speciesUrl;
-      if (numTopCounts == null) {
-        numTopCounts = 25;
-      }
-      if (!siteCode) {
-        return;
-      }
-      site = siteCodeToSite[siteCode];
-      if (currentSiteMarker) {
-        currentSiteMarker.setMap(null);
-      }
-      siteLatLng = {
-        lat: site.latitude,
-        lng: site.longtitude
-      };
-      currentSiteMarker = new google.maps.Marker({
-        position: siteLatLng,
-        map: map,
-        title: site.name
+  populateSiteInfo = function(siteCode) {
+    var $speciesTableBody, commonName, count, id, method, name, ref, ref1, renderTableBody, site, siteTableData, speciesClass, speciesUrl;
+    site = siteCodeToSite[siteCode];
+    $('#site-info').html(siteInfoTemplate(site));
+    siteTableData = [];
+    ref = site.speciesCounts;
+    for (id in ref) {
+      count = ref[id];
+      ref1 = species[id], name = ref1[0], commonName = ref1[1], speciesUrl = ref1[2], method = ref1[3], speciesClass = ref1[4];
+      siteTableData.push({
+        name: name,
+        commonName: commonName || 'N/A',
+        count: count,
+        percentage: (100 * count / site.numSurveys).toFixed(2),
+        speciesClass: speciesClass,
+        method: (function() {
+          switch (method) {
+            case 0:
+              return 'M1';
+            case 1:
+              return 'M2';
+            default:
+              return 'Both';
+          }
+        })()
       });
-      map.panTo(siteLatLng);
-      google.maps.event.addListener(currentSiteMarker, 'click', (function(_this) {
-        return function() {
-          var infoWindow;
-          infoWindow = new google.maps.InfoWindow({
-            content: "<b>" + site.name + " (" + site.code + ")</b><br> " + site.realm + " &ndash; " + site.ecoregion + "<br> <i>" + site.latitude + ", " + site.longtitude + "</i>"
-          });
-          return infoWindow.open(map, currentSiteMarker);
+    }
+    $speciesTableBody = $('.js-species-table tbody');
+    renderTableBody = function(sortColumn) {
+      var cmp, i, len, ref2, results, rowData;
+      if (sortColumn == null) {
+        sortColumn = '-count';
+      }
+      $speciesTableBody.html('');
+      if (sortColumn[0] === '-') {
+        sortColumn = sortColumn.slice(1);
+        cmp = function(elem) {
+          return -elem[sortColumn];
         };
-      })(this));
-      $('#site-info').html(siteInfoTemplate(site));
-      siteTableData = [];
-      ref = site.speciesCounts;
-      for (id in ref) {
-        count = ref[id];
-        ref1 = species[id], name = ref1[0], commonName = ref1[1], speciesUrl = ref1[2], method = ref1[3], speciesClass = ref1[4];
-        siteTableData.push({
-          name: name,
-          commonName: commonName || 'N/A',
-          count: count,
-          percentage: (100 * count / site.numSurveys).toFixed(2),
-          speciesClass: speciesClass,
-          method: (function() {
-            switch (method) {
-              case 0:
-                return 'M1';
-              case 1:
-                return 'M2';
-              default:
-                return 'Both';
-            }
-          })()
-        });
+      } else {
+        cmp = sortColumn;
       }
-      $speciesTableBody = $('.js-species-table tbody');
-      renderTableBody = function(sortColumn) {
-        var cmp, i, len, ref2, results, rowData;
-        if (sortColumn == null) {
-          sortColumn = '-count';
-        }
-        $speciesTableBody.html('');
-        if (sortColumn[0] === '-') {
-          sortColumn = sortColumn.slice(1);
-          cmp = function(elem) {
-            return -elem[sortColumn];
-          };
-        } else {
-          cmp = sortColumn;
-        }
-        ref2 = _.sortBy(siteTableData, cmp);
-        results = [];
-        for (i = 0, len = ref2.length; i < len; i++) {
-          rowData = ref2[i];
-          results.push($speciesTableBody.append(speciesCountRowTemplate(rowData)));
-        }
-        return results;
-      };
-      $('.js-species-table thead a').click(function(event) {
-        event.preventDefault();
-        return renderTableBody($(this).data().sortColumn);
-      });
-      renderTableBody();
-      return $('.js-export').click(function() {
-        var csvData, i, len, row;
-        csvData = 'Scientific name,Common name,Method,Species class,Surveys seen,Total surveys\n';
-        for (i = 0, len = siteTableData.length; i < len; i++) {
-          row = siteTableData[i];
-          csvData += row.name + "," + row.commonName + "," + row.method + "," + row.speciesClass + "," + row.count + "," + site.numSurveys + "\n";
-        }
-        $(this).attr('download', "rls-" + (siteCode.toLowerCase()) + ".csv");
-        return $(this).attr('href', encodeURI("data:text/csv;charset=utf-8," + csvData));
-      });
-    },
+      ref2 = _.sortBy(siteTableData, cmp);
+      results = [];
+      for (i = 0, len = ref2.length; i < len; i++) {
+        rowData = ref2[i];
+        results.push($speciesTableBody.append(speciesCountRowTemplate(rowData)));
+      }
+      return results;
+    };
+    $('.js-species-table thead a').click(function(event) {
+      event.preventDefault();
+      return renderTableBody($(this).data().sortColumn);
+    });
+    renderTableBody();
+    return $('.js-export').click(function() {
+      var csvData, i, len, row;
+      csvData = 'Scientific name,Common name,Method,Species class,Surveys seen,Total surveys\n';
+      for (i = 0, len = siteTableData.length; i < len; i++) {
+        row = siteTableData[i];
+        csvData += row.name + "," + row.commonName + "," + row.method + "," + row.speciesClass + "," + row.count + "," + site.numSurveys + "\n";
+      }
+      $(this).attr('download', "rls-" + (siteCode.toLowerCase()) + ".csv");
+      return $(this).attr('href', encodeURI("data:text/csv;charset=utf-8," + csvData));
+    });
+  };
+  handleSiteSelection = function(siteCode) {
+    if (!siteCode) {
+      return;
+    }
+    populateSiteInfo(siteCode);
+    map.showSiteInfoWindow(siteCode);
+    return map.animateSiteMarker(siteCode);
+  };
+  for (i = 0, len = sites.length; i < len; i++) {
+    site = sites[i];
+    $('<option>').val(site.code).html(site.realm + ": " + site.ecoregion + " &rarr; " + site.code + ": " + site.name).appendTo($selectSite);
+    siteCodeToSite[site.code] = site;
+    map.createSiteMarker(site, handleSiteSelection);
+  }
+  $selectSite.selectize({
+    onChange: handleSiteSelection,
     onDropdownClose: function(dropdown) {
       return $(dropdown).prev().find('input').blur();
     }
