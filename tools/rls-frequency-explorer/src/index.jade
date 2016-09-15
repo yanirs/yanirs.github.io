@@ -1,47 +1,38 @@
 doctype html
 html(lang='en')
   head
-    meta(charset='UTF-8')
     title Reef Life Survey frequency explorer
+    meta(charset='UTF-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
     link(rel='stylesheet', href='style.min.css')
 
   body.loading
     .container-fluid
+      .row: .map.js-map
       .row
         .col-sm-8.col-sm-offset-2
-          h1.text-center RLS Species Frequency Explorer
           .js-error-container.hidden: .alert.alert-danger Data loading failed.
           .js-site-select-container.control-group.hidden
-            label(for='select-site') Site
             select#select-site.demo-default
               option(value='') Select a site...
       .row
-        #site-info.col-sm-8.col-sm-offset-2
+        #site-info
 
     script#site-info-template(type='text/template')
-      h2 <%= name %>
-      p <b>Number of surveys:</b> <%= numSurveys %>
-      p <b>Code:</b> <%= code %>
-      p <b>Realm:</b> <%= realm %>
-      p <b>Ecoregion:</b> <%= ecoregion %>
-      p <b>Coordinates:</b> <%= latitude %> <%= longtitude %>
-      p.text-right: a.btn.btn-primary.js-export Export data
-      .row
-        .col-sm-6.col-sm-offset-3
-          iframe#site-map(allowfullscreen,
-                          src!='https://www.google.com/maps/embed/v1/search?q=' +
-                               '<%= latitude %>+<%= longtitude %>&key=AIzaSyAECDOrTujNBQt6lfvKSEGmWzrAyRPPz0w&zoom=6')
-      h3 Species
-      .row: .col-sm-12: table.table.table-striped.js-species-table
-        thead
-          tr
-            th: a(href='#', data-sort-column='name') Scientific name
-            th: a(href='#', data-sort-column='commonName') Common name
-            th: a(href='#', data-sort-column='method') Method
-            th: a(href='#', data-sort-column='speciesClass') Class
-            th Links
-            th: a(href='#', data-sort-column='-count') Surveys seen
-        tbody
+      .col-sm-8.col-sm-offset-2
+        h3
+          | <%= _.size(speciesCounts) %> species recorded in <%= numSurveys %> survey<%= numSurveys > 1 ? 's' : '' %>
+          span.pull-right: a.btn.btn-primary.js-export Export data
+        .row: .col-sm-12: table.table.table-striped.js-species-table
+          thead
+            tr
+              th: a(href='#', data-sort-column='name') Scientific name
+              th: a(href='#', data-sort-column='commonName') Common name
+              th: a(href='#', data-sort-column='method') Method
+              th: a(href='#', data-sort-column='speciesClass') Class
+              th Links
+              th: a(href='#', data-sort-column='-count') Surveys seen
+          tbody
 
     script#species-count-row-template(type='text/template')
       tr
