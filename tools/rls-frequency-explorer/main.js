@@ -13,15 +13,17 @@ siteInfoTemplate = _.template($('#site-info-template').html());
 speciesCountRowTemplate = _.template($('#species-count-row-template').html());
 
 createSiteObject = function(code, arg) {
-  var ecoregion, latitude, longtitude, name, numSurveys, realm, speciesCounts;
-  realm = arg[0], ecoregion = arg[1], name = arg[2], longtitude = arg[3], latitude = arg[4], numSurveys = arg[5], speciesCounts = arg[6];
+  var ecoregion, lat, lng, name, numSurveys, realm, speciesCounts;
+  realm = arg[0], ecoregion = arg[1], name = arg[2], lng = arg[3], lat = arg[4], numSurveys = arg[5], speciesCounts = arg[6];
   return {
     code: code,
     realm: realm,
     ecoregion: ecoregion,
     name: name,
-    longtitude: longtitude,
-    latitude: latitude,
+    latLng: {
+      lat: lat,
+      lng: lng
+    },
     numSurveys: numSurveys,
     speciesCounts: speciesCounts
   };
@@ -51,19 +53,15 @@ Map = (function() {
   };
 
   Map.prototype.createSiteMarker = function(site, handleSiteSelection) {
-    var marker, siteLatLng;
-    siteLatLng = {
-      lat: site.latitude,
-      lng: site.longtitude
-    };
+    var marker;
     marker = new google.maps.Marker({
-      position: siteLatLng,
+      position: site.latLng,
       map: this.gmap,
       title: site.name
     });
     this.siteCodeToMarker[site.code] = marker;
     this.siteCodeToInfoWindow[site.code] = new google.maps.InfoWindow({
-      content: "<b>" + site.name + " (" + site.code + ")</b><br> " + site.realm + " &ndash; " + site.ecoregion + "<br> <i>" + site.latitude + ", " + site.longtitude + "</i>"
+      content: "<b>" + site.name + " (" + site.code + ")</b><br> " + site.realm + " &ndash; " + site.ecoregion + "<br> <i>" + site.latLng.lat + ", " + site.latLng.lng + "</i>"
     });
     return google.maps.event.addListener(marker, 'click', function() {
       return handleSiteSelection(site.code);
@@ -75,6 +73,9 @@ Map = (function() {
     if (bounceTimeout == null) {
       bounceTimeout = 2500;
     }
+    if (this.currentPolygon) {
+      this.currentPolygon.setMap(null);
+    }
     marker = this.siteCodeToMarker[siteCode];
     this.gmap.panTo(marker.getPosition());
     marker.setAnimation(google.maps.Animation.BOUNCE);
@@ -83,11 +84,48 @@ Map = (function() {
     }), bounceTimeout);
   };
 
+  Map.prototype.enableDrawing = function(sites, handleSitesSelected) {
+    var drawingManager;
+    drawingManager = new google.maps.drawing.DrawingManager({
+      drawingControl: true,
+      drawingControlOptions: {
+        position: google.maps.ControlPosition.TOP_RIGHT,
+        drawingModes: ['polygon']
+      },
+      map: this.gmap
+    });
+    return google.maps.event.addListener(drawingManager, 'polygoncomplete', (function(_this) {
+      return function(polygon) {
+        var containsLocation, site;
+        drawingManager.setDrawingMode(null);
+        if (_this.currentPolygon) {
+          _this.currentPolygon.setMap(null);
+        }
+        _this.currentPolygon = polygon;
+        if (_this.openInfoWindow) {
+          _this.openInfoWindow.close();
+        }
+        containsLocation = google.maps.geometry.poly.containsLocation;
+        return handleSitesSelected((function() {
+          var i, len, results;
+          results = [];
+          for (i = 0, len = sites.length; i < len; i++) {
+            site = sites[i];
+            if (containsLocation(new google.maps.LatLng(site.latLng), polygon)) {
+              results.push(site);
+            }
+          }
+          return results;
+        })());
+      };
+    })(this));
+  };
+
   return Map;
 
 })();
 
-deferredJsons = $.when($.getJSON('api-site-surveys.json'), $.getJSON('api-species.json'), $.getScript('https://maps.googleapis.com/maps/api/js?key=AIzaSyCB7yf2Q30bz9qnsd0wy6KvtdTGyke7Fag'));
+deferredJsons = $.when($.getJSON('api-site-surveys.json'), $.getJSON('api-species.json'), $.getScript('https://maps.googleapis.com/maps/api/js?' + 'key=AIzaSyCB7yf2Q30bz9qnsd0wy6KvtdTGyke7Fag&libraries=drawing,geometry'));
 
 deferredJsons.always(function() {
   return $('body').removeClass('loading');
@@ -118,20 +156,25 @@ deferredJsons.done(function(arg, arg1) {
     return siteA[property].localeCompare(siteB[property]);
   });
   siteCodeToSite = {};
-  populateSiteInfo = function(siteCode) {
-    var $speciesTableBody, commonName, count, id, method, name, ref, ref1, renderTableBody, site, siteTableData, speciesClass, speciesUrl;
-    site = siteCodeToSite[siteCode];
-    $('#site-info').html(siteInfoTemplate(site));
+  populateSiteInfo = function(numSurveys, speciesCounts, numSites) {
+    var $speciesTableBody, commonName, count, id, method, name, ref, renderTableBody, siteTableData, speciesClass, speciesUrl;
+    if (numSites == null) {
+      numSites = 1;
+    }
+    $('#site-info').html(siteInfoTemplate({
+      numSurveys: numSurveys,
+      speciesCounts: speciesCounts,
+      numSites: numSites
+    }));
     siteTableData = [];
-    ref = site.speciesCounts;
-    for (id in ref) {
-      count = ref[id];
-      ref1 = species[id], name = ref1[0], commonName = ref1[1], speciesUrl = ref1[2], method = ref1[3], speciesClass = ref1[4];
+    for (id in speciesCounts) {
+      count = speciesCounts[id];
+      ref = species[id], name = ref[0], commonName = ref[1], speciesUrl = ref[2], method = ref[3], speciesClass = ref[4];
       siteTableData.push({
         name: name,
         commonName: commonName || 'N/A',
         count: count,
-        percentage: (100 * count / site.numSurveys).toFixed(2),
+        percentage: (100 * count / numSurveys).toFixed(2),
         speciesClass: speciesClass,
         method: (function() {
           switch (method) {
@@ -147,7 +190,7 @@ deferredJsons.done(function(arg, arg1) {
     }
     $speciesTableBody = $('.js-species-table tbody');
     renderTableBody = function(sortColumn) {
-      var cmp, i, len, ref2, results, rowData;
+      var cmp, i, len, ref1, results, rowData;
       if (sortColumn == null) {
         sortColumn = '-count';
       }
@@ -160,10 +203,10 @@ deferredJsons.done(function(arg, arg1) {
       } else {
         cmp = sortColumn;
       }
-      ref2 = _.sortBy(siteTableData, cmp);
+      ref1 = _.sortBy(siteTableData, cmp);
       results = [];
-      for (i = 0, len = ref2.length; i < len; i++) {
-        rowData = ref2[i];
+      for (i = 0, len = ref1.length; i < len; i++) {
+        rowData = ref1[i];
         results.push($speciesTableBody.append(speciesCountRowTemplate(rowData)));
       }
       return results;
@@ -175,20 +218,22 @@ deferredJsons.done(function(arg, arg1) {
     renderTableBody();
     return $('.js-export').click(function() {
       var csvData, i, len, row;
-      csvData = 'Scientific name,Common name,Method,Species class,Surveys seen,Total surveys\n';
+      csvData = 'Scientific name\tCommon name\tMethod\tSpecies class\tSurveys seen\tTotal surveys\n';
       for (i = 0, len = siteTableData.length; i < len; i++) {
         row = siteTableData[i];
-        csvData += row.name + "," + row.commonName + "," + row.method + "," + row.speciesClass + "," + row.count + "," + site.numSurveys + "\n";
+        csvData += row.name + "\t" + row.commonName + "\t" + row.method + "\t" + row.speciesClass + "\t" + row.count + "\t" + numSurveys + "\n";
       }
-      $(this).attr('download', "rls-" + (siteCode.toLowerCase()) + ".csv");
+      $(this).attr('download', 'rls-data-export.csv');
       return $(this).attr('href', encodeURI("data:text/csv;charset=utf-8," + csvData));
     });
   };
   handleSiteSelection = function(siteCode) {
+    var site;
     if (!siteCode) {
       return;
     }
-    populateSiteInfo(siteCode);
+    site = siteCodeToSite[siteCode];
+    populateSiteInfo(site.numSurveys, site.speciesCounts);
     map.showSiteInfoWindow(siteCode);
     return map.animateSiteMarker(siteCode);
   };
@@ -204,7 +249,25 @@ deferredJsons.done(function(arg, arg1) {
       return $(dropdown).prev().find('input').blur();
     }
   });
-  return $('.js-site-select-container').removeClass('hidden');
+  $('.js-site-select-container').removeClass('hidden');
+  return map.enableDrawing(sites, function(selectedSites) {
+    var count, j, len1, numSurveys, ref, speciesCounts, speciesId;
+    numSurveys = 0;
+    speciesCounts = {};
+    for (j = 0, len1 = selectedSites.length; j < len1; j++) {
+      site = selectedSites[j];
+      numSurveys += site.numSurveys;
+      ref = site.speciesCounts;
+      for (speciesId in ref) {
+        count = ref[speciesId];
+        if (!speciesCounts[speciesId]) {
+          speciesCounts[speciesId] = 0;
+        }
+        speciesCounts[speciesId] += count;
+      }
+    }
+    return populateSiteInfo(numSurveys, speciesCounts, selectedSites.length);
+  });
 });
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})

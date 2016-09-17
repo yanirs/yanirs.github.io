@@ -21,7 +21,8 @@ html(lang='en')
     script#site-info-template(type='text/template')
       .col-sm-8.col-sm-offset-2
         h3
-          | <%= _.size(speciesCounts) %> species recorded in <%= numSurveys %> survey<%= numSurveys > 1 ? 's' : '' %>
+          | <%= _.size(speciesCounts) %> species recorded in <%= numSurveys %> survey<%= numSurveys === 1 ? '' : 's' %>
+          | <%= numSites === 1 ? '' : ' across ' + numSites + ' sites' %>
           span.pull-right: a.btn.btn-primary.js-export Export data
         .row: .col-sm-12: table.table.table-striped.js-species-table
           thead

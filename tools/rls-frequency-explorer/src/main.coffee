@@ -5,13 +5,14 @@ global._ = require('underscore')
 siteInfoTemplate = _.template($('#site-info-template').html())
 speciesCountRowTemplate = _.template($('#species-count-row-template').html())
 
-createSiteObject = (code, [realm, ecoregion, name, longtitude, latitude, numSurveys, speciesCounts]) ->
+createSiteObject = (code, [realm, ecoregion, name, lng, lat, numSurveys, speciesCounts]) ->
   code: code
   realm: realm
   ecoregion: ecoregion
   name: name
-  longtitude: longtitude
-  latitude: latitude
+  latLng:
+    lat: lat
+    lng: lng
   numSurveys: numSurveys
   speciesCounts: speciesCounts
 
@@ -33,30 +34,44 @@ class Map
     @openInfoWindow.open(@gmap, @siteCodeToMarker[siteCode])
 
   createSiteMarker: (site, handleSiteSelection) ->
-    siteLatLng =
-      lat: site.latitude
-      lng: site.longtitude
     marker = new google.maps.Marker
-      position: siteLatLng
+      position: site.latLng
       map: @gmap
       title: site.name
     @siteCodeToMarker[site.code] = marker
     @siteCodeToInfoWindow[site.code] = new google.maps.InfoWindow
       content: "<b>#{site.name} (#{site.code})</b><br>
                 #{site.realm} &ndash; #{site.ecoregion}<br>
-                <i>#{site.latitude}, #{site.longtitude}</i>"
+                <i>#{site.latLng.lat}, #{site.latLng.lng}</i>"
     google.maps.event.addListener(marker, 'click', -> handleSiteSelection(site.code))
 
   animateSiteMarker: (siteCode, bounceTimeout = 2500) ->
+    @currentPolygon.setMap(null) if @currentPolygon
     marker = @siteCodeToMarker[siteCode]
     @gmap.panTo(marker.getPosition())
     marker.setAnimation(google.maps.Animation.BOUNCE)
     window.setTimeout((-> marker.setAnimation(null)), bounceTimeout)
 
+  enableDrawing: (sites, handleSitesSelected) ->
+    drawingManager = new google.maps.drawing.DrawingManager
+      drawingControl: true
+      drawingControlOptions:
+        position: google.maps.ControlPosition.TOP_RIGHT
+        drawingModes: ['polygon']
+      map: @gmap
+    google.maps.event.addListener drawingManager, 'polygoncomplete', (polygon) =>
+      drawingManager.setDrawingMode(null)
+      @currentPolygon.setMap(null) if @currentPolygon
+      @currentPolygon = polygon
+      @openInfoWindow.close() if @openInfoWindow
+      containsLocation = google.maps.geometry.poly.containsLocation
+      handleSitesSelected(site for site in sites when containsLocation(new google.maps.LatLng(site.latLng), polygon))
+
 deferredJsons = $.when(
   $.getJSON('api-site-surveys.json'),
   $.getJSON('api-species.json'),
-  $.getScript('https://maps.googleapis.com/maps/api/js?key=AIzaSyCB7yf2Q30bz9qnsd0wy6KvtdTGyke7Fag')
+  $.getScript('https://maps.googleapis.com/maps/api/js?' +
+              'key=AIzaSyCB7yf2Q30bz9qnsd0wy6KvtdTGyke7Fag&libraries=drawing,geometry')
 )
 deferredJsons.always ->
   $('body').removeClass('loading')
@@ -77,17 +92,16 @@ deferredJsons.done ([sites], [species]) ->
     siteA[property].localeCompare(siteB[property])
   siteCodeToSite = {}
 
-  populateSiteInfo = (siteCode) ->
-    site = siteCodeToSite[siteCode]
-    $('#site-info').html(siteInfoTemplate(site))
+  populateSiteInfo = (numSurveys, speciesCounts, numSites = 1) ->
+    $('#site-info').html(siteInfoTemplate(numSurveys: numSurveys, speciesCounts: speciesCounts, numSites: numSites))
     siteTableData = []
-    for id, count of site.speciesCounts
+    for id, count of speciesCounts
       [name, commonName, speciesUrl, method, speciesClass] = species[id]
       siteTableData.push({
         name: name
         commonName: commonName or 'N/A'
         count: count
-        percentage: (100 * count / site.numSurveys).toFixed(2)
+        percentage: (100 * count / numSurveys).toFixed(2)
         speciesClass: speciesClass
         method: switch method
           when 0 then 'M1'
@@ -111,15 +125,16 @@ deferredJsons.done ([sites], [species]) ->
     renderTableBody()
 
     $('.js-export').click ->
-      csvData = 'Scientific name,Common name,Method,Species class,Surveys seen,Total surveys\n'
+      csvData = 'Scientific name\tCommon name\tMethod\tSpecies class\tSurveys seen\tTotal surveys\n'
       for row in siteTableData
-        csvData += "#{row.name},#{row.commonName},#{row.method},#{row.speciesClass},#{row.count},#{site.numSurveys}\n"
-      $(this).attr('download', "rls-#{siteCode.toLowerCase()}.csv")
+        csvData += "#{row.name}\t#{row.commonName}\t#{row.method}\t#{row.speciesClass}\t#{row.count}\t#{numSurveys}\n"
+      $(this).attr('download', 'rls-data-export.csv')
       $(this).attr('href', encodeURI("data:text/csv;charset=utf-8,#{csvData}"))
 
   handleSiteSelection = (siteCode) ->
     return unless siteCode
-    populateSiteInfo(siteCode)
+    site = siteCodeToSite[siteCode]
+    populateSiteInfo(site.numSurveys, site.speciesCounts)
     map.showSiteInfoWindow(siteCode)
     map.animateSiteMarker(siteCode)
 
@@ -135,3 +150,13 @@ deferredJsons.done ([sites], [species]) ->
     onDropdownClose: (dropdown) -> $(dropdown).prev().find('input').blur()
 
   $('.js-site-select-container').removeClass('hidden')
+
+  map.enableDrawing sites, (selectedSites) ->
+    numSurveys = 0
+    speciesCounts = {}
+    for site in selectedSites
+      numSurveys += site.numSurveys
+      for speciesId, count of site.speciesCounts
+        speciesCounts[speciesId] = 0 unless speciesCounts[speciesId]
+        speciesCounts[speciesId] += count
+    populateSiteInfo(numSurveys, speciesCounts, selectedSites.length)
