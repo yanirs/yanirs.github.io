@@ -1,5 +1,5 @@
 global.jQuery = global.$ = require('jquery')
-require('selectize')
+require('select2')
 global._ = require('underscore')
 
 siteInfoTemplate = _.template($('#site-info-template').html())
@@ -43,10 +43,11 @@ class Map
       content: "<b>#{site.name} (#{site.code})</b><br>
                 #{site.realm} &ndash; #{site.ecoregion}<br>
                 <i>#{site.latLng.lat}, #{site.latLng.lng}</i>"
-    google.maps.event.addListener(marker, 'click', -> handleSiteSelection(site.code))
+    google.maps.event.addListener(marker, 'click', handleSiteSelection)
 
-  animateSiteMarker: (siteCode, bounceTimeout = 2500) ->
-    @currentPolygon.setMap(null) if @currentPolygon
+  highlightSiteMarker: (siteCode, bounceTimeout = 2500) ->
+    @clearSelection()
+    @showSiteInfoWindow(siteCode)
     marker = @siteCodeToMarker[siteCode]
     @gmap.panTo(marker.getPosition())
     marker.setAnimation(google.maps.Animation.BOUNCE)
@@ -60,12 +61,16 @@ class Map
         drawingModes: ['polygon']
       map: @gmap
     google.maps.event.addListener drawingManager, 'polygoncomplete', (polygon) =>
+      @clearSelection()
       drawingManager.setDrawingMode(null)
-      @currentPolygon.setMap(null) if @currentPolygon
       @currentPolygon = polygon
-      @openInfoWindow.close() if @openInfoWindow
       containsLocation = google.maps.geometry.poly.containsLocation
-      handleSitesSelected(site for site in sites when containsLocation(new google.maps.LatLng(site.latLng), polygon))
+      handleSitesSelected(site.code for site in sites when containsLocation(new google.maps.LatLng(site.latLng),
+                                                                            polygon))
+
+  clearSelection: ->
+    @currentPolygon.setMap(null) if @currentPolygon
+    @openInfoWindow.close() if @openInfoWindow
 
 deferredJsons = $.when(
   $.getJSON('api-site-surveys.json'),
@@ -80,7 +85,7 @@ deferredJsons.fail ->
 deferredJsons.done ([sites], [species]) ->
   map = new Map()
   sites = (createSiteObject(code, data) for code, data of sites)
-  $selectSite = $('#select-site')
+  $selectSite = $('.js-site-select-container select').select2(placeholder: 'Select sites...')
   sites.sort (siteA, siteB) ->
     property =
       if siteA.ecoregion == siteB.ecoregion
@@ -131,27 +136,10 @@ deferredJsons.done ([sites], [species]) ->
       $(this).attr('download', 'rls-data-export.csv')
       $(this).attr('href', encodeURI("data:text/csv;charset=utf-8,#{csvData}"))
 
-  handleSiteSelection = (siteCode) ->
-    return unless siteCode
-    site = siteCodeToSite[siteCode]
-    populateSiteInfo(site.numSurveys, site.speciesCounts)
-    map.showSiteInfoWindow(siteCode)
-    map.animateSiteMarker(siteCode)
+    $('.js-clear-selection').click ->
+      $selectSite.val([]).trigger('change')
 
-  for site in sites
-    $('<option>').val(site.code)
-                 .html("#{site.realm}: #{site.ecoregion} &rarr; #{site.code}: #{site.name}")
-                 .appendTo($selectSite)
-    siteCodeToSite[site.code] = site
-    map.createSiteMarker(site, handleSiteSelection)
-
-  $selectSite.selectize
-    onChange: handleSiteSelection
-    onDropdownClose: (dropdown) -> $(dropdown).prev().find('input').blur()
-
-  $('.js-site-select-container').removeClass('hidden')
-
-  map.enableDrawing sites, (selectedSites) ->
+  populateMultiSiteInfo = (selectedSites) ->
     numSurveys = 0
     speciesCounts = {}
     for site in selectedSites
@@ -160,3 +148,32 @@ deferredJsons.done ([sites], [species]) ->
         speciesCounts[speciesId] = 0 unless speciesCounts[speciesId]
         speciesCounts[speciesId] += count
     populateSiteInfo(numSurveys, speciesCounts, selectedSites.length)
+
+  prevEcoregion = null
+  $currOptGroup = null
+  for site in sites
+    do (site) ->
+      if site.ecoregion != prevEcoregion
+        prevEcoregion = site.ecoregion
+        $currOptGroup = $('<optgroup>').attr('label', "#{site.realm}: #{site.ecoregion}")
+        $currOptGroup.appendTo($selectSite)
+      $('<option>').val(site.code).html("#{site.code}: #{site.name}").appendTo($currOptGroup)
+      siteCodeToSite[site.code] = site
+      map.createSiteMarker site, ->
+        $selectSite.val([site.code]).trigger('change')
+        map.highlightSiteMarker(site.code)
+
+  $selectSite.change ->
+    selectedSiteCodes = $selectSite.val()
+    if selectedSiteCodes.length == 1
+      site = siteCodeToSite[selectedSiteCodes[0]]
+      populateSiteInfo(site.numSurveys, site.speciesCounts)
+    else if selectedSiteCodes.length > 1
+      populateMultiSiteInfo(siteCodeToSite[siteCode] for siteCode in selectedSiteCodes)
+    else
+      map.clearSelection()
+      $('#site-info').html('')
+  $selectSite.on('select2:select', (e) -> map.highlightSiteMarker(e.params.data.id))
+
+  $('.js-site-select-container').removeClass('hidden')
+  map.enableDrawing(sites, (selectedSiteCodes) -> $selectSite.val(selectedSiteCodes).trigger('change'))

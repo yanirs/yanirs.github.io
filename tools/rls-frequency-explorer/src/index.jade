@@ -9,31 +9,32 @@ html(lang='en')
   body.loading
     .container-fluid
       .row: .map.js-map
-      .row
-        .col-sm-8.col-sm-offset-2
-          .js-error-container.hidden: .alert.alert-danger Data loading failed.
-          .js-site-select-container.control-group.hidden
-            select#select-site.demo-default
-              option(value='') Select a site...
-      .row
+      .row: .col-sm-8.col-sm-offset-2
+        .js-error-container.hidden: .alert.alert-danger Data loading failed.
+        .js-site-select-container.control-group.hidden
+          // Inline style needed to work around select2 issues
+          select(multiple='multiple', style='width: 100%;')
         #site-info
 
     script#site-info-template(type='text/template')
-      .col-sm-8.col-sm-offset-2
-        h3
+      .row.table-heading
+        .col-sm-8
           | <%= _.size(speciesCounts) %> species recorded in <%= numSurveys %> survey<%= numSurveys === 1 ? '' : 's' %>
           | <%= numSites === 1 ? '' : ' across ' + numSites + ' sites' %>
-          span.pull-right: a.btn.btn-primary.js-export Export data
-        .row: .col-sm-12: table.table.table-striped.js-species-table
-          thead
-            tr
-              th: a(href='#', data-sort-column='name') Scientific name
-              th: a(href='#', data-sort-column='commonName') Common name
-              th: a(href='#', data-sort-column='method') Method
-              th: a(href='#', data-sort-column='speciesClass') Class
-              th Links
-              th: a(href='#', data-sort-column='-count') Surveys seen
-          tbody
+        .col-sm-4.text-right
+          a.btn.btn-default.js-clear-selection Clear selection
+          = ' '
+          a.btn.btn-default.js-export Export data
+      .table-responsive: table.table.table-striped.species-table.js-species-table
+        thead
+          tr
+            th: a(href='#', data-sort-column='name') Scientific name
+            th: a(href='#', data-sort-column='commonName') Common name
+            th: a(href='#', data-sort-column='method') Method
+            th: a(href='#', data-sort-column='speciesClass') Class
+            th Links
+            th: a(href='#', data-sort-column='-count') Surveys seen
+        tbody
 
     script#species-count-row-template(type='text/template')
       tr
