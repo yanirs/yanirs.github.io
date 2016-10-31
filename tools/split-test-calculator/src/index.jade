@@ -13,51 +13,7 @@ html(lang="en")
   body
     .container.header
       h1.logo Split testing calculator
-      h2.tagline Bayesian A/B experiments made easy
-
-    .container
-      .sidebar.note-wrapper
-        h3 Why another calculator?
-        p.note.
-          There are many split testing calculators out there. Those based on frequentist statistics, <a
-          href="http://www.evanmiller.org/ab-testing/chi-squared.html" rel="nofollow" target="_blank">like Evan
-          Miller's</a>, assume a closed formula that requires <a
-          href="http://www.evanmiller.org/ab-testing/sample-size.html" rel="nofollow" target="_blank">setting the sample
-          size in advance</a>. Bayesian calculators, like <a href="http://developers.lyst.com/bayesian-calculator/"
-          rel="nofollow" target="_blank">Lyst's</a> (which formed the basis of this calculator), let users encode their
-          prior knowledge about the data, and do not require committing to a sample size in advance. This calculator
-          aims to make Bayesian A/B testing more accesible by reducing the use of jargon and making clearer
-          recommendations.
-        p.note.
-          Questions/comments? Check out <a target="_blank"
-          href="https://yanirseroussi.com/2016/06/19/making-bayesian-ab-testing-more-accessible/">this post</a>
-          or <a href="https://yanirseroussi.com/about" target="_blank">drop me a line</a>
-
-      .content
-        h3.instructions-title Instructions
-        ol
-          li.
-            <span class="number">1</span>Specify your prior knowledge. Set the success rate to what you think the
-            average success rate is, and quantify your uncertainty (from 0 to 100, exclusive). For example, if you're
-            running an experiment optimising the conversion rate of a landing page, and historical conversion rates are
-            around 30%, set the success rate to 30, and use a low uncertainty value (e.g., 5).
-          li.
-            <span class="number">2</span>Specify the minimum effect that you care about. For example, if you only care
-            about absolute changes in conversion rate that exceed 2.5%, set the minimum to 2.5.
-          li.
-            <span class="number">3</span>Enter the number of trials and successes in the control and test groups.
-          li.
-            <span class="number">4</span>Plot the distributions and choose whether to follow the recommendation. Note
-            that each time you press <i>calculate</i>, you will get slightly different results due to the random
-            simulation procedure. This is completely normal &ndash; it is very important to remember that few things
-            are completely certain when it comes to experimentation.
-          li.
-            <span class="number">5</span> Share your results by copying this page's link &ndash; it automatically
-            changes to save your input when you press <i>calculate</i>.
-        p.description.
-          Note: I tried to strike a balance between making this a useful tool for laypeople and providing rich
-          information for the more statistically-inclined. Feel free to ignore greyed-out text like this if you don't
-          want to dig too deep.
+      h2.tagline Bayesian A/B experiments made easy &nbsp;<small><a href="#instructions">instructions</a></small>
 
     .container
       .sidebar
@@ -159,6 +115,50 @@ html(lang="en")
             of the values of each distribution fall &ndash; between the 0.5% and 99.5% percentiles). Note that the
             bounds for the difference distribution aren't necessarily the same as test minus the control bounds.
           table#quantile-table
+
+    .container#instructions
+      .sidebar.note-wrapper
+        h3 Why another calculator?
+        p.note.
+          There are many split testing calculators out there. Those based on frequentist statistics, <a
+          href="http://www.evanmiller.org/ab-testing/chi-squared.html" rel="nofollow" target="_blank">like Evan
+          Miller's</a>, assume a closed formula that requires <a
+          href="http://www.evanmiller.org/ab-testing/sample-size.html" rel="nofollow" target="_blank">setting the sample
+          size in advance</a>. Bayesian calculators, like <a href="http://developers.lyst.com/bayesian-calculator/"
+          rel="nofollow" target="_blank">Lyst's</a> (which formed the basis of this calculator), let users encode their
+          prior knowledge about the data, and do not require committing to a sample size in advance. This calculator
+          aims to make Bayesian A/B testing more accesible by reducing the use of jargon and making clearer
+          recommendations.
+        p.note.
+          Questions/comments? Check out <a target="_blank"
+          href="https://yanirseroussi.com/2016/06/19/making-bayesian-ab-testing-more-accessible/">this post</a>
+          or <a href="https://yanirseroussi.com/about" target="_blank">drop me a line</a>
+
+      .content
+        h3.instructions-title Instructions
+        ol
+          li.
+            <span class="number">1</span>Specify your prior knowledge. Set the success rate to what you think the
+            average success rate is, and quantify your uncertainty (from 0 to 100, exclusive). For example, if you're
+            running an experiment optimising the conversion rate of a landing page, and historical conversion rates are
+            around 30%, set the success rate to 30, and use a low uncertainty value (e.g., 5).
+          li.
+            <span class="number">2</span>Specify the minimum effect that you care about. For example, if you only care
+            about absolute changes in conversion rate that exceed 2.5%, set the minimum to 2.5.
+          li.
+            <span class="number">3</span>Enter the number of trials and successes in the control and test groups.
+          li.
+            <span class="number">4</span>Plot the distributions and choose whether to follow the recommendation. Note
+            that each time you press <i>calculate</i>, you will get slightly different results due to the random
+            simulation procedure. This is completely normal &ndash; it is very important to remember that few things
+            are completely certain when it comes to experimentation.
+          li.
+            <span class="number">5</span> Share your results by copying this page's link &ndash; it automatically
+            changes to save your input when you press <i>calculate</i>.
+        p.description.
+          Note: I tried to strike a balance between making this a useful tool for laypeople and providing rich
+          information for the more statistically-inclined. Feel free to ignore greyed-out text like this if you don't
+          want to dig too deep.
 
     script(type="text/javascript", src="bayes.min.js")
     script.
