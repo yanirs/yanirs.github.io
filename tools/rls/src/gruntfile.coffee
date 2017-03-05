@@ -10,13 +10,13 @@ module.exports = (grunt) ->
     coffee:
       options: bare: true
       compile: files: 'main.js.tmp': [ 'main.coffee' ]
-    browserify: build: files: '../main.js': [ 'main.js.tmp' ]
-    uglify: build: files: '../main.min.js': [ '../main.js' ]
+    browserify: build: files: '../frequency-explorer/main.js': [ 'main.js.tmp' ]
+    uglify: build: files: '../frequency-explorer/main.min.js': [ '../frequency-explorer/main.js' ]
     less: build: files: 'style.css.tmp': 'style.less'
-    cssmin: build: files: '../style.min.css': [ 'style.css.tmp' ]
+    cssmin: build: files: '../frequency-explorer/style.min.css': [ 'style.css.tmp' ]
     jade: compile:
       options: pretty: false
-      files: '../index.html': 'index.jade'
+      files: '../frequency-explorer/index.html': 'index.jade'
     watch:
       css:
         files: [ 'style.less' ]

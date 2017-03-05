@@ -73,8 +73,8 @@ class Map
     @openInfoWindow.close() if @openInfoWindow
 
 deferredJsons = $.when(
-  $.getJSON('api-site-surveys.json'),
-  $.getJSON('api-species.json'),
+  $.getJSON('/tools/rls/api-site-surveys.json'),
+  $.getJSON('/tools/rls/api-species.json'),
   $.getScript('https://maps.googleapis.com/maps/api/js?' +
               'key=AIzaSyCB7yf2Q30bz9qnsd0wy6KvtdTGyke7Fag&libraries=drawing,geometry')
 )
