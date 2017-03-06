@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var compiledTemplate, fish, minFreq, sliceSize, slidesElement;
+var initFlashcardSlides;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -10,45 +10,37 @@ require('reveal.js/lib/js/head.min.js');
 
 global.Reveal = require('reveal.js');
 
-minFreq = parseFloat(Reveal.getQueryHash()['minFreq']) || 0.0;
-
-fish = _.map(window.fish, function(item) {
-  if (item.common_name === '') {
-    item.common_name = species[item.name];
+initFlashcardSlides = function(items, minFreq, sliceSize) {
+  var $slides, compiledTemplate, i, item, j, len, len1, ref;
+  if (items == null) {
+    items = window.fish;
   }
-  return item;
-});
-
-fish = _.shuffle(_.filter(fish, function(item) {
-  if (!item.source.includes('australianmuseum')) {
-    return false;
+  if (minFreq == null) {
+    minFreq = parseFloat(Reveal.getQueryHash()['minFreq']) || 0.0;
   }
-  return (item.freq || 0) >= minFreq;
-}));
-
-slidesElement = $('.slides');
-
-compiledTemplate = _.template($('#fish-slide-template').html());
-
-sliceSize = 25;
-
-_.forEach(fish.slice(0, sliceSize), function(item) {
-  if (item.local_image) {
-    if (item.local_image.match(/^joe/)) {
-      item.source = 'http://Joe\'s photos';
-    } else if (item.local_image.match(/^mine/)) {
-      item.source = 'http://Yanir\'s photos';
+  if (sliceSize == null) {
+    sliceSize = parseInt(Reveal.getQueryHash()['sliceSize']) || 25;
+  }
+  for (i = 0, len = items.length; i < len; i++) {
+    item = items[i];
+    if (item.common_name === '') {
+      item.common_name = species[item.name];
     }
-  } else {
-    item.local_image = null;
-    item.common_name = /<b>(.*)<\/b>/g.exec(item.name)[1];
-    item.name = /<i>(.*)<\/i>/g.exec(item.name)[1];
-    item.name = item.name[0].toUpperCase() + item.name.slice(1);
   }
-  return slidesElement.append(compiledTemplate(item));
-});
+  items = _.shuffle(_.filter(items, function(item) {
+    return (item.freq || 0) >= minFreq;
+  }));
+  $slides = $('.slides');
+  compiledTemplate = _.template($('#fish-slide-template').html());
+  ref = items.slice(0, sliceSize);
+  for (j = 0, len1 = ref.length; j < len1; j++) {
+    item = ref[j];
+    $slides.append(compiledTemplate(item));
+  }
+  return $('#fish-number').html((Math.min(sliceSize, items.length)) + " out of the " + items.length);
+};
 
-$('#fish-number').html((Math.min(sliceSize, fish.length)) + " out of the " + fish.length);
+initFlashcardSlides();
 
 Reveal.initialize({
   width: 1000,
