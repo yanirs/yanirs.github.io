@@ -1,38 +1,31 @@
 @import '../node_modules/reveal.js/css/reveal.css';
 @import '../node_modules/reveal.js/css/theme/night.css';
 
-// TODO: clean up, remove !important
-p {
-  text-align: left;
-}
-.center {
-  text-align: center;
-}
-.right {
-  text-align: right;
-}
-.indent {
-  padding-left: 300px !important;
-}
-.pad-top {
-  padding-top: 30px !important;
-}
-.small {
-  font-size: .6em !important;
-  line-height: 1.2em !important;
-}
-img {
-  border: 0 !important;
-}
-.fish-img {
-  max-height: 500px !important;
-}
-.reveal ul, .reveal ol {
-  display: block;
-}
-.img-source-caption {
-  text-align: right;
-  font-size: 14px !important;
-  line-height: 14px !important;
-  padding-bottom: 10px !important;
+.reveal .slides {
+  p {
+    text-align: left;
+  }
+
+  .small {
+    font-size: 14px;
+    line-height: 14px;
+  }
+
+  ul, ol {
+    display: block;
+  }
+
+  img {
+    border: 0;
+  }
+
+  .fish-img {
+    max-height: 500px;
+  }
+
+  .img-source-caption {
+    .small;
+    text-align: right;
+    padding-bottom: 10px;
+  }
 }

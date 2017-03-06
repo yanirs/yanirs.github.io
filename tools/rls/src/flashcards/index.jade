@@ -31,7 +31,7 @@ html(lang='en')
               Source: <a href="<%= source %>" target="_blank"><%= source.split('/')[2] %></a><br>
               Frequency: <%= Math.round(freq * 10000) / 100 %>%
 
-            p.small: a.restart-link(href='#') Back to start
+            p: a.small(href='#') Back to start
 
           section
             h3: i <%= name %>
@@ -41,4 +41,4 @@ html(lang='en')
       // TODO: use the API instead
       script(src='/tools/rls/species.json')
       script(src='/tools/rls/prom-area-ozmuseum-fixed.json')
-      script(src='main.js')
+      script(src='main.min.js')
