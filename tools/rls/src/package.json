@@ -5,7 +5,8 @@
     "bootstrap": "^3.3.7",
     "jquery": "^3.1.0",
     "select2": "^4.0.3",
-    "underscore": "^1.8.3"
+    "underscore": "^1.8.3",
+    "reveal.js": "^3.4.1"
   },
   "devDependencies": {
     "browserify": "^4.1.5",
