@@ -10,6 +10,7 @@ module.exports = (grunt) ->
     coffee:
       options: bare: true
       compile: files:
+        'util.js.tmp': [ 'util.coffee' ]
         'frequency-explorer/main.js.tmp': [ 'frequency-explorer/main.coffee' ]
         'flashcards/main.js.tmp': [ 'flashcards/main.coffee' ]
     browserify: build: files:
@@ -37,7 +38,7 @@ module.exports = (grunt) ->
           'cssmin:build'
         ]
       coffee:
-        files: [ '*/main.coffee' ]
+        files: [ '**/*.coffee' ]
         tasks: [
           'coffee:compile'
           'browserify:build'

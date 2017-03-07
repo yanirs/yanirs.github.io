@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var Map, createSiteObject, deferredJsons, siteInfoTemplate, speciesCountRowTemplate;
+var Map, deferredJsons, siteInfoTemplate, speciesCountRowTemplate, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -8,26 +8,11 @@ require('select2');
 
 global._ = require('underscore');
 
+util = require('../util.js.tmp');
+
 siteInfoTemplate = _.template($('#site-info-template').html());
 
 speciesCountRowTemplate = _.template($('#species-count-row-template').html());
-
-createSiteObject = function(code, arg) {
-  var ecoregion, lat, lng, name, numSurveys, realm, speciesCounts;
-  realm = arg[0], ecoregion = arg[1], name = arg[2], lng = arg[3], lat = arg[4], numSurveys = arg[5], speciesCounts = arg[6];
-  return {
-    code: code,
-    realm: realm,
-    ecoregion: ecoregion,
-    name: name,
-    latLng: {
-      lat: lat,
-      lng: lng
-    },
-    numSurveys: numSurveys,
-    speciesCounts: speciesCounts
-  };
-};
 
 Map = (function() {
   function Map() {
@@ -137,30 +122,16 @@ deferredJsons.fail(function() {
 });
 
 deferredJsons.done(function(arg, arg1) {
-  var $currOptGroup, $selectSite, code, data, fn, i, len, map, populateMultiSiteInfo, populateSiteInfo, prevEcoregion, site, siteCodeToSite, sites, species;
-  sites = arg[0];
-  species = arg1[0];
+  var $currOptGroup, $selectSite, fn, i, len, map, populateSiteInfo, prevEcoregion, rawSites, rawSpecies, ref, site, surveyData;
+  rawSites = arg[0];
+  rawSpecies = arg1[0];
   map = new Map();
-  sites = (function() {
-    var results;
-    results = [];
-    for (code in sites) {
-      data = sites[code];
-      results.push(createSiteObject(code, data));
-    }
-    return results;
-  })();
+  surveyData = new util.SurveyData(rawSites, rawSpecies);
   $selectSite = $('.js-site-select-container select').select2({
     placeholder: 'Select sites...'
   });
-  sites.sort(function(siteA, siteB) {
-    var property;
-    property = siteA.ecoregion === siteB.ecoregion ? 'code' : siteA.realm === siteB.realm ? 'ecoregion' : 'realm';
-    return siteA[property].localeCompare(siteB[property]);
-  });
-  siteCodeToSite = {};
   populateSiteInfo = function(numSurveys, speciesCounts, numSites) {
-    var $speciesTableBody, commonName, count, id, method, name, ref, renderTableBody, siteTableData, speciesClass, speciesUrl;
+    var $speciesTableBody, count, id, renderTableBody, siteTableData;
     if (numSites == null) {
       numSites = 1;
     }
@@ -172,28 +143,14 @@ deferredJsons.done(function(arg, arg1) {
     siteTableData = [];
     for (id in speciesCounts) {
       count = speciesCounts[id];
-      ref = species[id], name = ref[0], commonName = ref[1], speciesUrl = ref[2], method = ref[3], speciesClass = ref[4];
-      siteTableData.push({
-        name: name,
-        commonName: commonName || 'N/A',
+      siteTableData.push(_.extend({
         count: count,
-        percentage: (100 * count / numSurveys).toFixed(2),
-        speciesClass: speciesClass,
-        method: (function() {
-          switch (method) {
-            case 0:
-              return 'M1';
-            case 1:
-              return 'M2';
-            default:
-              return 'Both';
-          }
-        })()
-      });
+        percentage: (100 * count / numSurveys).toFixed(2)
+      }, surveyData.species[id]));
     }
     $speciesTableBody = $('.js-species-table tbody');
     renderTableBody = function(sortColumn) {
-      var cmp, i, len, ref1, results, rowData;
+      var cmp, i, len, ref, results, rowData;
       if (sortColumn == null) {
         sortColumn = '-count';
       }
@@ -206,10 +163,10 @@ deferredJsons.done(function(arg, arg1) {
       } else {
         cmp = sortColumn;
       }
-      ref1 = _.sortBy(siteTableData, cmp);
+      ref = _.sortBy(siteTableData, cmp);
       results = [];
-      for (i = 0, len = ref1.length; i < len; i++) {
-        rowData = ref1[i];
+      for (i = 0, len = ref.length; i < len; i++) {
+        rowData = ref[i];
         results.push($speciesTableBody.append(speciesCountRowTemplate(rowData)));
       }
       return results;
@@ -233,26 +190,9 @@ deferredJsons.done(function(arg, arg1) {
       return $selectSite.val([]).trigger('change');
     });
   };
-  populateMultiSiteInfo = function(selectedSites) {
-    var count, i, len, numSurveys, ref, site, speciesCounts, speciesId;
-    numSurveys = 0;
-    speciesCounts = {};
-    for (i = 0, len = selectedSites.length; i < len; i++) {
-      site = selectedSites[i];
-      numSurveys += site.numSurveys;
-      ref = site.speciesCounts;
-      for (speciesId in ref) {
-        count = ref[speciesId];
-        if (!speciesCounts[speciesId]) {
-          speciesCounts[speciesId] = 0;
-        }
-        speciesCounts[speciesId] += count;
-      }
-    }
-    return populateSiteInfo(numSurveys, speciesCounts, selectedSites.length);
-  };
   prevEcoregion = null;
   $currOptGroup = null;
+  ref = surveyData.sites;
   fn = function(site) {
     if (site.ecoregion !== prevEcoregion) {
       prevEcoregion = site.ecoregion;
@@ -260,48 +200,37 @@ deferredJsons.done(function(arg, arg1) {
       $currOptGroup.appendTo($selectSite);
     }
     $('<option>').val(site.code).html(site.code + ": " + site.name).appendTo($currOptGroup);
-    siteCodeToSite[site.code] = site;
     return map.createSiteMarker(site, function() {
       $selectSite.val([site.code]).trigger('change');
       return map.highlightSiteMarker(site.code);
     });
   };
-  for (i = 0, len = sites.length; i < len; i++) {
-    site = sites[i];
+  for (i = 0, len = ref.length; i < len; i++) {
+    site = ref[i];
     fn(site);
   }
   $selectSite.change(function() {
-    var selectedSiteCodes, siteCode;
+    var numSurveys, ref1, selectedSiteCodes, speciesCounts;
     selectedSiteCodes = $selectSite.val();
-    if (selectedSiteCodes.length === 1) {
-      site = siteCodeToSite[selectedSiteCodes[0]];
-      return populateSiteInfo(site.numSurveys, site.speciesCounts);
-    } else if (selectedSiteCodes.length > 1) {
-      return populateMultiSiteInfo((function() {
-        var j, len1, results;
-        results = [];
-        for (j = 0, len1 = selectedSiteCodes.length; j < len1; j++) {
-          siteCode = selectedSiteCodes[j];
-          results.push(siteCodeToSite[siteCode]);
-        }
-        return results;
-      })());
-    } else {
+    if (selectedSiteCodes.length === 0) {
       map.clearSelection();
       return $('#site-info').html('');
+    } else {
+      ref1 = surveyData.sumSites(selectedSiteCodes), numSurveys = ref1[0], speciesCounts = ref1[1];
+      return populateSiteInfo(numSurveys, speciesCounts, selectedSiteCodes.length);
     }
   });
   $selectSite.on('select2:select', function(e) {
     return map.highlightSiteMarker(e.params.data.id);
   });
   $('.js-site-select-container').removeClass('hidden');
-  return map.enableDrawing(sites, function(selectedSiteCodes) {
+  return map.enableDrawing(surveyData.sites, function(selectedSiteCodes) {
     return $selectSite.val(selectedSiteCodes).trigger('change');
   });
 });
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":2,"select2":3,"underscore":4}],2:[function(require,module,exports){
+},{"../util.js.tmp":5,"jquery":2,"select2":3,"underscore":4}],2:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v3.1.1
  * https://jquery.com/
@@ -17799,5 +17728,93 @@ S2.define('jquery.select2',[
     });
   }
 }.call(this));
+
+},{}],5:[function(require,module,exports){
+var SurveyData;
+
+exports.SurveyData = SurveyData = (function() {
+  function SurveyData(rawSites, rawSpecies) {
+    this._processRawSites(rawSites);
+    this._processRawSpecies(rawSpecies);
+  }
+
+  SurveyData.prototype._processRawSites = function(rawSites) {
+    var code, ecoregion, lat, lng, name, numSurveys, realm, ref, site, speciesCounts;
+    this.siteCodeToSite = {};
+    this.sites = [];
+    for (code in rawSites) {
+      ref = rawSites[code], realm = ref[0], ecoregion = ref[1], name = ref[2], lng = ref[3], lat = ref[4], numSurveys = ref[5], speciesCounts = ref[6];
+      site = {
+        code: code,
+        realm: realm,
+        ecoregion: ecoregion,
+        name: name,
+        latLng: {
+          lat: lat,
+          lng: lng
+        },
+        numSurveys: numSurveys,
+        speciesCounts: speciesCounts
+      };
+      this.sites.push(site);
+      this.siteCodeToSite[site.code] = site;
+    }
+    return this.sites.sort(function(siteA, siteB) {
+      var property;
+      property = siteA.ecoregion === siteB.ecoregion ? 'code' : siteA.realm === siteB.realm ? 'ecoregion' : 'realm';
+      return siteA[property].localeCompare(siteB[property]);
+    });
+  };
+
+  SurveyData.prototype._processRawSpecies = function(rawSpecies) {
+    var commonName, id, images, method, name, ref, results, speciesClass, url;
+    this.species = {};
+    results = [];
+    for (id in rawSpecies) {
+      ref = rawSpecies[id], name = ref[0], commonName = ref[1], url = ref[2], method = ref[3], speciesClass = ref[4], images = ref[5];
+      results.push(this.species[id] = {
+        name: name,
+        commonName: commonName || 'N/A',
+        speciesClass: speciesClass,
+        url: url,
+        method: (function() {
+          switch (method) {
+            case 0:
+              return 'M1';
+            case 1:
+              return 'M2';
+            default:
+              return 'Both';
+          }
+        })(),
+        images: images
+      });
+    }
+    return results;
+  };
+
+  SurveyData.prototype.sumSites = function(siteCodes) {
+    var count, i, len, numSurveys, ref, site, siteCode, speciesCounts, speciesId;
+    numSurveys = 0;
+    speciesCounts = {};
+    for (i = 0, len = siteCodes.length; i < len; i++) {
+      siteCode = siteCodes[i];
+      site = this.siteCodeToSite[siteCode];
+      numSurveys += site.numSurveys;
+      ref = site.speciesCounts;
+      for (speciesId in ref) {
+        count = ref[speciesId];
+        if (!speciesCounts[speciesId]) {
+          speciesCounts[speciesId] = 0;
+        }
+        speciesCounts[speciesId] += count;
+      }
+    }
+    return [numSurveys, speciesCounts];
+  };
+
+  return SurveyData;
+
+})();
 
 },{}]},{},[1]);

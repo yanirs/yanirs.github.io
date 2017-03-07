@@ -1,20 +1,10 @@
 global.jQuery = global.$ = require('jquery')
 require('select2')
 global._ = require('underscore')
+util = require('../util.js.tmp')
 
 siteInfoTemplate = _.template($('#site-info-template').html())
 speciesCountRowTemplate = _.template($('#species-count-row-template').html())
-
-createSiteObject = (code, [realm, ecoregion, name, lng, lat, numSurveys, speciesCounts]) ->
-  code: code
-  realm: realm
-  ecoregion: ecoregion
-  name: name
-  latLng:
-    lat: lat
-    lng: lng
-  numSurveys: numSurveys
-  speciesCounts: speciesCounts
 
 class Map
   constructor: ->
@@ -82,38 +72,17 @@ deferredJsons.always ->
   $('body').removeClass('loading')
 deferredJsons.fail ->
   $('.js-error-container').removeClass('hidden')
-deferredJsons.done ([sites], [species]) ->
+deferredJsons.done ([rawSites], [rawSpecies]) ->
   map = new Map()
-  sites = (createSiteObject(code, data) for code, data of sites)
+  surveyData = new util.SurveyData(rawSites, rawSpecies)
   $selectSite = $('.js-site-select-container select').select2(placeholder: 'Select sites...')
-  sites.sort (siteA, siteB) ->
-    property =
-      if siteA.ecoregion == siteB.ecoregion
-        'code'
-      else if siteA.realm == siteB.realm
-        'ecoregion'
-      else
-        'realm'
-    siteA[property].localeCompare(siteB[property])
-  siteCodeToSite = {}
 
   populateSiteInfo = (numSurveys, speciesCounts, numSites = 1) ->
     $('#site-info').html(siteInfoTemplate(numSurveys: numSurveys, speciesCounts: speciesCounts, numSites: numSites))
     siteTableData = []
     for id, count of speciesCounts
-      [name, commonName, speciesUrl, method, speciesClass] = species[id]
-      siteTableData.push({
-        name: name
-        commonName: commonName or 'N/A'
-        count: count
-        percentage: (100 * count / numSurveys).toFixed(2)
-        speciesClass: speciesClass
-        method: switch method
-          when 0 then 'M1'
-          when 1 then 'M2'
-          else 'Both'
-      })
-
+      siteTableData.push(_.extend({ count: count, percentage: (100 * count / numSurveys).toFixed(2) },
+                                  surveyData.species[id]))
     $speciesTableBody = $('.js-species-table tbody')
     renderTableBody = (sortColumn = '-count') ->
       $speciesTableBody.html('')
@@ -139,41 +108,28 @@ deferredJsons.done ([sites], [species]) ->
     $('.js-clear-selection').click ->
       $selectSite.val([]).trigger('change')
 
-  populateMultiSiteInfo = (selectedSites) ->
-    numSurveys = 0
-    speciesCounts = {}
-    for site in selectedSites
-      numSurveys += site.numSurveys
-      for speciesId, count of site.speciesCounts
-        speciesCounts[speciesId] = 0 unless speciesCounts[speciesId]
-        speciesCounts[speciesId] += count
-    populateSiteInfo(numSurveys, speciesCounts, selectedSites.length)
-
   prevEcoregion = null
   $currOptGroup = null
-  for site in sites
+  for site in surveyData.sites
     do (site) ->
       if site.ecoregion != prevEcoregion
         prevEcoregion = site.ecoregion
         $currOptGroup = $('<optgroup>').attr('label', "#{site.realm}: #{site.ecoregion}")
         $currOptGroup.appendTo($selectSite)
       $('<option>').val(site.code).html("#{site.code}: #{site.name}").appendTo($currOptGroup)
-      siteCodeToSite[site.code] = site
       map.createSiteMarker site, ->
         $selectSite.val([site.code]).trigger('change')
         map.highlightSiteMarker(site.code)
 
   $selectSite.change ->
     selectedSiteCodes = $selectSite.val()
-    if selectedSiteCodes.length == 1
-      site = siteCodeToSite[selectedSiteCodes[0]]
-      populateSiteInfo(site.numSurveys, site.speciesCounts)
-    else if selectedSiteCodes.length > 1
-      populateMultiSiteInfo(siteCodeToSite[siteCode] for siteCode in selectedSiteCodes)
-    else
+    if selectedSiteCodes.length == 0
       map.clearSelection()
       $('#site-info').html('')
+    else
+      [numSurveys, speciesCounts] = surveyData.sumSites(selectedSiteCodes)
+      populateSiteInfo(numSurveys, speciesCounts, selectedSiteCodes.length)
   $selectSite.on('select2:select', (e) -> map.highlightSiteMarker(e.params.data.id))
 
   $('.js-site-select-container').removeClass('hidden')
-  map.enableDrawing(sites, (selectedSiteCodes) -> $selectSite.val(selectedSiteCodes).trigger('change'))
+  map.enableDrawing(surveyData.sites, (selectedSiteCodes) -> $selectSite.val(selectedSiteCodes).trigger('change'))
