@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var Map, deferredJsons, siteInfoTemplate, speciesCountRowTemplate, util;
+var Map, siteInfoTemplate, speciesCountRowTemplate, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -111,22 +111,9 @@ Map = (function() {
 
 })();
 
-deferredJsons = $.when($.getJSON('/tools/rls/api-site-surveys.json'), $.getJSON('/tools/rls/api-species.json'), $.getScript('https://maps.googleapis.com/maps/api/js?' + 'key=AIzaSyCB7yf2Q30bz9qnsd0wy6KvtdTGyke7Fag&libraries=drawing,geometry'));
-
-deferredJsons.always(function() {
-  return $('body').removeClass('loading');
-});
-
-deferredJsons.fail(function() {
-  return $('.js-error-container').removeClass('hidden');
-});
-
-deferredJsons.done(function(arg, arg1) {
-  var $currOptGroup, $selectSite, fn, i, len, map, populateSiteInfo, prevEcoregion, rawSites, rawSpecies, ref, site, surveyData;
-  rawSites = arg[0];
-  rawSpecies = arg1[0];
+util.loadSurveyData(function(surveyData) {
+  var $currOptGroup, $selectSite, fn, i, len, map, populateSiteInfo, prevEcoregion, ref, site;
   map = new Map();
-  surveyData = new util.SurveyData(rawSites, rawSpecies);
   $selectSite = $('.js-site-select-container select').select2({
     placeholder: 'Select sites...'
   });
@@ -17732,7 +17719,7 @@ S2.define('jquery.select2',[
 },{}],5:[function(require,module,exports){
 var SurveyData;
 
-exports.SurveyData = SurveyData = (function() {
+SurveyData = (function() {
   function SurveyData(rawSites, rawSpecies) {
     this._processRawSites(rawSites);
     this._processRawSpecies(rawSpecies);
@@ -17816,5 +17803,18 @@ exports.SurveyData = SurveyData = (function() {
   return SurveyData;
 
 })();
+
+exports.loadSurveyData = function(doneCallback) {
+  return $.when($.getJSON('/tools/rls/api-site-surveys.json'), $.getJSON('/tools/rls/api-species.json')).always(function() {
+    return $('body').removeClass('loading');
+  }).fail(function() {
+    return $('.js-error-container').removeClass('hidden');
+  }).done(function(arg, arg1) {
+    var rawSites, rawSpecies;
+    rawSites = arg[0];
+    rawSpecies = arg1[0];
+    return doneCallback(new SurveyData(rawSites, rawSpecies));
+  });
+};
 
 },{}]},{},[1]);

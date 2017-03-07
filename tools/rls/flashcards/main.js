@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var initFlashcardSlides;
+var initFlashcardSlides, queryHash, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -10,16 +10,20 @@ require('reveal.js/lib/js/head.min.js');
 
 global.Reveal = require('reveal.js');
 
+util = require('../util.js.tmp');
+
+queryHash = Reveal.getQueryHash();
+
 initFlashcardSlides = function(items, minFreq, sliceSize) {
   var $slides, compiledTemplate, i, item, j, len, len1, ref;
   if (items == null) {
     items = window.fish;
   }
   if (minFreq == null) {
-    minFreq = parseFloat(Reveal.getQueryHash()['minFreq']) || 0.0;
+    minFreq = parseFloat(queryHash['minFreq']) || 0.0;
   }
   if (sliceSize == null) {
-    sliceSize = parseInt(Reveal.getQueryHash()['sliceSize']) || 25;
+    sliceSize = parseInt(queryHash['sliceSize']) || 25;
   }
   for (i = 0, len = items.length; i < len; i++) {
     item = items[i];
@@ -40,21 +44,22 @@ initFlashcardSlides = function(items, minFreq, sliceSize) {
   return $('#fish-number').html((Math.min(sliceSize, items.length)) + " out of the " + items.length);
 };
 
-initFlashcardSlides();
-
-Reveal.initialize({
-  width: 1000,
-  height: 760,
-  controls: true,
-  progress: true,
-  history: true,
-  center: true,
-  theme: 'night',
-  slideNumber: true
+util.loadSurveyData(function(surveyData) {
+  initFlashcardSlides();
+  return Reveal.initialize({
+    width: 1000,
+    height: 760,
+    controls: true,
+    progress: true,
+    history: true,
+    center: true,
+    theme: 'night',
+    slideNumber: true
+  });
 });
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
-},{"jquery":2,"reveal.js":3,"reveal.js/lib/js/head.min.js":4,"underscore":5}],2:[function(require,module,exports){
+},{"../util.js.tmp":6,"jquery":2,"reveal.js":3,"reveal.js/lib/js/head.min.js":4,"underscore":5}],2:[function(require,module,exports){
 /*!
  * jQuery JavaScript Library v3.1.1
  * https://jquery.com/
@@ -16798,5 +16803,106 @@ return jQuery;
     });
   }
 }.call(this));
+
+},{}],6:[function(require,module,exports){
+var SurveyData;
+
+SurveyData = (function() {
+  function SurveyData(rawSites, rawSpecies) {
+    this._processRawSites(rawSites);
+    this._processRawSpecies(rawSpecies);
+  }
+
+  SurveyData.prototype._processRawSites = function(rawSites) {
+    var code, ecoregion, lat, lng, name, numSurveys, realm, ref, site, speciesCounts;
+    this.siteCodeToSite = {};
+    this.sites = [];
+    for (code in rawSites) {
+      ref = rawSites[code], realm = ref[0], ecoregion = ref[1], name = ref[2], lng = ref[3], lat = ref[4], numSurveys = ref[5], speciesCounts = ref[6];
+      site = {
+        code: code,
+        realm: realm,
+        ecoregion: ecoregion,
+        name: name,
+        latLng: {
+          lat: lat,
+          lng: lng
+        },
+        numSurveys: numSurveys,
+        speciesCounts: speciesCounts
+      };
+      this.sites.push(site);
+      this.siteCodeToSite[site.code] = site;
+    }
+    return this.sites.sort(function(siteA, siteB) {
+      var property;
+      property = siteA.ecoregion === siteB.ecoregion ? 'code' : siteA.realm === siteB.realm ? 'ecoregion' : 'realm';
+      return siteA[property].localeCompare(siteB[property]);
+    });
+  };
+
+  SurveyData.prototype._processRawSpecies = function(rawSpecies) {
+    var commonName, id, images, method, name, ref, results, speciesClass, url;
+    this.species = {};
+    results = [];
+    for (id in rawSpecies) {
+      ref = rawSpecies[id], name = ref[0], commonName = ref[1], url = ref[2], method = ref[3], speciesClass = ref[4], images = ref[5];
+      results.push(this.species[id] = {
+        name: name,
+        commonName: commonName || 'N/A',
+        speciesClass: speciesClass,
+        url: url,
+        method: (function() {
+          switch (method) {
+            case 0:
+              return 'M1';
+            case 1:
+              return 'M2';
+            default:
+              return 'Both';
+          }
+        })(),
+        images: images
+      });
+    }
+    return results;
+  };
+
+  SurveyData.prototype.sumSites = function(siteCodes) {
+    var count, i, len, numSurveys, ref, site, siteCode, speciesCounts, speciesId;
+    numSurveys = 0;
+    speciesCounts = {};
+    for (i = 0, len = siteCodes.length; i < len; i++) {
+      siteCode = siteCodes[i];
+      site = this.siteCodeToSite[siteCode];
+      numSurveys += site.numSurveys;
+      ref = site.speciesCounts;
+      for (speciesId in ref) {
+        count = ref[speciesId];
+        if (!speciesCounts[speciesId]) {
+          speciesCounts[speciesId] = 0;
+        }
+        speciesCounts[speciesId] += count;
+      }
+    }
+    return [numSurveys, speciesCounts];
+  };
+
+  return SurveyData;
+
+})();
+
+exports.loadSurveyData = function(doneCallback) {
+  return $.when($.getJSON('/tools/rls/api-site-surveys.json'), $.getJSON('/tools/rls/api-species.json')).always(function() {
+    return $('body').removeClass('loading');
+  }).fail(function() {
+    return $('.js-error-container').removeClass('hidden');
+  }).done(function(arg, arg1) {
+    var rawSites, rawSpecies;
+    rawSites = arg[0];
+    rawSpecies = arg1[0];
+    return doneCallback(new SurveyData(rawSites, rawSpecies));
+  });
+};
 
 },{}]},{},[1]);

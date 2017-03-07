@@ -20,6 +20,7 @@ module.exports = (grunt) ->
       '../frequency-explorer/main.min.js': [ '../frequency-explorer/main.js' ]
       '../flashcards/main.min.js': [ '../flashcards/main.js' ]
     less: build: files:
+      'common.css.tmp': [ 'common.less' ]
       'frequency-explorer/style.css.tmp': 'frequency-explorer/style.less'
       'flashcards/style.css.tmp': 'flashcards/style.less'
     cssmin: build: files:
@@ -32,7 +33,7 @@ module.exports = (grunt) ->
         '../flashcards/index.html': 'flashcards/index.jade'
     watch:
       css:
-        files: [ '*/style.less' ]
+        files: [ '**/*.less' ]
         tasks: [
           'less:build'
           'cssmin:build'

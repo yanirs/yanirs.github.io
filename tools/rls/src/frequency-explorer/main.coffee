@@ -62,19 +62,8 @@ class Map
     @currentPolygon.setMap(null) if @currentPolygon
     @openInfoWindow.close() if @openInfoWindow
 
-deferredJsons = $.when(
-  $.getJSON('/tools/rls/api-site-surveys.json'),
-  $.getJSON('/tools/rls/api-species.json'),
-  $.getScript('https://maps.googleapis.com/maps/api/js?' +
-              'key=AIzaSyCB7yf2Q30bz9qnsd0wy6KvtdTGyke7Fag&libraries=drawing,geometry')
-)
-deferredJsons.always ->
-  $('body').removeClass('loading')
-deferredJsons.fail ->
-  $('.js-error-container').removeClass('hidden')
-deferredJsons.done ([rawSites], [rawSpecies]) ->
+util.loadSurveyData (surveyData) ->
   map = new Map()
-  surveyData = new util.SurveyData(rawSites, rawSpecies)
   $selectSite = $('.js-site-select-container select').select2(placeholder: 'Select sites...')
 
   populateSiteInfo = (numSurveys, speciesCounts, numSites = 1) ->

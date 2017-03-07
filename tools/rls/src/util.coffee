@@ -1,4 +1,4 @@
-exports.SurveyData = class SurveyData
+class SurveyData
   constructor: (rawSites, rawSpecies) ->
     @_processRawSites(rawSites)
     @_processRawSpecies(rawSpecies)
@@ -54,3 +54,10 @@ exports.SurveyData = class SurveyData
         speciesCounts[speciesId] = 0 unless speciesCounts[speciesId]
         speciesCounts[speciesId] += count
     [numSurveys, speciesCounts]
+
+# Load the survey data asynchronously, calling the passed callback with a SurveyData object when done.
+exports.loadSurveyData = (doneCallback) ->
+  $.when($.getJSON('/tools/rls/api-site-surveys.json'), $.getJSON('/tools/rls/api-species.json'))
+   .always(-> $('body').removeClass('loading'))
+   .fail(-> $('.js-error-container').removeClass('hidden'))
+   .done(([rawSites], [rawSpecies]) -> doneCallback(new SurveyData(rawSites, rawSpecies)))
