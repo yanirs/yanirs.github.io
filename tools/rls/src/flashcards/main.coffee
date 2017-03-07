@@ -6,21 +6,28 @@ util = require('../util.js.tmp')
 
 queryHash = Reveal.getQueryHash()
 
-initFlashcardSlides = (items = window.fish,
-                       minFreq = parseFloat(queryHash['minFreq']) or 0.0,
-                       sliceSize = parseInt(queryHash['sliceSize']) or 25) ->
-  for item in items
-    item.common_name = species[item.name] if item.common_name == ''
-  items = _.shuffle(_.filter(items, (item) -> (item.freq or 0) >= minFreq))
+initFlashcardSlides = (surveyData,
+                       siteCodes = queryHash.siteCodes?.split(' ') ? [],
+                       minFreq = parseFloat(queryHash.minFreq ? 0.0),
+                       sampleSize = parseInt(queryHash.sampleSize ? 25)) ->
+  [numSurveys, speciesCounts] = surveyData.sumSites(siteCodes)
+  minCount = minFreq * numSurveys
+  filteredSpeciesIds = (id for id, count of speciesCounts when count >= minCount)
   $slides = $('.slides')
   compiledTemplate = _.template($('#fish-slide-template').html())
-  for item in items.slice(0, sliceSize)
-    $slides.append(compiledTemplate(item))
-  $('#fish-number').html("#{Math.min(sliceSize, items.length)} out of the #{items.length}")
+  for id in _.sample(filteredSpeciesIds, sampleSize)
+    item = surveyData.species[id]
+    $slides.append(compiledTemplate(
+      image: _.sample(item.images)
+      freq: (100 * speciesCounts[id] / numSurveys).toFixed(2),
+      url: item.url,
+      name: item.name,
+      commonName: item.commonName
+    ))
+  $('#fish-number').html("#{Math.min(sampleSize, filteredSpeciesIds.length)} out of the #{filteredSpeciesIds.length}")
 
 util.loadSurveyData (surveyData) ->
-  # TODO: use surveyData
-  initFlashcardSlides()
+  initFlashcardSlides(surveyData)
   Reveal.initialize(
     width: 1000
     height: 760

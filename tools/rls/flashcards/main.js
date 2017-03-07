@@ -14,38 +14,49 @@ util = require('../util.js.tmp');
 
 queryHash = Reveal.getQueryHash();
 
-initFlashcardSlides = function(items, minFreq, sliceSize) {
-  var $slides, compiledTemplate, i, item, j, len, len1, ref;
-  if (items == null) {
-    items = window.fish;
+initFlashcardSlides = function(surveyData, siteCodes, minFreq, sampleSize) {
+  var $slides, compiledTemplate, count, filteredSpeciesIds, i, id, item, len, minCount, numSurveys, ref, ref1, ref2, ref3, ref4, ref5, speciesCounts;
+  if (siteCodes == null) {
+    siteCodes = (ref = (ref1 = queryHash.siteCodes) != null ? ref1.split(' ') : void 0) != null ? ref : [];
   }
   if (minFreq == null) {
-    minFreq = parseFloat(queryHash['minFreq']) || 0.0;
+    minFreq = parseFloat((ref2 = queryHash.minFreq) != null ? ref2 : 0.0);
   }
-  if (sliceSize == null) {
-    sliceSize = parseInt(queryHash['sliceSize']) || 25;
+  if (sampleSize == null) {
+    sampleSize = parseInt((ref3 = queryHash.sampleSize) != null ? ref3 : 25);
   }
-  for (i = 0, len = items.length; i < len; i++) {
-    item = items[i];
-    if (item.common_name === '') {
-      item.common_name = species[item.name];
+  ref4 = surveyData.sumSites(siteCodes), numSurveys = ref4[0], speciesCounts = ref4[1];
+  minCount = minFreq * numSurveys;
+  filteredSpeciesIds = (function() {
+    var results;
+    results = [];
+    for (id in speciesCounts) {
+      count = speciesCounts[id];
+      if (count >= minCount) {
+        results.push(id);
+      }
     }
-  }
-  items = _.shuffle(_.filter(items, function(item) {
-    return (item.freq || 0) >= minFreq;
-  }));
+    return results;
+  })();
   $slides = $('.slides');
   compiledTemplate = _.template($('#fish-slide-template').html());
-  ref = items.slice(0, sliceSize);
-  for (j = 0, len1 = ref.length; j < len1; j++) {
-    item = ref[j];
-    $slides.append(compiledTemplate(item));
+  ref5 = _.sample(filteredSpeciesIds, sampleSize);
+  for (i = 0, len = ref5.length; i < len; i++) {
+    id = ref5[i];
+    item = surveyData.species[id];
+    $slides.append(compiledTemplate({
+      image: _.sample(item.images),
+      freq: (100 * speciesCounts[id] / numSurveys).toFixed(2),
+      url: item.url,
+      name: item.name,
+      commonName: item.commonName
+    }));
   }
-  return $('#fish-number').html((Math.min(sliceSize, items.length)) + " out of the " + items.length);
+  return $('#fish-number').html((Math.min(sampleSize, filteredSpeciesIds.length)) + " out of the " + filteredSpeciesIds.length);
 };
 
 util.loadSurveyData(function(surveyData) {
-  initFlashcardSlides();
+  initFlashcardSlides(surveyData);
   return Reveal.initialize({
     width: 1000,
     height: 760,

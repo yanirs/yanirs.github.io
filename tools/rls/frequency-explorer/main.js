@@ -117,15 +117,12 @@ util.loadSurveyData(function(surveyData) {
   $selectSite = $('.js-site-select-container select').select2({
     placeholder: 'Select sites...'
   });
-  populateSiteInfo = function(numSurveys, speciesCounts, numSites) {
+  populateSiteInfo = function(numSurveys, speciesCounts, siteCodes) {
     var $speciesTableBody, count, id, renderTableBody, siteTableData;
-    if (numSites == null) {
-      numSites = 1;
-    }
     $('#site-info').html(siteInfoTemplate({
       numSurveys: numSurveys,
       speciesCounts: speciesCounts,
-      numSites: numSites
+      siteCodes: siteCodes
     }));
     siteTableData = [];
     for (id in speciesCounts) {
@@ -197,22 +194,22 @@ util.loadSurveyData(function(surveyData) {
     fn(site);
   }
   $selectSite.change(function() {
-    var numSurveys, ref1, selectedSiteCodes, speciesCounts;
-    selectedSiteCodes = $selectSite.val();
-    if (selectedSiteCodes.length === 0) {
+    var numSurveys, ref1, siteCodes, speciesCounts;
+    siteCodes = $selectSite.val();
+    if (siteCodes.length === 0) {
       map.clearSelection();
       return $('#site-info').html('');
     } else {
-      ref1 = surveyData.sumSites(selectedSiteCodes), numSurveys = ref1[0], speciesCounts = ref1[1];
-      return populateSiteInfo(numSurveys, speciesCounts, selectedSiteCodes.length);
+      ref1 = surveyData.sumSites(siteCodes), numSurveys = ref1[0], speciesCounts = ref1[1];
+      return populateSiteInfo(numSurveys, speciesCounts, siteCodes);
     }
   });
   $selectSite.on('select2:select', function(e) {
     return map.highlightSiteMarker(e.params.data.id);
   });
   $('.js-site-select-container').removeClass('hidden');
-  return map.enableDrawing(surveyData.sites, function(selectedSiteCodes) {
-    return $selectSite.val(selectedSiteCodes).trigger('change');
+  return map.enableDrawing(surveyData.sites, function(siteCodes) {
+    return $selectSite.val(siteCodes).trigger('change');
   });
 });
 

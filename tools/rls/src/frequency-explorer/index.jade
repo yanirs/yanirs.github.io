@@ -20,11 +20,14 @@ html(lang='en')
       .row.table-heading
         .col-sm-8
           | <%= _.size(speciesCounts) %> species recorded in <%= numSurveys %> survey<%= numSurveys === 1 ? '' : 's' %>
-          | <%= numSites === 1 ? '' : ' across ' + numSites + ' sites' %>
+          | <%= siteCodes.length === 1 ? '' : ' across ' + siteCodes.length + ' sites' %>
         .col-sm-4.text-right
-          a.btn.btn-default.js-clear-selection Clear selection
+          a.btn.btn-default.js-clear-selection Clear
           = ' '
-          a.btn.btn-default.js-export Export data
+          a.btn.btn-default.js-export Export
+          = ' '
+          a.btn.btn-default(href!='/tools/rls/flashcards/?siteCodes=' + "<%= siteCodes.join(' ') %>",
+                            target='_blank') Flashcards
       .table-responsive: table.table.table-striped.species-table.js-species-table
         thead
           tr

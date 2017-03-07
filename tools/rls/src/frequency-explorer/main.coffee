@@ -66,8 +66,8 @@ util.loadSurveyData (surveyData) ->
   map = new Map()
   $selectSite = $('.js-site-select-container select').select2(placeholder: 'Select sites...')
 
-  populateSiteInfo = (numSurveys, speciesCounts, numSites = 1) ->
-    $('#site-info').html(siteInfoTemplate(numSurveys: numSurveys, speciesCounts: speciesCounts, numSites: numSites))
+  populateSiteInfo = (numSurveys, speciesCounts, siteCodes) ->
+    $('#site-info').html(siteInfoTemplate(numSurveys: numSurveys, speciesCounts: speciesCounts, siteCodes: siteCodes))
     siteTableData = []
     for id, count of speciesCounts
       siteTableData.push(_.extend({ count: count, percentage: (100 * count / numSurveys).toFixed(2) },
@@ -111,14 +111,14 @@ util.loadSurveyData (surveyData) ->
         map.highlightSiteMarker(site.code)
 
   $selectSite.change ->
-    selectedSiteCodes = $selectSite.val()
-    if selectedSiteCodes.length == 0
+    siteCodes = $selectSite.val()
+    if siteCodes.length == 0
       map.clearSelection()
       $('#site-info').html('')
     else
-      [numSurveys, speciesCounts] = surveyData.sumSites(selectedSiteCodes)
-      populateSiteInfo(numSurveys, speciesCounts, selectedSiteCodes.length)
+      [numSurveys, speciesCounts] = surveyData.sumSites(siteCodes)
+      populateSiteInfo(numSurveys, speciesCounts, siteCodes)
   $selectSite.on('select2:select', (e) -> map.highlightSiteMarker(e.params.data.id))
 
   $('.js-site-select-container').removeClass('hidden')
-  map.enableDrawing(surveyData.sites, (selectedSiteCodes) -> $selectSite.val(selectedSiteCodes).trigger('change'))
+  map.enableDrawing(surveyData.sites, (siteCodes) -> $selectSite.val(siteCodes).trigger('change'))
