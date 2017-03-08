@@ -17814,4 +17814,16 @@ exports.loadSurveyData = function(doneCallback) {
   });
 };
 
+exports.getQueryStringParams = function() {
+  var i, keyValue, len, qsParams, ref, splitKeyValue;
+  qsParams = {};
+  ref = window.location.search.substring(1).split('&');
+  for (i = 0, len = ref.length; i < len; i++) {
+    keyValue = ref[i];
+    splitKeyValue = keyValue.split('=');
+    qsParams[splitKeyValue[0]] = splitKeyValue[1];
+  }
+  return qsParams;
+};
+
 },{}]},{},[1]);

@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var initFlashcardSlides, queryHash, util;
+var initFlashcardSlides, queryParams, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -12,18 +12,18 @@ global.Reveal = require('reveal.js');
 
 util = require('../util.js.tmp');
 
-queryHash = Reveal.getQueryHash();
+queryParams = util.getQueryStringParams();
 
 initFlashcardSlides = function(surveyData, siteCodes, minFreq, sampleSize) {
   var $slides, compiledTemplate, count, filteredSpeciesIds, i, id, item, len, minCount, numSurveys, ref, ref1, ref2, ref3, ref4, ref5, speciesCounts;
   if (siteCodes == null) {
-    siteCodes = (ref = (ref1 = queryHash.siteCodes) != null ? ref1.split(' ') : void 0) != null ? ref : [];
+    siteCodes = (ref = (ref1 = queryParams.siteCodes) != null ? ref1.split(',') : void 0) != null ? ref : [];
   }
   if (minFreq == null) {
-    minFreq = parseFloat((ref2 = queryHash.minFreq) != null ? ref2 : 0.0);
+    minFreq = parseFloat((ref2 = queryParams.minFreq) != null ? ref2 : 0.0);
   }
   if (sampleSize == null) {
-    sampleSize = parseInt((ref3 = queryHash.sampleSize) != null ? ref3 : 25);
+    sampleSize = parseInt((ref3 = queryParams.sampleSize) != null ? ref3 : 25);
   }
   ref4 = surveyData.sumSites(siteCodes), numSurveys = ref4[0], speciesCounts = ref4[1];
   minCount = minFreq * numSurveys;
@@ -16914,6 +16914,18 @@ exports.loadSurveyData = function(doneCallback) {
     rawSpecies = arg1[0];
     return doneCallback(new SurveyData(rawSites, rawSpecies));
   });
+};
+
+exports.getQueryStringParams = function() {
+  var i, keyValue, len, qsParams, ref, splitKeyValue;
+  qsParams = {};
+  ref = window.location.search.substring(1).split('&');
+  for (i = 0, len = ref.length; i < len; i++) {
+    keyValue = ref[i];
+    splitKeyValue = keyValue.split('=');
+    qsParams[splitKeyValue[0]] = splitKeyValue[1];
+  }
+  return qsParams;
 };
 
 },{}]},{},[1]);

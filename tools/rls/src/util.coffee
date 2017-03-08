@@ -61,3 +61,10 @@ exports.loadSurveyData = (doneCallback) ->
    .always(-> $('body').removeClass('loading'))
    .fail(-> $('.js-error-container').removeClass('hidden'))
    .done(([rawSites], [rawSpecies]) -> doneCallback(new SurveyData(rawSites, rawSpecies)))
+
+exports.getQueryStringParams = ->
+  qsParams = {}
+  for keyValue in window.location.search.substring(1).split('&')
+    splitKeyValue = keyValue.split('=')
+    qsParams[splitKeyValue[0]] = splitKeyValue[1]
+  qsParams

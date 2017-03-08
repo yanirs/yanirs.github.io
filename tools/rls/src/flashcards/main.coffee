@@ -4,12 +4,12 @@ require('reveal.js/lib/js/head.min.js')
 global.Reveal = require('reveal.js')
 util = require('../util.js.tmp')
 
-queryHash = Reveal.getQueryHash()
+queryParams = util.getQueryStringParams()
 
 initFlashcardSlides = (surveyData,
-                       siteCodes = queryHash.siteCodes?.split(' ') ? [],
-                       minFreq = parseFloat(queryHash.minFreq ? 0.0),
-                       sampleSize = parseInt(queryHash.sampleSize ? 25)) ->
+                       siteCodes = queryParams.siteCodes?.split(',') ? [],
+                       minFreq = parseFloat(queryParams.minFreq ? 0.0),
+                       sampleSize = parseInt(queryParams.sampleSize ? 25)) ->
   [numSurveys, speciesCounts] = surveyData.sumSites(siteCodes)
   minCount = minFreq * numSurveys
   filteredSpeciesIds = (id for id, count of speciesCounts when count >= minCount)

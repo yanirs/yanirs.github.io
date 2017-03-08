@@ -26,7 +26,7 @@ html(lang='en')
           = ' '
           a.btn.btn-default.js-export Export
           = ' '
-          a.btn.btn-default(href!='/tools/rls/flashcards/?siteCodes=' + "<%= siteCodes.join(' ') %>",
+          a.btn.btn-default(href!='/tools/rls/flashcards/?siteCodes=' + "<%= siteCodes.join(',') %>",
                             target='_blank') Flashcards
       .table-responsive: table.table.table-striped.species-table.js-species-table
         thead
