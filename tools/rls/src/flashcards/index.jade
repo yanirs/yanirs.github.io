@@ -23,7 +23,7 @@ html(lang='en')
       script#fish-slide-template(type='text/template')
         section
           section
-            h2 Identify this animal
+            h3 Identify this animal
             h4 Go down to see its name
 
             a(href!='<%= image %>', target='_blank'): img.fish-img(src!='<%= image %>')
@@ -32,10 +32,10 @@ html(lang='en')
               br
               | Frequency: <%= freq %>%
 
-            p: a.small(href='#') Back to start
-
           section
             h3: i <%= name %>
             | <%= commonName %>
+
+            p: a.small(href='#') Back to start
 
       script(src='main.min.js')

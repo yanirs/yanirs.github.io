@@ -58,10 +58,8 @@ util.loadSurveyData(function(surveyData) {
   return Reveal.initialize({
     width: 1000,
     height: 760,
-    controls: true,
-    progress: true,
+    margin: 0.1,
     history: true,
-    center: true,
     theme: 'night',
     slideNumber: true
   });
