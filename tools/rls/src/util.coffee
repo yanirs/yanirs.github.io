@@ -31,11 +31,10 @@ class SurveyData
 
   _processRawSpecies: (rawSpecies) ->
     @species = {}
-    for id, [name, commonName, url, method, speciesClass, images] of rawSpecies
+    for id, [name, commonNames, url, method, images] of rawSpecies
       @species[id] =
         name: name
-        commonName: commonName or 'N/A'
-        speciesClass: speciesClass
+        commonName: commonNames.split(',')[0]?.trim() or 'N/A'
         url: url
         method: switch method
           when 0 then 'M1'

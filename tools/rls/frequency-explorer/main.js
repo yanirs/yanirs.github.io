@@ -162,10 +162,10 @@ util.loadSurveyData(function(surveyData) {
     renderTableBody();
     $('.js-export').click(function() {
       var csvData, i, len, row;
-      csvData = 'Scientific name\tCommon name\tMethod\tSpecies class\tSurveys seen\tTotal surveys\n';
+      csvData = 'Scientific name\tCommon name\tMethod\tSurveys seen\tTotal surveys\n';
       for (i = 0, len = siteTableData.length; i < len; i++) {
         row = siteTableData[i];
-        csvData += row.name + "\t" + row.commonName + "\t" + row.method + "\t" + row.speciesClass + "\t" + row.count + "\t" + numSurveys + "\n";
+        csvData += row.name + "\t" + row.commonName + "\t" + row.method + "\t" + row.count + "\t" + numSurveys + "\n";
       }
       $(this).attr('download', 'rls-data-export.csv');
       return $(this).attr('href', encodeURI("data:text/csv;charset=utf-8," + csvData));
@@ -17751,15 +17751,14 @@ SurveyData = (function() {
   };
 
   SurveyData.prototype._processRawSpecies = function(rawSpecies) {
-    var commonName, id, images, method, name, ref, results, speciesClass, url;
+    var commonNames, id, images, method, name, ref, ref1, results, url;
     this.species = {};
     results = [];
     for (id in rawSpecies) {
-      ref = rawSpecies[id], name = ref[0], commonName = ref[1], url = ref[2], method = ref[3], speciesClass = ref[4], images = ref[5];
+      ref = rawSpecies[id], name = ref[0], commonNames = ref[1], url = ref[2], method = ref[3], images = ref[4];
       results.push(this.species[id] = {
         name: name,
-        commonName: commonName || 'N/A',
-        speciesClass: speciesClass,
+        commonName: ((ref1 = commonNames.split(',')[0]) != null ? ref1.trim() : void 0) || 'N/A',
         url: url,
         method: (function() {
           switch (method) {

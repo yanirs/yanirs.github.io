@@ -12,19 +12,17 @@ initFlashcardSlides = (surveyData,
                        sampleSize = parseInt(queryParams.sampleSize ? 25)) ->
   [numSurveys, speciesCounts] = surveyData.sumSites(siteCodes)
   minCount = minFreq * numSurveys
-  filteredSpeciesIds = (id for id, count of speciesCounts when count >= minCount)
+  items = []
+  for id, count of speciesCounts
+    continue if count < minCount
+    item = surveyData.species[id]
+    for image in item.images
+      items.push(_.extend({image: image, freq: (100 * count / numSurveys).toFixed(2)}, item))
   $slides = $('.slides')
   compiledTemplate = _.template($('#fish-slide-template').html())
-  for id in _.sample(filteredSpeciesIds, sampleSize)
-    item = surveyData.species[id]
-    $slides.append(compiledTemplate(
-      image: _.sample(item.images)
-      freq: (100 * speciesCounts[id] / numSurveys).toFixed(2),
-      url: item.url,
-      name: item.name,
-      commonName: item.commonName
-    ))
-  $('#fish-number').html("#{Math.min(sampleSize, filteredSpeciesIds.length)} out of the #{filteredSpeciesIds.length}")
+  for item in _.sample(items, sampleSize)
+    $slides.append(compiledTemplate(item))
+  $('#fish-number').html("#{Math.min(sampleSize, items.length)} out of the #{items.length}")
 
 util.loadSurveyData (surveyData) ->
   initFlashcardSlides(surveyData)

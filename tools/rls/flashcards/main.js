@@ -15,7 +15,7 @@ util = require('../util.js.tmp');
 queryParams = util.getQueryStringParams();
 
 initFlashcardSlides = function(surveyData, siteCodes, minFreq, sampleSize) {
-  var $slides, compiledTemplate, count, filteredSpeciesIds, i, id, item, len, minCount, numSurveys, ref, ref1, ref2, ref3, ref4, ref5, speciesCounts;
+  var $slides, compiledTemplate, count, i, id, image, item, items, j, len, len1, minCount, numSurveys, ref, ref1, ref2, ref3, ref4, ref5, ref6, speciesCounts;
   if (siteCodes == null) {
     siteCodes = (ref = (ref1 = queryParams.siteCodes) != null ? ref1.split(',') : void 0) != null ? ref : [];
   }
@@ -27,32 +27,30 @@ initFlashcardSlides = function(surveyData, siteCodes, minFreq, sampleSize) {
   }
   ref4 = surveyData.sumSites(siteCodes), numSurveys = ref4[0], speciesCounts = ref4[1];
   minCount = minFreq * numSurveys;
-  filteredSpeciesIds = (function() {
-    var results;
-    results = [];
-    for (id in speciesCounts) {
-      count = speciesCounts[id];
-      if (count >= minCount) {
-        results.push(id);
-      }
+  items = [];
+  for (id in speciesCounts) {
+    count = speciesCounts[id];
+    if (count < minCount) {
+      continue;
     }
-    return results;
-  })();
+    item = surveyData.species[id];
+    ref5 = item.images;
+    for (i = 0, len = ref5.length; i < len; i++) {
+      image = ref5[i];
+      items.push(_.extend({
+        image: image,
+        freq: (100 * count / numSurveys).toFixed(2)
+      }, item));
+    }
+  }
   $slides = $('.slides');
   compiledTemplate = _.template($('#fish-slide-template').html());
-  ref5 = _.sample(filteredSpeciesIds, sampleSize);
-  for (i = 0, len = ref5.length; i < len; i++) {
-    id = ref5[i];
-    item = surveyData.species[id];
-    $slides.append(compiledTemplate({
-      image: _.sample(item.images),
-      freq: (100 * speciesCounts[id] / numSurveys).toFixed(2),
-      url: item.url,
-      name: item.name,
-      commonName: item.commonName
-    }));
+  ref6 = _.sample(items, sampleSize);
+  for (j = 0, len1 = ref6.length; j < len1; j++) {
+    item = ref6[j];
+    $slides.append(compiledTemplate(item));
   }
-  return $('#fish-number').html((Math.min(sampleSize, filteredSpeciesIds.length)) + " out of the " + filteredSpeciesIds.length);
+  return $('#fish-number').html((Math.min(sampleSize, items.length)) + " out of the " + items.length);
 };
 
 util.loadSurveyData(function(surveyData) {
@@ -16853,15 +16851,14 @@ SurveyData = (function() {
   };
 
   SurveyData.prototype._processRawSpecies = function(rawSpecies) {
-    var commonName, id, images, method, name, ref, results, speciesClass, url;
+    var commonNames, id, images, method, name, ref, ref1, results, url;
     this.species = {};
     results = [];
     for (id in rawSpecies) {
-      ref = rawSpecies[id], name = ref[0], commonName = ref[1], url = ref[2], method = ref[3], speciesClass = ref[4], images = ref[5];
+      ref = rawSpecies[id], name = ref[0], commonNames = ref[1], url = ref[2], method = ref[3], images = ref[4];
       results.push(this.species[id] = {
         name: name,
-        commonName: commonName || 'N/A',
-        speciesClass: speciesClass,
+        commonName: ((ref1 = commonNames.split(',')[0]) != null ? ref1.trim() : void 0) || 'N/A',
         url: url,
         method: (function() {
           switch (method) {
