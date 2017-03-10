@@ -5,13 +5,15 @@ global.Reveal = require('reveal.js')
 util = require('../util.js.tmp')
 
 queryParams = util.getQueryStringParams()
+headerTemplate = _.template($('#header-template').html())
+flashcardTemplate = _.template($('#flashcard-template').html())
 
-initFlashcardSlides = (surveyData,
-                       siteCodes = queryParams.siteCodes?.split(',') ? [],
-                       minFreq = parseFloat(queryParams.minFreq ? 0.0),
-                       sampleSize = parseInt(queryParams.sampleSize ? 25)) ->
+initSlides = (surveyData,
+              minFreq = 0,
+              siteCodes = queryParams.siteCodes?.split(',') ? [],
+              sampleSize = parseInt(queryParams.sampleSize ? 25)) ->
   [numSurveys, speciesCounts] = surveyData.sumSites(siteCodes)
-  minCount = minFreq * numSurveys
+  minCount = numSurveys * minFreq / 100
   items = []
   for id, count of speciesCounts
     continue if count < minCount
@@ -19,13 +21,13 @@ initFlashcardSlides = (surveyData,
     for image in item.images
       items.push(_.extend({image: image, freq: (100 * count / numSurveys).toFixed(2)}, item))
   $slides = $('.slides')
-  compiledTemplate = _.template($('#fish-slide-template').html())
+  $slides.append(headerTemplate(
+    shownPhotos: Math.min(sampleSize, items.length)
+    totalPhotos: items.length
+    minFreq: minFreq
+  ))
   for item in _.sample(items, sampleSize)
-    $slides.append(compiledTemplate(item))
-  $('#fish-number').html("#{Math.min(sampleSize, items.length)} out of the #{items.length}")
-
-util.loadSurveyData (surveyData) ->
-  initFlashcardSlides(surveyData)
+    $slides.append(flashcardTemplate(item))
   Reveal.initialize(
     width: 1000
     height: 760
@@ -34,3 +36,18 @@ util.loadSurveyData (surveyData) ->
     theme: 'night'
     slideNumber: true
   )
+
+  refreshSlides = (delay = 250) ->
+    minFreq = parseFloat($('.js-min-freq').val())
+    $slides.html('')
+    $('body').addClass('loading') if delay
+    delayCallback = ->
+      initSlides(surveyData, minFreq)
+      $('body').removeClass('loading') if delay
+      Reveal.toggleOverview(false)
+    setTimeout(delayCallback, delay)
+
+  $('.js-resample').click(refreshSlides)
+  $('.js-min-freq').change(-> refreshSlides(0))
+
+util.loadSurveyData(initSlides)

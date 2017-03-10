@@ -12,19 +12,23 @@ html(lang='en')
 
     body.loading
       .reveal: .slides
+
+      script#header-template(type='text/template')
         section
           h1 Reef Life Survey flashcards
           ul
-            li Navigate using the arrows or swipe gestures
+            li Navigate using the arrows or swipe gestures.
             li.
-              Refresh the page to change the order of the cards.
-              Only <span id="fish-number"></span> photos are shown per refresh.
+              Showing <%= shownPhotos %> out of the <%= totalPhotos %> photos of species that were recorded on at
+              least <input class="js-min-freq" type="number" min="0" max="100" step="1" value="<%= minFreq %>">% of
+              surveys in the selected sites. Change the percentage or <a href="#" class="js-resample">tap here</a> to
+              see a different sample of photos.
 
-      script#fish-slide-template(type='text/template')
+      script#flashcard-template(type='text/template')
         section
           section
-            h3 Identify this animal
-            h4 Go down to see its name
+            h4 Identify this animal
+            h5: small Go down to see its name
 
             a(href!='<%= image %>', target='_blank'): img.fish-img(src!='<%= image %>')
             .img-source-caption

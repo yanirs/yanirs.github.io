@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var initFlashcardSlides, queryParams, util;
+var flashcardTemplate, headerTemplate, initSlides, queryParams, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -14,19 +14,23 @@ util = require('../util.js.tmp');
 
 queryParams = util.getQueryStringParams();
 
-initFlashcardSlides = function(surveyData, siteCodes, minFreq, sampleSize) {
-  var $slides, compiledTemplate, count, i, id, image, item, items, j, len, len1, minCount, numSurveys, ref, ref1, ref2, ref3, ref4, ref5, ref6, speciesCounts;
+headerTemplate = _.template($('#header-template').html());
+
+flashcardTemplate = _.template($('#flashcard-template').html());
+
+initSlides = function(surveyData, minFreq, siteCodes, sampleSize) {
+  var $slides, count, i, id, image, item, items, j, len, len1, minCount, numSurveys, ref, ref1, ref2, ref3, ref4, ref5, refreshSlides, speciesCounts;
+  if (minFreq == null) {
+    minFreq = 0;
+  }
   if (siteCodes == null) {
     siteCodes = (ref = (ref1 = queryParams.siteCodes) != null ? ref1.split(',') : void 0) != null ? ref : [];
   }
-  if (minFreq == null) {
-    minFreq = parseFloat((ref2 = queryParams.minFreq) != null ? ref2 : 0.0);
-  }
   if (sampleSize == null) {
-    sampleSize = parseInt((ref3 = queryParams.sampleSize) != null ? ref3 : 25);
+    sampleSize = parseInt((ref2 = queryParams.sampleSize) != null ? ref2 : 25);
   }
-  ref4 = surveyData.sumSites(siteCodes), numSurveys = ref4[0], speciesCounts = ref4[1];
-  minCount = minFreq * numSurveys;
+  ref3 = surveyData.sumSites(siteCodes), numSurveys = ref3[0], speciesCounts = ref3[1];
+  minCount = numSurveys * minFreq / 100;
   items = [];
   for (id in speciesCounts) {
     count = speciesCounts[id];
@@ -34,9 +38,9 @@ initFlashcardSlides = function(surveyData, siteCodes, minFreq, sampleSize) {
       continue;
     }
     item = surveyData.species[id];
-    ref5 = item.images;
-    for (i = 0, len = ref5.length; i < len; i++) {
-      image = ref5[i];
+    ref4 = item.images;
+    for (i = 0, len = ref4.length; i < len; i++) {
+      image = ref4[i];
       items.push(_.extend({
         image: image,
         freq: (100 * count / numSurveys).toFixed(2)
@@ -44,18 +48,17 @@ initFlashcardSlides = function(surveyData, siteCodes, minFreq, sampleSize) {
     }
   }
   $slides = $('.slides');
-  compiledTemplate = _.template($('#fish-slide-template').html());
-  ref6 = _.sample(items, sampleSize);
-  for (j = 0, len1 = ref6.length; j < len1; j++) {
-    item = ref6[j];
-    $slides.append(compiledTemplate(item));
+  $slides.append(headerTemplate({
+    shownPhotos: Math.min(sampleSize, items.length),
+    totalPhotos: items.length,
+    minFreq: minFreq
+  }));
+  ref5 = _.sample(items, sampleSize);
+  for (j = 0, len1 = ref5.length; j < len1; j++) {
+    item = ref5[j];
+    $slides.append(flashcardTemplate(item));
   }
-  return $('#fish-number').html((Math.min(sampleSize, items.length)) + " out of the " + items.length);
-};
-
-util.loadSurveyData(function(surveyData) {
-  initFlashcardSlides(surveyData);
-  return Reveal.initialize({
+  Reveal.initialize({
     width: 1000,
     height: 760,
     margin: 0.1,
@@ -63,7 +66,32 @@ util.loadSurveyData(function(surveyData) {
     theme: 'night',
     slideNumber: true
   });
-});
+  refreshSlides = function(delay) {
+    var delayCallback;
+    if (delay == null) {
+      delay = 250;
+    }
+    minFreq = parseFloat($('.js-min-freq').val());
+    $slides.html('');
+    if (delay) {
+      $('body').addClass('loading');
+    }
+    delayCallback = function() {
+      initSlides(surveyData, minFreq);
+      if (delay) {
+        $('body').removeClass('loading');
+      }
+      return Reveal.toggleOverview(false);
+    };
+    return setTimeout(delayCallback, delay);
+  };
+  $('.js-resample').click(refreshSlides);
+  return $('.js-min-freq').change(function() {
+    return refreshSlides(0);
+  });
+};
+
+util.loadSurveyData(initSlides);
 
 }).call(this,typeof self !== "undefined" ? self : typeof window !== "undefined" ? window : {})
 },{"../util.js.tmp":6,"jquery":2,"reveal.js":3,"reveal.js/lib/js/head.min.js":4,"underscore":5}],2:[function(require,module,exports){
