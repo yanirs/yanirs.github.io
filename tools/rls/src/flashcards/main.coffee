@@ -4,15 +4,14 @@ require('reveal.js/lib/js/head.min.js')
 global.Reveal = require('reveal.js')
 util = require('../util.js.tmp')
 
-queryParams = util.getQueryStringParams()
 headerTemplate = _.template($('#header-template').html())
 flashcardTemplate = _.template($('#flashcard-template').html())
+selectedEcoregion = null
 
-initSlides = (surveyData,
-              minFreq = 0,
-              siteCodes = queryParams.siteCodes?.split(',') ? [],
-              sampleSize = parseInt(queryParams.sampleSize ? 25)) ->
-  [numSurveys, speciesCounts] = surveyData.sumSites(siteCodes)
+initSlides = (surveyData, minFreq = 0) ->
+  queryParams = util.getQueryStringParams()
+  sampleSize = parseInt(queryParams.sampleSize ? 25)
+  [numSurveys, speciesCounts] = surveyData.sumSites(queryParams.siteCodes?.split(',') ? [])
   minCount = numSurveys * minFreq / 100
   items = []
   for id, count of speciesCounts
@@ -20,11 +19,18 @@ initSlides = (surveyData,
     item = surveyData.species[id]
     for image in item.images
       items.push(_.extend({image: image, freq: (100 * count / numSurveys).toFixed(2)}, item))
+  ecoregionOptions = ["<option></option>"]
+  for [ecoregion, ecoregionCodes] in _.pairs(surveyData.ecoregionToSiteCodes).sort()
+    selected = if ecoregion == selectedEcoregion then 'selected' else ''
+    ecoregionOptions.push(
+      """<option value="#{ecoregion}" #{selected}>#{ecoregion} (#{ecoregionCodes.length} sites)</option>"""
+    )
   $slides = $('.slides')
   $slides.append(headerTemplate(
     shownPhotos: Math.min(sampleSize, items.length)
     totalPhotos: items.length
     minFreq: minFreq
+    ecoregionOptions: ecoregionOptions.join('')
   ))
   for item in _.sample(items, sampleSize)
     $slides.append(flashcardTemplate(item))
@@ -49,5 +55,12 @@ initSlides = (surveyData,
 
   $('.js-resample').click(refreshSlides)
   $('.js-min-freq').change(-> refreshSlides(0))
+  $('.js-ecoregion').change(->
+    selectedEcoregion = $('.js-ecoregion').val()
+    ecoregionSiteCodes = surveyData.ecoregionToSiteCodes[selectedEcoregion]
+    if ecoregionSiteCodes
+      history.pushState(null, null, '?' + $.param(sampleSize: sampleSize, siteCodes: ecoregionSiteCodes.join(',')))
+      refreshSlides()
+  )
 
 util.loadSurveyData(initSlides)

@@ -5,6 +5,7 @@ class SurveyData
 
   _processRawSites: (rawSites) ->
     @siteCodeToSite = {}
+    @ecoregionToSiteCodes = {}
     @sites = []
     for code, [realm, ecoregion, name, lng, lat, numSurveys, speciesCounts] of rawSites
       site =
@@ -19,6 +20,8 @@ class SurveyData
         speciesCounts: speciesCounts
       @sites.push(site)
       @siteCodeToSite[site.code] = site
+      @ecoregionToSiteCodes[ecoregion] = [] unless @ecoregionToSiteCodes[ecoregion]
+      @ecoregionToSiteCodes[ecoregion].push(code)
     @sites.sort (siteA, siteB) ->
       property =
         if siteA.ecoregion == siteB.ecoregion
@@ -65,5 +68,5 @@ exports.getQueryStringParams = ->
   qsParams = {}
   for keyValue in window.location.search.substring(1).split('&')
     splitKeyValue = keyValue.split('=')
-    qsParams[splitKeyValue[0]] = splitKeyValue[1]
+    qsParams[splitKeyValue[0]] = decodeURIComponent(splitKeyValue[1])
   qsParams

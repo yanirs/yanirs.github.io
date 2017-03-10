@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var flashcardTemplate, headerTemplate, initSlides, queryParams, util;
+var flashcardTemplate, headerTemplate, initSlides, selectedEcoregion, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -12,24 +12,20 @@ global.Reveal = require('reveal.js');
 
 util = require('../util.js.tmp');
 
-queryParams = util.getQueryStringParams();
-
 headerTemplate = _.template($('#header-template').html());
 
 flashcardTemplate = _.template($('#flashcard-template').html());
 
-initSlides = function(surveyData, minFreq, siteCodes, sampleSize) {
-  var $slides, count, i, id, image, item, items, j, len, len1, minCount, numSurveys, ref, ref1, ref2, ref3, ref4, ref5, refreshSlides, speciesCounts;
+selectedEcoregion = null;
+
+initSlides = function(surveyData, minFreq) {
+  var $slides, count, ecoregion, ecoregionCodes, ecoregionOptions, i, id, image, item, items, j, k, len, len1, len2, minCount, numSurveys, queryParams, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, refreshSlides, sampleSize, selected, speciesCounts;
   if (minFreq == null) {
     minFreq = 0;
   }
-  if (siteCodes == null) {
-    siteCodes = (ref = (ref1 = queryParams.siteCodes) != null ? ref1.split(',') : void 0) != null ? ref : [];
-  }
-  if (sampleSize == null) {
-    sampleSize = parseInt((ref2 = queryParams.sampleSize) != null ? ref2 : 25);
-  }
-  ref3 = surveyData.sumSites(siteCodes), numSurveys = ref3[0], speciesCounts = ref3[1];
+  queryParams = util.getQueryStringParams();
+  sampleSize = parseInt((ref = queryParams.sampleSize) != null ? ref : 25);
+  ref3 = surveyData.sumSites((ref1 = (ref2 = queryParams.siteCodes) != null ? ref2.split(',') : void 0) != null ? ref1 : []), numSurveys = ref3[0], speciesCounts = ref3[1];
   minCount = numSurveys * minFreq / 100;
   items = [];
   for (id in speciesCounts) {
@@ -47,15 +43,23 @@ initSlides = function(surveyData, minFreq, siteCodes, sampleSize) {
       }, item));
     }
   }
+  ecoregionOptions = ["<option></option>"];
+  ref5 = _.pairs(surveyData.ecoregionToSiteCodes).sort();
+  for (j = 0, len1 = ref5.length; j < len1; j++) {
+    ref6 = ref5[j], ecoregion = ref6[0], ecoregionCodes = ref6[1];
+    selected = ecoregion === selectedEcoregion ? 'selected' : '';
+    ecoregionOptions.push("<option value=\"" + ecoregion + "\" " + selected + ">" + ecoregion + " (" + ecoregionCodes.length + " sites)</option>");
+  }
   $slides = $('.slides');
   $slides.append(headerTemplate({
     shownPhotos: Math.min(sampleSize, items.length),
     totalPhotos: items.length,
-    minFreq: minFreq
+    minFreq: minFreq,
+    ecoregionOptions: ecoregionOptions.join('')
   }));
-  ref5 = _.sample(items, sampleSize);
-  for (j = 0, len1 = ref5.length; j < len1; j++) {
-    item = ref5[j];
+  ref7 = _.sample(items, sampleSize);
+  for (k = 0, len2 = ref7.length; k < len2; k++) {
+    item = ref7[k];
     $slides.append(flashcardTemplate(item));
   }
   Reveal.initialize({
@@ -86,8 +90,20 @@ initSlides = function(surveyData, minFreq, siteCodes, sampleSize) {
     return setTimeout(delayCallback, delay);
   };
   $('.js-resample').click(refreshSlides);
-  return $('.js-min-freq').change(function() {
+  $('.js-min-freq').change(function() {
     return refreshSlides(0);
+  });
+  return $('.js-ecoregion').change(function() {
+    var ecoregionSiteCodes;
+    selectedEcoregion = $('.js-ecoregion').val();
+    ecoregionSiteCodes = surveyData.ecoregionToSiteCodes[selectedEcoregion];
+    if (ecoregionSiteCodes) {
+      history.pushState(null, null, '?' + $.param({
+        sampleSize: sampleSize,
+        siteCodes: ecoregionSiteCodes.join(',')
+      }));
+      return refreshSlides();
+    }
   });
 };
 
@@ -16851,6 +16867,7 @@ SurveyData = (function() {
   SurveyData.prototype._processRawSites = function(rawSites) {
     var code, ecoregion, lat, lng, name, numSurveys, realm, ref, site, speciesCounts;
     this.siteCodeToSite = {};
+    this.ecoregionToSiteCodes = {};
     this.sites = [];
     for (code in rawSites) {
       ref = rawSites[code], realm = ref[0], ecoregion = ref[1], name = ref[2], lng = ref[3], lat = ref[4], numSurveys = ref[5], speciesCounts = ref[6];
@@ -16868,6 +16885,10 @@ SurveyData = (function() {
       };
       this.sites.push(site);
       this.siteCodeToSite[site.code] = site;
+      if (!this.ecoregionToSiteCodes[ecoregion]) {
+        this.ecoregionToSiteCodes[ecoregion] = [];
+      }
+      this.ecoregionToSiteCodes[ecoregion].push(code);
     }
     return this.sites.sort(function(siteA, siteB) {
       var property;
@@ -16946,7 +16967,7 @@ exports.getQueryStringParams = function() {
   for (i = 0, len = ref.length; i < len; i++) {
     keyValue = ref[i];
     splitKeyValue = keyValue.split('=');
-    qsParams[splitKeyValue[0]] = splitKeyValue[1];
+    qsParams[splitKeyValue[0]] = decodeURIComponent(splitKeyValue[1]);
   }
   return qsParams;
 };

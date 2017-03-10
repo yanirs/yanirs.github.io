@@ -17725,6 +17725,7 @@ SurveyData = (function() {
   SurveyData.prototype._processRawSites = function(rawSites) {
     var code, ecoregion, lat, lng, name, numSurveys, realm, ref, site, speciesCounts;
     this.siteCodeToSite = {};
+    this.ecoregionToSiteCodes = {};
     this.sites = [];
     for (code in rawSites) {
       ref = rawSites[code], realm = ref[0], ecoregion = ref[1], name = ref[2], lng = ref[3], lat = ref[4], numSurveys = ref[5], speciesCounts = ref[6];
@@ -17742,6 +17743,10 @@ SurveyData = (function() {
       };
       this.sites.push(site);
       this.siteCodeToSite[site.code] = site;
+      if (!this.ecoregionToSiteCodes[ecoregion]) {
+        this.ecoregionToSiteCodes[ecoregion] = [];
+      }
+      this.ecoregionToSiteCodes[ecoregion].push(code);
     }
     return this.sites.sort(function(siteA, siteB) {
       var property;
@@ -17820,7 +17825,7 @@ exports.getQueryStringParams = function() {
   for (i = 0, len = ref.length; i < len; i++) {
     keyValue = ref[i];
     splitKeyValue = keyValue.split('=');
-    qsParams[splitKeyValue[0]] = splitKeyValue[1];
+    qsParams[splitKeyValue[0]] = decodeURIComponent(splitKeyValue[1]);
   }
   return qsParams;
 };
