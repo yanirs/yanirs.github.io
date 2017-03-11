@@ -21,8 +21,8 @@ html(lang='en')
             li.
               Showing <%= shownPhotos %> out of the <%= totalPhotos %> photos of species that were recorded on at
               least <input class="js-min-freq" type="number" min="0" max="100" step="1" value="<%= minFreq %>">% of
-              surveys in the selected sites. Change the percentage or <a href="#" class="js-resample">tap here</a> to
-              see a different sample of photos.
+              <select class="js-method"><%= methodOptions %></select> surveys in the selected sites. Change the
+              percentage or method, or <a href="#" class="js-resample">tap here</a> to see a different sample of photos.
             li.
               To change the selected sites, use the <a href="/tools/rls/frequency-explorer" target="_blank">Frequency
               Explorer</a> or choose an ecoregion: <select class="js-ecoregion"><%= ecoregionOptions %></select>

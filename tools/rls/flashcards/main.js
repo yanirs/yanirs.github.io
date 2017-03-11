@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var flashcardTemplate, headerTemplate, initSlides, selectedEcoregion, util;
+var SAMPLE_SIZE, flashcardTemplate, generateItems, headerTemplate, initSlides, selectedEcoregion, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -12,20 +12,18 @@ global.Reveal = require('reveal.js');
 
 util = require('../util.js.tmp');
 
+SAMPLE_SIZE = 25;
+
 headerTemplate = _.template($('#header-template').html());
 
 flashcardTemplate = _.template($('#flashcard-template').html());
 
 selectedEcoregion = null;
 
-initSlides = function(surveyData, minFreq) {
-  var $slides, count, ecoregion, ecoregionCodes, ecoregionOptions, i, id, image, item, items, j, k, len, len1, len2, minCount, numSurveys, queryParams, ref, ref1, ref2, ref3, ref4, ref5, ref6, ref7, refreshSlides, sampleSize, selected, speciesCounts;
-  if (minFreq == null) {
-    minFreq = 0;
-  }
+generateItems = function(surveyData, minFreq, selectedMethod) {
+  var count, i, id, image, item, items, len, minCount, numSurveys, queryParams, ref, ref1, ref2, ref3, speciesCounts;
   queryParams = util.getQueryStringParams();
-  sampleSize = parseInt((ref = queryParams.sampleSize) != null ? ref : 25);
-  ref3 = surveyData.sumSites((ref1 = (ref2 = queryParams.siteCodes) != null ? ref2.split(',') : void 0) != null ? ref1 : []), numSurveys = ref3[0], speciesCounts = ref3[1];
+  ref2 = surveyData.sumSites((ref = (ref1 = queryParams.siteCodes) != null ? ref1.split(',') : void 0) != null ? ref : []), numSurveys = ref2[0], speciesCounts = ref2[1];
   minCount = numSurveys * minFreq / 100;
   items = [];
   for (id in speciesCounts) {
@@ -34,32 +32,55 @@ initSlides = function(surveyData, minFreq) {
       continue;
     }
     item = surveyData.species[id];
-    ref4 = item.images;
-    for (i = 0, len = ref4.length; i < len; i++) {
-      image = ref4[i];
+    if (selectedMethod === 'M1' && item.method === 'M2' || selectedMethod === 'M2' && item.method === 'M1') {
+      continue;
+    }
+    ref3 = item.images;
+    for (i = 0, len = ref3.length; i < len; i++) {
+      image = ref3[i];
       items.push(_.extend({
         image: image,
         freq: (100 * count / numSurveys).toFixed(2)
       }, item));
     }
   }
+  return items;
+};
+
+initSlides = function(surveyData, minFreq, selectedMethod) {
+  var $slides, ecoregion, ecoregionCodes, ecoregionOptions, i, item, items, j, k, len, len1, len2, method, methodOptions, ref, ref1, ref2, ref3, refreshSlides, selected;
+  if (minFreq == null) {
+    minFreq = 0;
+  }
+  if (selectedMethod == null) {
+    selectedMethod = 'all';
+  }
+  items = generateItems(surveyData, minFreq, selectedMethod);
   ecoregionOptions = ["<option></option>"];
-  ref5 = _.pairs(surveyData.ecoregionToSiteCodes).sort();
-  for (j = 0, len1 = ref5.length; j < len1; j++) {
-    ref6 = ref5[j], ecoregion = ref6[0], ecoregionCodes = ref6[1];
+  ref = _.pairs(surveyData.ecoregionToSiteCodes).sort();
+  for (i = 0, len = ref.length; i < len; i++) {
+    ref1 = ref[i], ecoregion = ref1[0], ecoregionCodes = ref1[1];
     selected = ecoregion === selectedEcoregion ? 'selected' : '';
     ecoregionOptions.push("<option value=\"" + ecoregion + "\" " + selected + ">" + ecoregion + " (" + ecoregionCodes.length + " sites)</option>");
   }
+  methodOptions = [];
+  ref2 = ['all', 'M1', 'M2'];
+  for (j = 0, len1 = ref2.length; j < len1; j++) {
+    method = ref2[j];
+    selected = method === selectedMethod ? 'selected' : '';
+    methodOptions.push("<option " + selected + ">" + method + "</option>");
+  }
   $slides = $('.slides');
   $slides.append(headerTemplate({
-    shownPhotos: Math.min(sampleSize, items.length),
+    shownPhotos: Math.min(SAMPLE_SIZE, items.length),
     totalPhotos: items.length,
     minFreq: minFreq,
-    ecoregionOptions: ecoregionOptions.join('')
+    ecoregionOptions: ecoregionOptions.join(''),
+    methodOptions: methodOptions.join('')
   }));
-  ref7 = _.sample(items, sampleSize);
-  for (k = 0, len2 = ref7.length; k < len2; k++) {
-    item = ref7[k];
+  ref3 = _.sample(items, SAMPLE_SIZE);
+  for (k = 0, len2 = ref3.length; k < len2; k++) {
+    item = ref3[k];
     $slides.append(flashcardTemplate(item));
   }
   Reveal.initialize({
@@ -76,12 +97,13 @@ initSlides = function(surveyData, minFreq) {
       delay = 250;
     }
     minFreq = parseFloat($('.js-min-freq').val());
+    selectedMethod = $('.js-method').val();
     $slides.html('');
     if (delay) {
       $('body').addClass('loading');
     }
     delayCallback = function() {
-      initSlides(surveyData, minFreq);
+      initSlides(surveyData, minFreq, selectedMethod);
       if (delay) {
         $('body').removeClass('loading');
       }
@@ -90,7 +112,7 @@ initSlides = function(surveyData, minFreq) {
     return setTimeout(delayCallback, delay);
   };
   $('.js-resample').click(refreshSlides);
-  $('.js-min-freq').change(function() {
+  $('.js-min-freq, .js-method').change(function() {
     return refreshSlides(0);
   });
   return $('.js-ecoregion').change(function() {
@@ -99,7 +121,6 @@ initSlides = function(surveyData, minFreq) {
     ecoregionSiteCodes = surveyData.ecoregionToSiteCodes[selectedEcoregion];
     if (ecoregionSiteCodes) {
       history.pushState(null, null, '?' + $.param({
-        sampleSize: sampleSize,
         siteCodes: ecoregionSiteCodes.join(',')
       }));
       return refreshSlides();

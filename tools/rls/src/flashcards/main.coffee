@@ -4,35 +4,46 @@ require('reveal.js/lib/js/head.min.js')
 global.Reveal = require('reveal.js')
 util = require('../util.js.tmp')
 
+SAMPLE_SIZE = 25
+
 headerTemplate = _.template($('#header-template').html())
 flashcardTemplate = _.template($('#flashcard-template').html())
 selectedEcoregion = null
 
-initSlides = (surveyData, minFreq = 0) ->
+generateItems = (surveyData, minFreq, selectedMethod) ->
   queryParams = util.getQueryStringParams()
-  sampleSize = parseInt(queryParams.sampleSize ? 25)
   [numSurveys, speciesCounts] = surveyData.sumSites(queryParams.siteCodes?.split(',') ? [])
   minCount = numSurveys * minFreq / 100
   items = []
   for id, count of speciesCounts
     continue if count < minCount
     item = surveyData.species[id]
+    continue if selectedMethod == 'M1' and item.method == 'M2' or selectedMethod == 'M2' and item.method == 'M1'
     for image in item.images
       items.push(_.extend({image: image, freq: (100 * count / numSurveys).toFixed(2)}, item))
+  items
+
+initSlides = (surveyData, minFreq = 0, selectedMethod = 'all') ->
+  items = generateItems(surveyData, minFreq, selectedMethod)
   ecoregionOptions = ["<option></option>"]
   for [ecoregion, ecoregionCodes] in _.pairs(surveyData.ecoregionToSiteCodes).sort()
     selected = if ecoregion == selectedEcoregion then 'selected' else ''
     ecoregionOptions.push(
       """<option value="#{ecoregion}" #{selected}>#{ecoregion} (#{ecoregionCodes.length} sites)</option>"""
     )
+  methodOptions = []
+  for method in ['all', 'M1', 'M2']
+    selected = if method == selectedMethod then 'selected' else ''
+    methodOptions.push("""<option #{selected}>#{method}</option>""")
   $slides = $('.slides')
   $slides.append(headerTemplate(
-    shownPhotos: Math.min(sampleSize, items.length)
+    shownPhotos: Math.min(SAMPLE_SIZE, items.length)
     totalPhotos: items.length
     minFreq: minFreq
     ecoregionOptions: ecoregionOptions.join('')
+    methodOptions: methodOptions.join('')
   ))
-  for item in _.sample(items, sampleSize)
+  for item in _.sample(items, SAMPLE_SIZE)
     $slides.append(flashcardTemplate(item))
   Reveal.initialize(
     width: 1000
@@ -45,21 +56,22 @@ initSlides = (surveyData, minFreq = 0) ->
 
   refreshSlides = (delay = 250) ->
     minFreq = parseFloat($('.js-min-freq').val())
+    selectedMethod = $('.js-method').val()
     $slides.html('')
     $('body').addClass('loading') if delay
     delayCallback = ->
-      initSlides(surveyData, minFreq)
+      initSlides(surveyData, minFreq, selectedMethod)
       $('body').removeClass('loading') if delay
       Reveal.toggleOverview(false)
     setTimeout(delayCallback, delay)
 
   $('.js-resample').click(refreshSlides)
-  $('.js-min-freq').change(-> refreshSlides(0))
+  $('.js-min-freq, .js-method').change(-> refreshSlides(0))
   $('.js-ecoregion').change(->
     selectedEcoregion = $('.js-ecoregion').val()
     ecoregionSiteCodes = surveyData.ecoregionToSiteCodes[selectedEcoregion]
     if ecoregionSiteCodes
-      history.pushState(null, null, '?' + $.param(sampleSize: sampleSize, siteCodes: ecoregionSiteCodes.join(',')))
+      history.pushState(null, null, '?' + $.param(siteCodes: ecoregionSiteCodes.join(',')))
       refreshSlides()
   )
 
