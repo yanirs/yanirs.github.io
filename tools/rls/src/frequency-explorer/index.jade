@@ -44,8 +44,9 @@ html(lang='en')
         td <%= commonName %>
         td <%= method %>
         td
-          a(href!='<%= url %>', target='_blank') RLS
-          = ' | '
+          span(class!="<%= url ? '' : 'hidden' %>")
+            a(href!='<%= url %>', target='_blank') RLS
+            = ' | '
           a(href!='http://www.fishbase.se/summary/<%= name.replace(" ", "-") %>.html', target='_blank') FishBase
           = ' | '
           a(href!='http://images.google.com/images?hl=en&q=<%= name.replace(" ", "+") %>&btnG=Search+Images&gbv=2',
