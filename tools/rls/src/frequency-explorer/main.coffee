@@ -6,6 +6,12 @@ util = require('../util.js.tmp')
 siteInfoTemplate = _.template($('#site-info-template').html())
 speciesCountRowTemplate = _.template($('#species-count-row-template').html())
 
+class DummyMap
+  createSiteMarker: ->
+  highlightSiteMarker: ->
+  enableDrawing: ->
+  clearSelection: ->
+
 class Map
   constructor: ->
     # Fairly zoomed out map, centred on Australia.
@@ -63,7 +69,11 @@ class Map
     @openInfoWindow.close() if @openInfoWindow
 
 util.loadSurveyData (surveyData) ->
-  map = new Map()
+  if google?
+    map = new Map()
+  else
+    map = new DummyMap()
+    $('.js-map').addClass('alert alert-danger').html('Map loading failed')
   $selectSite = $('.js-site-select-container select').select2(placeholder: 'Select sites...')
 
   populateSiteInfo = (numSurveys, speciesCounts, siteCodes) ->

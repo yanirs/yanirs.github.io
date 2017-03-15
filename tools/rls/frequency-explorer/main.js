@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var Map, siteInfoTemplate, speciesCountRowTemplate, util;
+var DummyMap, Map, siteInfoTemplate, speciesCountRowTemplate, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -13,6 +13,21 @@ util = require('../util.js.tmp');
 siteInfoTemplate = _.template($('#site-info-template').html());
 
 speciesCountRowTemplate = _.template($('#species-count-row-template').html());
+
+DummyMap = (function() {
+  function DummyMap() {}
+
+  DummyMap.prototype.createSiteMarker = function() {};
+
+  DummyMap.prototype.highlightSiteMarker = function() {};
+
+  DummyMap.prototype.enableDrawing = function() {};
+
+  DummyMap.prototype.clearSelection = function() {};
+
+  return DummyMap;
+
+})();
 
 Map = (function() {
   function Map() {
@@ -113,7 +128,12 @@ Map = (function() {
 
 util.loadSurveyData(function(surveyData) {
   var $currOptGroup, $selectSite, fn, i, len, map, populateSiteInfo, prevEcoregion, ref, site;
-  map = new Map();
+  if (typeof google !== "undefined" && google !== null) {
+    map = new Map();
+  } else {
+    map = new DummyMap();
+    $('.js-map').addClass('alert alert-danger').html('Map loading failed');
+  }
   $selectSite = $('.js-site-select-container select').select2({
     placeholder: 'Select sites...'
   });
