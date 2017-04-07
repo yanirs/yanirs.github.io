@@ -12,7 +12,7 @@ global.Reveal = require('reveal.js');
 
 util = require('../util.js.tmp');
 
-SAMPLE_SIZE = 25;
+SAMPLE_SIZE = 100;
 
 headerTemplate = _.template($('#header-template').html());
 

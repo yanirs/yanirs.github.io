@@ -19,7 +19,7 @@ class Map
     @gmap = new google.maps.Map($('.js-map')[0], {
       center: { lat: -30, lng: 150 }
       zoom: 3
-      scrollwheel: false
+      scrollwheel: true
       streetViewControl: false
     })
     @siteCodeToMarker = {}

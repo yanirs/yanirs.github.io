@@ -39,7 +39,7 @@ Map = (function() {
         lng: 150
       },
       zoom: 3,
-      scrollwheel: false,
+      scrollwheel: true,
       streetViewControl: false
     });
     this.siteCodeToMarker = {};
