@@ -1,6 +1,7 @@
 global.jQuery = global.$ = require('jquery')
 require('select2')
 global._ = require('underscore')
+lazyLoad = new (require('vanilla-lazyload'))()
 util = require('../util.js.tmp')
 
 siteInfoTemplate = _.template($('#site-info-template').html())
@@ -80,8 +81,18 @@ util.loadSurveyData (surveyData) ->
     $('#site-info').html(siteInfoTemplate(numSurveys: numSurveys, speciesCounts: speciesCounts, siteCodes: siteCodes))
     siteTableData = []
     for id, count of speciesCounts
-      siteTableData.push(_.extend({ count: count, percentage: (100 * count / numSurveys).toFixed(2) },
-                                  surveyData.species[id]))
+      rowData = _.extend({ count: count, percentage: (100 * count / numSurveys).toFixed(2) },
+                         surveyData.species[id])
+      imageCells = []
+      # Iterate over range rather than images to ensure the cell number is consistent.
+      for i in [0..4]
+        image = rowData.images[i]
+        if image
+          imageCells.push("""<td><a href="#{image}" target='_blank'><img data-original="#{image}"></a></td>""")
+        else
+          imageCells.push('<td></td>')
+      rowData.imageRow = imageCells.join('')
+      siteTableData.push(rowData)
     $speciesTableBody = $('.js-species-table tbody')
     renderTableBody = (sortColumn = '-count') ->
       $speciesTableBody.html('')
@@ -90,8 +101,12 @@ util.loadSurveyData (surveyData) ->
         cmp = (elem) -> -elem[sortColumn]
       else
         cmp = sortColumn
-      for rowData in _.sortBy(siteTableData, cmp)
+      # Assign sorted result to allow sorting by multiple columns (_.sortBy is stable)
+      siteTableData = _.sortBy(siteTableData, cmp)
+      for rowData in siteTableData
         $speciesTableBody.append(speciesCountRowTemplate(rowData))
+      $('.js-image-row').hide()
+      lazyLoad.update()
     $('.js-species-table thead a').click (event) ->
       event.preventDefault()
       renderTableBody($(this).data().sortColumn)
@@ -106,6 +121,10 @@ util.loadSurveyData (surveyData) ->
 
     $('.js-clear-selection').click ->
       $selectSite.val([]).trigger('change')
+
+    $('.js-images').click ->
+      $('.js-image-row').toggle()
+      lazyLoad.handleScroll()
 
   prevEcoregion = null
   $currOptGroup = null

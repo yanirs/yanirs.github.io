@@ -9,7 +9,7 @@ html(lang='en')
   body.loading
     .container-fluid
       .row: .map.js-map
-      .row: .col-md-12.col-lg-8.col-lg-offset-2
+      .row: .col-md-12.col-lg-10.col-lg-offset-1
         .js-error-container.hidden: .alert.alert-danger Data loading failed.
         .js-site-select-container.control-group.hidden
           // Inline style needed to work around select2 issues
@@ -18,17 +18,19 @@ html(lang='en')
 
     script#site-info-template(type='text/template')
       .row.table-heading
-        .col-sm-8
+        .col-sm-6
           | <%= _.size(speciesCounts) %> species recorded in <%= numSurveys %> survey<%= numSurveys === 1 ? '' : 's' %>
           | <%= siteCodes.length === 1 ? '' : ' across ' + siteCodes.length + ' sites' %>
-        .col-sm-4.text-right
+        .col-sm-6.text-right
           a.btn.btn-default.js-clear-selection Clear
           = ' '
           a.btn.btn-default.js-export Export
           = ' '
           a.btn.btn-default(href!='/tools/rls/flashcards/?siteCodes=' + "<%= siteCodes.join(',') %>",
                             target='_blank') Flashcards
-      .table-responsive: table.table.table-striped.species-table.js-species-table
+          = ' '
+          a.btn.btn-default.js-images Images
+      .table-responsive: table.table.table-condensed.species-table.js-species-table
         thead
           tr
             th: a(href='#', data-sort-column='name') Scientific name
@@ -52,6 +54,7 @@ html(lang='en')
           a(href!='http://images.google.com/images?hl=en&q=<%= name.replace(" ", "+") %>&btnG=Search+Images&gbv=2',
             target='_blank') Google Image
         td.text-left <%= count %> (<%= percentage %>%)
+      tr.js-image-row <%= imageRow %>
 
   script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyCB7yf2Q30bz9qnsd0wy6KvtdTGyke7Fag' +
              '&libraries=drawing,geometry')
