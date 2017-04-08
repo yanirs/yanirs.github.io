@@ -113,9 +113,9 @@ util.loadSurveyData (surveyData) ->
     renderTableBody()
 
     $('.js-export').click ->
-      csvData = 'Scientific name\tCommon name\tMethod\tSurveys seen\tTotal surveys\n'
+      csvData = 'Scientific name,Common name,Method,Surveys seen,Total surveys\n'
       for row in siteTableData
-        csvData += "#{row.name}\t#{row.commonName}\t#{row.method}\t#{row.count}\t#{numSurveys}\n"
+        csvData += """#{row.name},"#{row.commonName}",#{row.method},#{row.count},#{numSurveys}\n"""
       $(this).attr('download', 'rls-data-export.csv')
       $(this).attr('href', encodeURI("data:text/csv;charset=utf-8,#{csvData}"))
 
