@@ -23,13 +23,33 @@ html {
 
 body {
   min-height: 100%;
+  background-color: #1E2225;
 }
 
-.species-table {
-  border: 1px solid @table-border-color;
+#site-info {
+  color: #fff;
+}
 
+.species-table.table {
   td img {
     width: 250px;
+  }
+
+  tbody > tr > td {
+    border-top: 1px solid #333;
+  }
+
+  tbody > tr.image-row > td {
+    border-top: none;
+    padding-bottom: 15px;
+  }
+
+  a {
+    color: #378fc0;
+  }
+
+  a:focus, a:hover {
+    color: #d3d3d3;
   }
 }
 

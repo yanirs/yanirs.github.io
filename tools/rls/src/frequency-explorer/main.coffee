@@ -20,6 +20,7 @@ class Map
       center: { lat: -30, lng: 150 }
       zoom: 3
       streetViewControl: false
+      scrollwheel: false
     })
     @siteCodeToMarker = {}
     @siteCodeToInfoWindow = {}

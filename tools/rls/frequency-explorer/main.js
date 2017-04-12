@@ -39,7 +39,8 @@ Map = (function() {
         lng: 150
       },
       zoom: 3,
-      streetViewControl: false
+      streetViewControl: false,
+      scrollwheel: false
     });
     this.siteCodeToMarker = {};
     this.siteCodeToInfoWindow = {};
