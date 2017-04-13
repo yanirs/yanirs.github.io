@@ -70,3 +70,21 @@ exports.getQueryStringParams = ->
     splitKeyValue = keyValue.split('=')
     qsParams[splitKeyValue[0]] = decodeURIComponent(splitKeyValue[1])
   qsParams
+
+isCrossOriginFrame = ->
+  try
+    !window.top.location.hostname
+  catch
+    true
+
+exports.getFrequencyExplorerUrl = ->
+  if isCrossOriginFrame()
+    'http://devnew.reeflifesurvey.com/yanir-frequency-explorer'
+  else
+    '/tools/rls/frequency-explorer/'
+
+exports.getFlashcardsUrl = ->
+  if isCrossOriginFrame()
+    'http://devnew.reeflifesurvey.com/yanir-flashcards'
+  else
+    '/tools/rls/flashcards/'

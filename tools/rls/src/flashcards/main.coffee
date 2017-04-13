@@ -42,6 +42,7 @@ initSlides = (surveyData, minFreq = 0, selectedMethod = 'all') ->
     minFreq: minFreq
     ecoregionOptions: ecoregionOptions.join('')
     methodOptions: methodOptions.join('')
+    frequencyExplorerUrl: util.getFrequencyExplorerUrl()
   ))
   for item in _.sample(items, SAMPLE_SIZE)
     $slides.append(flashcardTemplate(item))

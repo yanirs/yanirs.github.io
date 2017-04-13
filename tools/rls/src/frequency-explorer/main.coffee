@@ -78,7 +78,12 @@ util.loadSurveyData (surveyData) ->
   $selectSite = $('.js-site-select-container select').select2(placeholder: 'Select sites...')
 
   populateSiteInfo = (numSurveys, speciesCounts, siteCodes) ->
-    $('#site-info').html(siteInfoTemplate(numSurveys: numSurveys, speciesCounts: speciesCounts, siteCodes: siteCodes))
+    $('#site-info').html(siteInfoTemplate(
+      numSurveys: numSurveys
+      speciesCounts: speciesCounts
+      siteCodes: siteCodes
+      flashcardsUrl: util.getFlashcardsUrl()
+    ))
     siteTableData = []
     for id, count of speciesCounts
       rowData = _.extend({ count: count, percentage: (100 * count / numSurveys).toFixed(2) },

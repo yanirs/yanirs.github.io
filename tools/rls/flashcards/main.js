@@ -76,7 +76,8 @@ initSlides = function(surveyData, minFreq, selectedMethod) {
     totalPhotos: items.length,
     minFreq: minFreq,
     ecoregionOptions: ecoregionOptions.join(''),
-    methodOptions: methodOptions.join('')
+    methodOptions: methodOptions.join(''),
+    frequencyExplorerUrl: util.getFrequencyExplorerUrl()
   }));
   ref3 = _.sample(items, SAMPLE_SIZE);
   for (k = 0, len2 = ref3.length; k < len2; k++) {
@@ -16877,7 +16878,7 @@ return jQuery;
 }.call(this));
 
 },{}],6:[function(require,module,exports){
-var SurveyData;
+var SurveyData, isCrossOriginFrame;
 
 SurveyData = (function() {
   function SurveyData(rawSites, rawSpecies) {
@@ -16991,6 +16992,31 @@ exports.getQueryStringParams = function() {
     qsParams[splitKeyValue[0]] = decodeURIComponent(splitKeyValue[1]);
   }
   return qsParams;
+};
+
+isCrossOriginFrame = function() {
+  var error;
+  try {
+    return !window.top.location.hostname;
+  } catch (error) {
+    return true;
+  }
+};
+
+exports.getFrequencyExplorerUrl = function() {
+  if (isCrossOriginFrame()) {
+    return 'http://devnew.reeflifesurvey.com/yanir-frequency-explorer';
+  } else {
+    return '/tools/rls/frequency-explorer/';
+  }
+};
+
+exports.getFlashcardsUrl = function() {
+  if (isCrossOriginFrame()) {
+    return 'http://devnew.reeflifesurvey.com/yanir-flashcards';
+  } else {
+    return '/tools/rls/flashcards/';
+  }
 };
 
 },{}]},{},[1]);
