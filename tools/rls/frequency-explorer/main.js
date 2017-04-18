@@ -140,7 +140,7 @@ util.loadSurveyData(function(surveyData) {
     placeholder: 'Select sites...'
   });
   populateSiteInfo = function(numSurveys, speciesCounts, siteCodes) {
-    var $speciesTableBody, count, i, id, image, imageCells, j, k, l, len, ref, ref1, ref2, renderTableBody, rowData, siteTableData, startIndex;
+    var $speciesTableBody, count, i, id, image, imageCells, j, k, len, ref, ref1, ref2, renderTableBody, rowData, siteTableData, startIndex;
     $('#site-info').html(siteInfoTemplate({
       numSurveys: numSurveys,
       speciesCounts: speciesCounts,
@@ -170,22 +170,11 @@ util.loadSurveyData(function(surveyData) {
         imageCells.push('<td></td></tr>');
         rowData.imageRows += imageCells.join('');
       }
-      imageCells = ['<td></td>'];
-      for (i = l = 3; l <= 5; i = ++l) {
-        image = rowData.images[i];
-        if (image) {
-          imageCells.push("<td><a href=\"" + image + "\" target='_blank'><img data-original=\"" + image + "\"></a></td>");
-        } else {
-          imageCells.push('<td></td>');
-        }
-      }
-      imageCells.push('<td></td>');
-      rowData.imageRow2 = imageCells.join('');
       siteTableData.push(rowData);
     }
     $speciesTableBody = $('.js-species-table tbody');
     renderTableBody = function(sortColumn) {
-      var cmp, len1, m;
+      var cmp, l, len1;
       if (sortColumn == null) {
         sortColumn = '-count';
       }
@@ -199,8 +188,8 @@ util.loadSurveyData(function(surveyData) {
         cmp = sortColumn;
       }
       siteTableData = _.sortBy(siteTableData, cmp);
-      for (m = 0, len1 = siteTableData.length; m < len1; m++) {
-        rowData = siteTableData[m];
+      for (l = 0, len1 = siteTableData.length; l < len1; l++) {
+        rowData = siteTableData[l];
         $speciesTableBody.append(speciesCountRowTemplate(rowData));
       }
       $('.js-image-row').hide();
@@ -212,10 +201,10 @@ util.loadSurveyData(function(surveyData) {
     });
     renderTableBody();
     $('.js-export').click(function() {
-      var csvData, len1, m, row;
+      var csvData, l, len1, row;
       csvData = 'Scientific name,Common name,Method,Surveys seen,Total surveys\n';
-      for (m = 0, len1 = siteTableData.length; m < len1; m++) {
-        row = siteTableData[m];
+      for (l = 0, len1 = siteTableData.length; l < len1; l++) {
+        row = siteTableData[l];
         csvData += row.name + ",\"" + row.commonName + "\"," + row.method + "," + row.count + "," + numSurveys + "\n";
       }
       $(this).attr('download', 'rls-data-export.csv');
@@ -17899,7 +17888,7 @@ exports.isCrossOriginFrame = function() {
 
 exports.getFrequencyExplorerUrl = function() {
   if (exports.isCrossOriginFrame()) {
-    return 'http://reeflifesurvey.com/reef-life-survey/frequency-explorer/';
+    return 'http://reeflifesurvey.com/frequency-explorer/';
   } else {
     return '/tools/rls/frequency-explorer/';
   }
@@ -17907,7 +17896,7 @@ exports.getFrequencyExplorerUrl = function() {
 
 exports.getFlashcardsUrl = function() {
   if (exports.isCrossOriginFrame()) {
-    return 'http://reeflifesurvey.com/reef-life-survey/flashcards/';
+    return 'http://reeflifesurvey.com/flashcards/';
   } else {
     return '/tools/rls/flashcards/';
   }
