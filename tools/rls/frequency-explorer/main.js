@@ -140,7 +140,7 @@ util.loadSurveyData(function(surveyData) {
     placeholder: 'Select sites...'
   });
   populateSiteInfo = function(numSurveys, speciesCounts, siteCodes) {
-    var $speciesTableBody, count, i, id, image, imageCells, j, k, l, len, ref, ref1, ref2, renderTableBody, rowData, siteTableData, startIndex;
+    var $speciesTableBody, count, i, id, image, imageCells, j, k, len, ref, ref1, ref2, renderTableBody, rowData, siteTableData, startIndex;
     $('#site-info').html(siteInfoTemplate({
       numSurveys: numSurveys,
       speciesCounts: speciesCounts,
@@ -155,37 +155,26 @@ util.loadSurveyData(function(surveyData) {
         percentage: (100 * count / numSurveys).toFixed(2)
       }, surveyData.species[id]);
       rowData.imageRows = '';
-      ref = [0, 3];
+      ref = [0];
       for (j = 0, len = ref.length; j < len; j++) {
         startIndex = ref[j];
-        imageCells = ['<tr class="image-row js-image-row"><td></td>'];
-        for (i = k = ref1 = startIndex, ref2 = startIndex + 2; ref1 <= ref2 ? k <= ref2 : k >= ref2; i = ref1 <= ref2 ? ++k : --k) {
+        imageCells = ['<div class="row image-row js-image-row">'];
+        for (i = k = ref1 = startIndex, ref2 = startIndex + 5; ref1 <= ref2 ? k <= ref2 : k >= ref2; i = ref1 <= ref2 ? ++k : --k) {
           image = rowData.images[i];
           if (image) {
-            imageCells.push("<td><a href=\"" + image + "\" target='_blank'><img data-original=\"" + image + "\"></a></td>");
+            imageCells.push("<div class=\"col-sm-2\"><a href=\"" + image + "\" target=\"_blank\"><img data-original=\"" + image + "\"></a></div>");
           } else {
-            imageCells.push('<td></td>');
+            imageCells.push('<div class="col-sm-2"></div>');
           }
         }
-        imageCells.push('<td></td></tr>');
+        imageCells.push('</div>');
         rowData.imageRows += imageCells.join('');
       }
-      imageCells = ['<td></td>'];
-      for (i = l = 3; l <= 5; i = ++l) {
-        image = rowData.images[i];
-        if (image) {
-          imageCells.push("<td><a href=\"" + image + "\" target='_blank'><img data-original=\"" + image + "\"></a></td>");
-        } else {
-          imageCells.push('<td></td>');
-        }
-      }
-      imageCells.push('<td></td>');
-      rowData.imageRow2 = imageCells.join('');
       siteTableData.push(rowData);
     }
-    $speciesTableBody = $('.js-species-table tbody');
+    $speciesTableBody = $('.js-species-table-body');
     renderTableBody = function(sortColumn) {
-      var cmp, len1, m;
+      var cmp, l, len1;
       if (sortColumn == null) {
         sortColumn = '-count';
       }
@@ -199,23 +188,23 @@ util.loadSurveyData(function(surveyData) {
         cmp = sortColumn;
       }
       siteTableData = _.sortBy(siteTableData, cmp);
-      for (m = 0, len1 = siteTableData.length; m < len1; m++) {
-        rowData = siteTableData[m];
+      for (l = 0, len1 = siteTableData.length; l < len1; l++) {
+        rowData = siteTableData[l];
         $speciesTableBody.append(speciesCountRowTemplate(rowData));
       }
       $('.js-image-row').hide();
       return lazyLoad.update();
     };
-    $('.js-species-table thead a').click(function(event) {
+    $('.js-species-table-head a').click(function(event) {
       event.preventDefault();
       return renderTableBody($(this).data().sortColumn);
     });
     renderTableBody();
     $('.js-export').click(function() {
-      var csvData, len1, m, row;
+      var csvData, l, len1, row;
       csvData = 'Scientific name,Common name,Method,Surveys seen,Total surveys\n';
-      for (m = 0, len1 = siteTableData.length; m < len1; m++) {
-        row = siteTableData[m];
+      for (l = 0, len1 = siteTableData.length; l < len1; l++) {
+        row = siteTableData[l];
         csvData += row.name + ",\"" + row.commonName + "\"," + row.method + "," + row.count + "," + numSurveys + "\n";
       }
       $(this).attr('download', 'rls-data-export.csv');

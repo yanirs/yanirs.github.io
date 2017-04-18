@@ -89,19 +89,19 @@ util.loadSurveyData (surveyData) ->
       rowData = _.extend({ count: count, percentage: (100 * count / numSurveys).toFixed(2) },
                          surveyData.species[id])
       rowData.imageRows = ''
-      for startIndex in [0, 3]
-        imageCells = ['<tr class="image-row js-image-row"><td></td>']
+      for startIndex in [0]
+        imageCells = ['<div class="row image-row js-image-row">']
         # Iterate over range rather than images to ensure the number of cells is always 5.
-        for i in [startIndex..startIndex + 2]
+        for i in [startIndex..startIndex + 5]
           image = rowData.images[i]
           if image
-            imageCells.push("""<td><a href="#{image}" target='_blank'><img data-original="#{image}"></a></td>""")
+            imageCells.push("""<div class="col-sm-2"><a href="#{image}" target="_blank"><img data-original="#{image}"></a></div>""")
           else
-            imageCells.push('<td></td>')
-        imageCells.push('<td></td></tr>')
+            imageCells.push('<div class="col-sm-2"></div>')
+        imageCells.push('</div>')
         rowData.imageRows += imageCells.join('')
       siteTableData.push(rowData)
-    $speciesTableBody = $('.js-species-table tbody')
+    $speciesTableBody = $('.js-species-table-body')
     renderTableBody = (sortColumn = '-count') ->
       $speciesTableBody.html('')
       if sortColumn[0] == '-'
@@ -115,7 +115,7 @@ util.loadSurveyData (surveyData) ->
         $speciesTableBody.append(speciesCountRowTemplate(rowData))
       $('.js-image-row').hide()
       lazyLoad.update()
-    $('.js-species-table thead a').click (event) ->
+    $('.js-species-table-head a').click (event) ->
       event.preventDefault()
       renderTableBody($(this).data().sortColumn)
     renderTableBody()

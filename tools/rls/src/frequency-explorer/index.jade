@@ -30,23 +30,22 @@ html(lang='en')
                             target='_blank') Flashcards
           = ' '
           a.btn.btn-default.js-images Images
-      .table-responsive: table.table.table-condensed.species-table.js-species-table
-        thead
-          tr
-            th: a(href='#', data-sort-column='name') Scientific name
-            th: a(href='#', data-sort-column='commonName') Common name
-            th: a(href='#', data-sort-column='method') Method
-            th: a(href='#', data-sort-column='-count') Surveys seen
-            th Links
-        tbody
+      .table-responsive: .species-table.js-species-table
+        .row.js-species-table-head
+          .col-sm-4: a(href='#', data-sort-column='name') Scientific name
+          .col-sm-4: a(href='#', data-sort-column='commonName') Common name
+          .col-sm-1: a(href='#', data-sort-column='method') Method
+          .col-sm-1: a(href='#', data-sort-column='-count') Surveys seen
+          .col-sm-2 Links
+        .js-species-table-body
 
     script#species-count-row-template(type='text/template')
-      tr
-        td <i><%= name %></i>
-        td <%= commonName %>
-        td <%= method %>
-        td.text-left <%= count %> (<%= percentage %>%)
-        td
+      .row
+        .col-sm-4 <i><%= name %></i>
+        .col-sm-4 <%= commonName %>
+        .col-sm-1 <%= method %>
+        .col-sm-1 <%= count %> (<%= percentage %>%)
+        .col-sm-2
           span(class!="<%= url ? '' : 'hidden' %>")
             a(href!='<%= url %>', target='_blank') RLS
             = ' | '
