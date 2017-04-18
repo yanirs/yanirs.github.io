@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var SAMPLE_SIZE, flashcardTemplate, generateItems, headerTemplate, initSlides, selectedEcoregion, util;
+var REVEAL_SETTINGS, SAMPLE_SIZE, flashcardTemplate, generateItems, headerTemplate, initSlides, selectedEcoregion, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -13,6 +13,21 @@ global.Reveal = require('reveal.js');
 util = require('../util.js.tmp');
 
 SAMPLE_SIZE = 100;
+
+REVEAL_SETTINGS = {
+  width: 1000,
+  height: 760,
+  margin: 0.1,
+  history: true,
+  theme: 'night',
+  slideNumber: true
+};
+
+if (util.isCrossOriginFrame()) {
+  REVEAL_SETTINGS.height = '100%';
+  REVEAL_SETTINGS.center = false;
+  delete REVEAL_SETTINGS.margin;
+}
 
 headerTemplate = _.template($('#header-template').html());
 
@@ -84,14 +99,7 @@ initSlides = function(surveyData, minFreq, selectedMethod) {
     item = ref3[k];
     $slides.append(flashcardTemplate(item));
   }
-  Reveal.initialize({
-    width: 1000,
-    height: 760,
-    margin: 0.1,
-    history: true,
-    theme: 'night',
-    slideNumber: true
-  });
+  Reveal.initialize(REVEAL_SETTINGS);
   refreshSlides = function(delay) {
     var delayCallback;
     if (delay == null) {
@@ -16878,7 +16886,7 @@ return jQuery;
 }.call(this));
 
 },{}],6:[function(require,module,exports){
-var SurveyData, isCrossOriginFrame;
+var SurveyData;
 
 SurveyData = (function() {
   function SurveyData(rawSites, rawSpecies) {
@@ -16994,7 +17002,7 @@ exports.getQueryStringParams = function() {
   return qsParams;
 };
 
-isCrossOriginFrame = function() {
+exports.isCrossOriginFrame = function() {
   var error;
   try {
     return !window.top.location.hostname;
@@ -17004,16 +17012,16 @@ isCrossOriginFrame = function() {
 };
 
 exports.getFrequencyExplorerUrl = function() {
-  if (isCrossOriginFrame()) {
-    return 'http://devnew.reeflifesurvey.com/yanir-frequency-explorer';
+  if (exports.isCrossOriginFrame()) {
+    return 'http://reeflifesurvey.com/reef-life-survey/frequency-explorer/';
   } else {
     return '/tools/rls/frequency-explorer/';
   }
 };
 
 exports.getFlashcardsUrl = function() {
-  if (isCrossOriginFrame()) {
-    return 'http://devnew.reeflifesurvey.com/yanir-flashcards';
+  if (exports.isCrossOriginFrame()) {
+    return 'http://reeflifesurvey.com/reef-life-survey/flashcards/';
   } else {
     return '/tools/rls/flashcards/';
   }

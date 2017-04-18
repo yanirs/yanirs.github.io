@@ -36,25 +36,23 @@ html(lang='en')
             th: a(href='#', data-sort-column='name') Scientific name
             th: a(href='#', data-sort-column='commonName') Common name
             th: a(href='#', data-sort-column='method') Method
-            th Links
             th: a(href='#', data-sort-column='-count') Surveys seen
+            th Links
         tbody
 
     script#species-count-row-template(type='text/template')
       tr
-        td <%= name %>
+        td <i><%= name %></i>
         td <%= commonName %>
         td <%= method %>
+        td.text-left <%= count %> (<%= percentage %>%)
         td
           span(class!="<%= url ? '' : 'hidden' %>")
             a(href!='<%= url %>', target='_blank') RLS
             = ' | '
-          a(href!='http://www.fishbase.se/summary/<%= name.replace(" ", "-") %>.html', target='_blank') FishBase
-          = ' | '
           a(href!='http://images.google.com/images?hl=en&q=<%= name.replace(" ", "+") %>&btnG=Search+Images&gbv=2',
-            target='_blank') Google Image
-        td.text-left <%= count %> (<%= percentage %>%)
-      tr.image-row.js-image-row <%= imageRow %>
+            target='_blank') Google
+      <%= imageRows %>
 
   script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyCB7yf2Q30bz9qnsd0wy6KvtdTGyke7Fag' +
              '&libraries=drawing,geometry')

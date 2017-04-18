@@ -15,7 +15,6 @@ html(lang='en')
 
       script#header-template(type='text/template')
         section
-          h1 Reef Life Survey flashcards
           ul
             li Navigate using the arrows or swipe gestures.
             li.
@@ -30,8 +29,8 @@ html(lang='en')
       script#flashcard-template(type='text/template')
         section
           section
-            h4 Identify this animal
-            h5: small Go down to see its name
+            p.center Identify this animal
+            p.center: small Go down to see its name
 
             a(href!='<%= image %>', target='_blank'): img.fish-img(src!='<%= image %>')
             .img-source-caption

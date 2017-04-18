@@ -88,15 +88,18 @@ util.loadSurveyData (surveyData) ->
     for id, count of speciesCounts
       rowData = _.extend({ count: count, percentage: (100 * count / numSurveys).toFixed(2) },
                          surveyData.species[id])
-      imageCells = []
-      # Iterate over range rather than images to ensure the cell number is consistent.
-      for i in [0..4]
-        image = rowData.images[i]
-        if image
-          imageCells.push("""<td><a href="#{image}" target='_blank'><img data-original="#{image}"></a></td>""")
-        else
-          imageCells.push('<td></td>')
-      rowData.imageRow = imageCells.join('')
+      rowData.imageRows = ''
+      for startIndex in [0, 3]
+        imageCells = ['<tr class="image-row js-image-row"><td></td>']
+        # Iterate over range rather than images to ensure the number of cells is always 5.
+        for i in [startIndex..startIndex + 2]
+          image = rowData.images[i]
+          if image
+            imageCells.push("""<td><a href="#{image}" target='_blank'><img data-original="#{image}"></a></td>""")
+          else
+            imageCells.push('<td></td>')
+        imageCells.push('<td></td></tr>')
+        rowData.imageRows += imageCells.join('')
       siteTableData.push(rowData)
     $speciesTableBody = $('.js-species-table tbody')
     renderTableBody = (sortColumn = '-count') ->

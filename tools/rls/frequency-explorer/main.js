@@ -140,7 +140,7 @@ util.loadSurveyData(function(surveyData) {
     placeholder: 'Select sites...'
   });
   populateSiteInfo = function(numSurveys, speciesCounts, siteCodes) {
-    var $speciesTableBody, count, i, id, image, imageCells, j, renderTableBody, rowData, siteTableData;
+    var $speciesTableBody, count, i, id, image, imageCells, j, k, l, len, ref, ref1, ref2, renderTableBody, rowData, siteTableData, startIndex;
     $('#site-info').html(siteInfoTemplate({
       numSurveys: numSurveys,
       speciesCounts: speciesCounts,
@@ -154,8 +154,24 @@ util.loadSurveyData(function(surveyData) {
         count: count,
         percentage: (100 * count / numSurveys).toFixed(2)
       }, surveyData.species[id]);
-      imageCells = [];
-      for (i = j = 0; j <= 4; i = ++j) {
+      rowData.imageRows = '';
+      ref = [0, 3];
+      for (j = 0, len = ref.length; j < len; j++) {
+        startIndex = ref[j];
+        imageCells = ['<tr class="image-row js-image-row"><td></td>'];
+        for (i = k = ref1 = startIndex, ref2 = startIndex + 2; ref1 <= ref2 ? k <= ref2 : k >= ref2; i = ref1 <= ref2 ? ++k : --k) {
+          image = rowData.images[i];
+          if (image) {
+            imageCells.push("<td><a href=\"" + image + "\" target='_blank'><img data-original=\"" + image + "\"></a></td>");
+          } else {
+            imageCells.push('<td></td>');
+          }
+        }
+        imageCells.push('<td></td></tr>');
+        rowData.imageRows += imageCells.join('');
+      }
+      imageCells = ['<td></td>'];
+      for (i = l = 3; l <= 5; i = ++l) {
         image = rowData.images[i];
         if (image) {
           imageCells.push("<td><a href=\"" + image + "\" target='_blank'><img data-original=\"" + image + "\"></a></td>");
@@ -163,12 +179,13 @@ util.loadSurveyData(function(surveyData) {
           imageCells.push('<td></td>');
         }
       }
-      rowData.imageRow = imageCells.join('');
+      imageCells.push('<td></td>');
+      rowData.imageRow2 = imageCells.join('');
       siteTableData.push(rowData);
     }
     $speciesTableBody = $('.js-species-table tbody');
     renderTableBody = function(sortColumn) {
-      var cmp, k, len;
+      var cmp, len1, m;
       if (sortColumn == null) {
         sortColumn = '-count';
       }
@@ -182,8 +199,8 @@ util.loadSurveyData(function(surveyData) {
         cmp = sortColumn;
       }
       siteTableData = _.sortBy(siteTableData, cmp);
-      for (k = 0, len = siteTableData.length; k < len; k++) {
-        rowData = siteTableData[k];
+      for (m = 0, len1 = siteTableData.length; m < len1; m++) {
+        rowData = siteTableData[m];
         $speciesTableBody.append(speciesCountRowTemplate(rowData));
       }
       $('.js-image-row').hide();
@@ -195,10 +212,10 @@ util.loadSurveyData(function(surveyData) {
     });
     renderTableBody();
     $('.js-export').click(function() {
-      var csvData, k, len, row;
+      var csvData, len1, m, row;
       csvData = 'Scientific name,Common name,Method,Surveys seen,Total surveys\n';
-      for (k = 0, len = siteTableData.length; k < len; k++) {
-        row = siteTableData[k];
+      for (m = 0, len1 = siteTableData.length; m < len1; m++) {
+        row = siteTableData[m];
         csvData += row.name + ",\"" + row.commonName + "\"," + row.method + "," + row.count + "," + numSurveys + "\n";
       }
       $(this).attr('download', 'rls-data-export.csv');
@@ -17755,7 +17772,7 @@ S2.define('jquery.select2',[
 "use strict";function _classCallCheck(a,b){if(!(a instanceof b))throw new TypeError("Cannot call a class as a function")}var _extends=Object.assign||function(a){for(var b=1;b<arguments.length;b++){var c=arguments[b];for(var d in c)Object.prototype.hasOwnProperty.call(c,d)&&(a[d]=c[d])}return a},_createClass=function(){function a(a,b){for(var c=0;c<b.length;c++){var d=b[c];d.enumerable=d.enumerable||!1,d.configurable=!0,"value"in d&&(d.writable=!0),Object.defineProperty(a,d.key,d)}}return function(b,c,d){return c&&a(b.prototype,c),d&&a(b,d),b}}(),_typeof="function"==typeof Symbol&&"symbol"==typeof Symbol.iterator?function(a){return typeof a}:function(a){return a&&"function"==typeof Symbol&&a.constructor===Symbol&&a!==Symbol.prototype?"symbol":typeof a};!function(a,b){"function"==typeof define&&define.amd?define([],b):"object"===("undefined"==typeof exports?"undefined":_typeof(exports))?module.exports=b():a.LazyLoad=b()}(window,function(){var a=!("onscroll"in window)||/glebot/.test(navigator.userAgent),b=function(a){return a.getBoundingClientRect().top+window.pageYOffset-a.ownerDocument.documentElement.clientTop},c=function(a,c,d){return(c===window?window.innerHeight+window.pageYOffset:b(c)+c.offsetHeight)<=b(a)-d},d=function(a){return a.getBoundingClientRect().left+window.pageXOffset-a.ownerDocument.documentElement.clientLeft},e=function(a,b,c){var e=window.innerWidth;return(b===window?e+window.pageXOffset:d(b)+e)<=d(a)-c},f=function(a,c,d){return(c===window?window.pageYOffset:b(c))>=b(a)+d+a.offsetHeight},g=function(a,b,c){return(b===window?window.pageXOffset:d(b))>=d(a)+c+a.offsetWidth},h=function(a,b,d){return!(c(a,b,d)||f(a,b,d)||e(a,b,d)||g(a,b,d))},i=function(a,b){a&&a(b)},j=function(a){var b=new l(a),c=new CustomEvent("LazyLoad::Initialized",{detail:{instance:b}});window.dispatchEvent(c)},k={elements_selector:"img",container:window,threshold:300,throttle:150,data_src:"original",data_srcset:"original-set",class_loading:"loading",class_loaded:"loaded",class_error:"error",skip_invisible:!0,callback_load:null,callback_error:null,callback_set:null,callback_processed:null},l=function(){function b(a){_classCallCheck(this,b),this._settings=_extends({},k,a),this._queryOriginNode=this._settings.container===window?document:this._settings.container,this._previousLoopTime=0,this._loopTimeout=null,this._boundHandleScroll=this.handleScroll.bind(this),window.addEventListener("resize",this._boundHandleScroll),this.update()}return _createClass(b,[{key:"_setSourcesForPicture",value:function(a,b){var c=a.parentElement;if("PICTURE"===c.tagName)for(var d=0;d<c.children.length;d++){var e=c.children[d];if("SOURCE"===e.tagName){var f=e.getAttribute("data-"+b);f&&e.setAttribute("srcset",f)}}}},{key:"_setSources",value:function(a,b,c){var d=a.tagName,e=a.getAttribute("data-"+c);if("IMG"===d){this._setSourcesForPicture(a,b);var f=a.getAttribute("data-"+b);return f&&a.setAttribute("srcset",f),void(e&&a.setAttribute("src",e))}if("IFRAME"===d)return void(e&&a.setAttribute("src",e));e&&(a.style.backgroundImage="url("+e+")")}},{key:"_showOnAppear",value:function(a){var b=this._settings,c=function c(){b&&(a.removeEventListener("load",d),a.removeEventListener("error",c),a.classList.remove(b.class_loading),a.classList.add(b.class_error),i(b.callback_error,a))},d=function d(){b&&(a.classList.remove(b.class_loading),a.classList.add(b.class_loaded),a.removeEventListener("load",d),a.removeEventListener("error",c),i(b.callback_load,a))};"IMG"!==a.tagName&&"IFRAME"!==a.tagName||(a.addEventListener("load",d),a.addEventListener("error",c),a.classList.add(b.class_loading)),this._setSources(a,b.data_srcset,b.data_src),i(b.callback_set,a)}},{key:"_loopThroughElements",value:function(){var b=this._settings,c=this._elements,d=c?c.length:0,e=void 0,f=[];for(e=0;e<d;e++){var g=c[e];b.skip_invisible&&null===g.offsetParent||(a||h(g,b.container,b.threshold))&&(this._showOnAppear(g),f.push(e),g.wasProcessed=!0)}for(;f.length>0;)c.splice(f.pop(),1),i(b.callback_processed,c.length);0===d&&this._stopScrollHandler()}},{key:"_purgeElements",value:function(){var a=this._elements,b=a.length,c=void 0,d=[];for(c=0;c<b;c++){a[c].wasProcessed&&d.push(c)}for(;d.length>0;)a.splice(d.pop(),1)}},{key:"_startScrollHandler",value:function(){this._isHandlingScroll||(this._isHandlingScroll=!0,this._settings.container.addEventListener("scroll",this._boundHandleScroll))}},{key:"_stopScrollHandler",value:function(){this._isHandlingScroll&&(this._isHandlingScroll=!1,this._settings.container.removeEventListener("scroll",this._boundHandleScroll))}},{key:"handleScroll",value:function(){var a=this._settings.throttle;if(0!==a){var b=function(){(new Date).getTime()},c=b(),d=a-(c-this._previousLoopTime);d<=0||d>a?(this._loopTimeout&&(clearTimeout(this._loopTimeout),this._loopTimeout=null),this._previousLoopTime=c,this._loopThroughElements()):this._loopTimeout||(this._loopTimeout=setTimeout(function(){this._previousLoopTime=b(),this._loopTimeout=null,this._loopThroughElements()}.bind(this),d))}else this._loopThroughElements()}},{key:"update",value:function(){this._elements=Array.prototype.slice.call(this._queryOriginNode.querySelectorAll(this._settings.elements_selector)),this._purgeElements(),this._loopThroughElements(),this._startScrollHandler()}},{key:"destroy",value:function(){window.removeEventListener("resize",this._boundHandleScroll),this._loopTimeout&&(clearTimeout(this._loopTimeout),this._loopTimeout=null),this._stopScrollHandler(),this._elements=null,this._queryOriginNode=null,this._settings=null}}]),b}(),m=window.lazyLoadOptions;return m&&function(a){var b=a.length;if(b)for(var c=0;c<b;c++)j(a[c]);else j(a)}(m),l});
 //# sourceMappingURL=lazyload.transpiled.min.js.map
 },{}],6:[function(require,module,exports){
-var SurveyData, isCrossOriginFrame;
+var SurveyData;
 
 SurveyData = (function() {
   function SurveyData(rawSites, rawSpecies) {
@@ -17871,7 +17888,7 @@ exports.getQueryStringParams = function() {
   return qsParams;
 };
 
-isCrossOriginFrame = function() {
+exports.isCrossOriginFrame = function() {
   var error;
   try {
     return !window.top.location.hostname;
@@ -17881,16 +17898,16 @@ isCrossOriginFrame = function() {
 };
 
 exports.getFrequencyExplorerUrl = function() {
-  if (isCrossOriginFrame()) {
-    return 'http://devnew.reeflifesurvey.com/yanir-frequency-explorer';
+  if (exports.isCrossOriginFrame()) {
+    return 'http://reeflifesurvey.com/reef-life-survey/frequency-explorer/';
   } else {
     return '/tools/rls/frequency-explorer/';
   }
 };
 
 exports.getFlashcardsUrl = function() {
-  if (isCrossOriginFrame()) {
-    return 'http://devnew.reeflifesurvey.com/yanir-flashcards';
+  if (exports.isCrossOriginFrame()) {
+    return 'http://reeflifesurvey.com/reef-life-survey/flashcards/';
   } else {
     return '/tools/rls/flashcards/';
   }

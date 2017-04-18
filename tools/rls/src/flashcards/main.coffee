@@ -5,6 +5,17 @@ global.Reveal = require('reveal.js')
 util = require('../util.js.tmp')
 
 SAMPLE_SIZE = 100
+REVEAL_SETTINGS =
+  width: 1000
+  height: 760
+  margin: 0.1
+  history: true
+  theme: 'night'
+  slideNumber: true
+if util.isCrossOriginFrame()
+  REVEAL_SETTINGS.height = '100%'
+  REVEAL_SETTINGS.center = false
+  delete REVEAL_SETTINGS.margin
 
 headerTemplate = _.template($('#header-template').html())
 flashcardTemplate = _.template($('#flashcard-template').html())
@@ -46,14 +57,7 @@ initSlides = (surveyData, minFreq = 0, selectedMethod = 'all') ->
   ))
   for item in _.sample(items, SAMPLE_SIZE)
     $slides.append(flashcardTemplate(item))
-  Reveal.initialize(
-    width: 1000
-    height: 760
-    margin: 0.1
-    history: true
-    theme: 'night'
-    slideNumber: true
-  )
+  Reveal.initialize(REVEAL_SETTINGS)
 
   refreshSlides = (delay = 250) ->
     minFreq = parseFloat($('.js-min-freq').val())
