@@ -21,9 +21,11 @@ headerTemplate = _.template($('#header-template').html())
 flashcardTemplate = _.template($('#flashcard-template').html())
 selectedEcoregion = null
 
+getSelectedSites = ->
+  util.getQueryStringParams().siteCodes?.split(',') ? []
+
 generateItems = (surveyData, minFreq, selectedMethod) ->
-  queryParams = util.getQueryStringParams()
-  [numSurveys, speciesCounts] = surveyData.sumSites(queryParams.siteCodes?.split(',') ? [])
+  [numSurveys, speciesCounts] = surveyData.sumSites(getSelectedSites())
   minCount = numSurveys * minFreq / 100
   items = []
   for id, count of speciesCounts
@@ -53,7 +55,8 @@ initSlides = (surveyData, minFreq = 0, selectedMethod = 'all') ->
     minFreq: minFreq
     ecoregionOptions: ecoregionOptions.join('')
     methodOptions: methodOptions.join('')
-    frequencyExplorerUrl: util.getFrequencyExplorerUrl()
+    frequencyExplorerUrl: util.getFrequencyExplorerUrl(),
+    numSelectedSites: getSelectedSites().length
   ))
   for item in _.sample(items, SAMPLE_SIZE)
     $slides.append(flashcardTemplate(item))

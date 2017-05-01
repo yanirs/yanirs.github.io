@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var REVEAL_SETTINGS, SAMPLE_SIZE, flashcardTemplate, generateItems, headerTemplate, initSlides, selectedEcoregion, util;
+var REVEAL_SETTINGS, SAMPLE_SIZE, flashcardTemplate, generateItems, getSelectedSites, headerTemplate, initSlides, selectedEcoregion, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -35,10 +35,14 @@ flashcardTemplate = _.template($('#flashcard-template').html());
 
 selectedEcoregion = null;
 
+getSelectedSites = function() {
+  var ref, ref1;
+  return (ref = (ref1 = util.getQueryStringParams().siteCodes) != null ? ref1.split(',') : void 0) != null ? ref : [];
+};
+
 generateItems = function(surveyData, minFreq, selectedMethod) {
-  var count, i, id, image, item, items, len, minCount, numSurveys, queryParams, ref, ref1, ref2, ref3, speciesCounts;
-  queryParams = util.getQueryStringParams();
-  ref2 = surveyData.sumSites((ref = (ref1 = queryParams.siteCodes) != null ? ref1.split(',') : void 0) != null ? ref : []), numSurveys = ref2[0], speciesCounts = ref2[1];
+  var count, i, id, image, item, items, len, minCount, numSurveys, ref, ref1, speciesCounts;
+  ref = surveyData.sumSites(getSelectedSites()), numSurveys = ref[0], speciesCounts = ref[1];
   minCount = numSurveys * minFreq / 100;
   items = [];
   for (id in speciesCounts) {
@@ -50,9 +54,9 @@ generateItems = function(surveyData, minFreq, selectedMethod) {
     if (selectedMethod === 'M1' && item.method === 'M2' || selectedMethod === 'M2' && item.method === 'M1') {
       continue;
     }
-    ref3 = item.images;
-    for (i = 0, len = ref3.length; i < len; i++) {
-      image = ref3[i];
+    ref1 = item.images;
+    for (i = 0, len = ref1.length; i < len; i++) {
+      image = ref1[i];
       items.push(_.extend({
         image: image,
         freq: (100 * count / numSurveys).toFixed(2)
@@ -92,7 +96,8 @@ initSlides = function(surveyData, minFreq, selectedMethod) {
     minFreq: minFreq,
     ecoregionOptions: ecoregionOptions.join(''),
     methodOptions: methodOptions.join(''),
-    frequencyExplorerUrl: util.getFrequencyExplorerUrl()
+    frequencyExplorerUrl: util.getFrequencyExplorerUrl(),
+    numSelectedSites: getSelectedSites().length
   }));
   ref3 = _.sample(items, SAMPLE_SIZE);
   for (k = 0, len2 = ref3.length; k < len2; k++) {

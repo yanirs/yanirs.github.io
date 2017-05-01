@@ -15,16 +15,19 @@ html(lang='en')
 
       script#header-template(type='text/template')
         section
-          ul
+          ul(class!="<%= numSelectedSites ? '' : 'hidden' %>")
             li Navigate using the arrows or swipe gestures.
             li.
               Showing <%= shownPhotos %> out of the <%= totalPhotos %> photos of species that were recorded on at
               least <input class="js-min-freq" type="number" min="0" max="100" step="1" value="<%= minFreq %>">% of
               <select class="js-method"><%= methodOptions %></select> surveys in the selected sites. Change the
               percentage or method, or <a href="#" class="js-resample">tap here</a> to see a different sample of photos.
+          ul
             li.
-              To change the selected sites, use the <a href="<%= frequencyExplorerUrl %>" target="_blank">Frequency
-              Explorer</a> or choose an ecoregion: <select class="js-ecoregion"><%= ecoregionOptions %></select>
+              To select sites, use the <a href="<%= frequencyExplorerUrl %>" target="_blank">Frequency
+              Explorer</a> or choose a
+              <a href="https://en.wikipedia.org/wiki/List_of_marine_ecoregions" target="_blank">marine ecoregion</a>:
+              <select class="js-ecoregion"><%= ecoregionOptions %></select>
 
       script#flashcard-template(type='text/template')
         section
