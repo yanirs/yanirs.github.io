@@ -5,6 +5,8 @@ Web-based tools to explore [RLS](http://reeflifesurvey.com) data:
 * RLS Frequency Explorer: Summarise the frequency of species across sites
 * RLS Flashcards: Study species by frequency and area
 
+See [this blog post](https://yanirseroussi.com/2017/06/03/exploring-and-visualising-reef-life-survey-data/) for more info.
+
 ## Setup
 
 1. Run `npm install` to install all the required Node.js packages
