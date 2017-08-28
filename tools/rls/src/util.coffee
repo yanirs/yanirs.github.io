@@ -79,12 +79,12 @@ exports.isCrossOriginFrame = ->
 
 exports.getFrequencyExplorerUrl = ->
   if exports.isCrossOriginFrame()
-    'http://reeflifesurvey.com/frequency-explorer/'
+    'https://reeflifesurvey.com/frequency-explorer/'
   else
     '/tools/rls/frequency-explorer/'
 
 exports.getFlashcardsUrl = ->
   if exports.isCrossOriginFrame()
-    'http://reeflifesurvey.com/flashcards/'
+    'https://reeflifesurvey.com/flashcards/'
   else
     '/tools/rls/flashcards/'

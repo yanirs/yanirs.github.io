@@ -17929,7 +17929,7 @@ exports.isCrossOriginFrame = function() {
 
 exports.getFrequencyExplorerUrl = function() {
   if (exports.isCrossOriginFrame()) {
-    return 'http://reeflifesurvey.com/frequency-explorer/';
+    return 'https://reeflifesurvey.com/frequency-explorer/';
   } else {
     return '/tools/rls/frequency-explorer/';
   }
@@ -17937,7 +17937,7 @@ exports.getFrequencyExplorerUrl = function() {
 
 exports.getFlashcardsUrl = function() {
   if (exports.isCrossOriginFrame()) {
-    return 'http://reeflifesurvey.com/flashcards/';
+    return 'https://reeflifesurvey.com/flashcards/';
   } else {
     return '/tools/rls/flashcards/';
   }
