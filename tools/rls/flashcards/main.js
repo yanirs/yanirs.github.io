@@ -17117,7 +17117,7 @@ SurveyData = (function() {
   };
 
   SurveyData.prototype._processRawSpecies = function(rawSpecies) {
-    var commonNames, id, images, method, name, ref, ref1, results, url;
+    var commonNames, id, image, images, method, name, ref, ref1, results, url;
     this.species = {};
     results = [];
     for (id in rawSpecies) {
@@ -17136,7 +17136,15 @@ SurveyData = (function() {
               return 'Both';
           }
         })(),
-        images: images
+        images: (function() {
+          var i, len, results1;
+          results1 = [];
+          for (i = 0, len = images.length; i < len; i++) {
+            image = images[i];
+            results1.push(image.replace('http://', 'https://'));
+          }
+          return results1;
+        })()
       });
     }
     return results;

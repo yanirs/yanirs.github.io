@@ -43,7 +43,7 @@ class SurveyData
           when 0 then 'M1'
           when 1 then 'M2'
           else 'Both'
-        images: images
+        images: (image.replace('http://', 'https://') for image in images)
 
   # Return the number of surveys and overall species counts for the given site codes.
   sumSites: (siteCodes) ->
