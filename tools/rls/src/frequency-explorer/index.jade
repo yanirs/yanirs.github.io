@@ -50,8 +50,7 @@ html(lang='en')
           span(class!="<%= url ? '' : 'hidden' %>")
             a(href!='<%= url %>', target='_blank') RLS
             = ' | '
-          a(href!='https://images.google.com/images?hl=en&q=<%= name.replace(" ", "+") %>&btnG=Search+Images&gbv=2',
-            target='_blank') Google
+          a(href!='https://www.google.com/search?tbm=isch&q=<%= name.replace(" ", "+") %>', target='_blank') Google
       <%= imageRows %>
 
   script(src='https://maps.googleapis.com/maps/api/js?key=AIzaSyCB7yf2Q30bz9qnsd0wy6KvtdTGyke7Fag' +
