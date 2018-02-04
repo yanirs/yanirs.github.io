@@ -12,7 +12,7 @@ global.Reveal = require('reveal.js');
 
 util = require('../util.js.tmp');
 
-SAMPLE_SIZE = 100;
+SAMPLE_SIZE = 25;
 
 REVEAL_SETTINGS = {
   width: 1000,
@@ -35,13 +35,19 @@ flashcardTemplate = _.template($('#flashcard-template').html());
 
 selectedEcoregion = null;
 
+$('body').keyup(function(event) {
+  if (event.key === '\\') {
+    return $(Reveal.getCurrentSlide()).children('input').focus();
+  }
+});
+
 getSelectedSites = function() {
   var ref, ref1;
   return (ref = (ref1 = util.getQueryStringParams().siteCodes) != null ? ref1.split(',') : void 0) != null ? ref : [];
 };
 
 generateItems = function(surveyData, minFreq, selectedMethod) {
-  var count, i, id, image, item, items, len, minCount, numSurveys, ref, ref1, speciesCounts;
+  var count, id, image, item, items, j, len, minCount, numSurveys, ref, ref1, speciesCounts;
   ref = surveyData.sumSites(getSelectedSites()), numSurveys = ref[0], speciesCounts = ref[1];
   minCount = numSurveys * minFreq / 100;
   items = [];
@@ -55,8 +61,8 @@ generateItems = function(surveyData, minFreq, selectedMethod) {
       continue;
     }
     ref1 = item.images;
-    for (i = 0, len = ref1.length; i < len; i++) {
-      image = ref1[i];
+    for (j = 0, len = ref1.length; j < len; j++) {
+      image = ref1[j];
       items.push(_.extend({
         image: image,
         freq: (100 * count / numSurveys).toFixed(2)
@@ -67,7 +73,7 @@ generateItems = function(surveyData, minFreq, selectedMethod) {
 };
 
 initSlides = function(surveyData, minFreq, selectedMethod) {
-  var $slides, ecoregion, ecoregionCodes, ecoregionOptions, i, item, items, j, k, len, len1, len2, method, methodOptions, ref, ref1, ref2, ref3, refreshSlides, selected;
+  var $slides, calculateScore, ecoregion, ecoregionCodes, ecoregionOptions, item, items, j, k, l, len, len1, len2, method, methodOptions, ref, ref1, ref2, ref3, refreshSlides, selected, slideScores;
   if (minFreq == null) {
     minFreq = 0;
   }
@@ -77,15 +83,15 @@ initSlides = function(surveyData, minFreq, selectedMethod) {
   items = generateItems(surveyData, minFreq, selectedMethod);
   ecoregionOptions = ["<option></option>"];
   ref = _.pairs(surveyData.ecoregionToSiteCodes).sort();
-  for (i = 0, len = ref.length; i < len; i++) {
-    ref1 = ref[i], ecoregion = ref1[0], ecoregionCodes = ref1[1];
+  for (j = 0, len = ref.length; j < len; j++) {
+    ref1 = ref[j], ecoregion = ref1[0], ecoregionCodes = ref1[1];
     selected = ecoregion === selectedEcoregion ? 'selected' : '';
     ecoregionOptions.push("<option value=\"" + ecoregion + "\" " + selected + ">" + ecoregion + " (" + ecoregionCodes.length + " sites)</option>");
   }
   methodOptions = [];
   ref2 = ['all', 'M1', 'M2'];
-  for (j = 0, len1 = ref2.length; j < len1; j++) {
-    method = ref2[j];
+  for (k = 0, len1 = ref2.length; k < len1; k++) {
+    method = ref2[k];
     selected = method === selectedMethod ? 'selected' : '';
     methodOptions.push("<option " + selected + ">" + method + "</option>");
   }
@@ -100,11 +106,49 @@ initSlides = function(surveyData, minFreq, selectedMethod) {
     numSelectedSites: getSelectedSites().length
   }));
   ref3 = _.sample(items, SAMPLE_SIZE);
-  for (k = 0, len2 = ref3.length; k < len2; k++) {
-    item = ref3[k];
+  for (l = 0, len2 = ref3.length; l < len2; l++) {
+    item = ref3[l];
     $slides.append(flashcardTemplate(item));
   }
   Reveal.initialize(REVEAL_SETTINGS);
+  slideScores = {};
+  calculateScore = function() {
+    var answered, correct, i, m, ref4, score;
+    answered = 0;
+    correct = 0;
+    for (i = m = 1, ref4 = SAMPLE_SIZE; 1 <= ref4 ? m <= ref4 : m >= ref4; i = 1 <= ref4 ? ++m : --m) {
+      if (slideScores.hasOwnProperty(i)) {
+        answered++;
+        if (slideScores[i]) {
+          correct++;
+        }
+      }
+    }
+    score = (100 * correct / answered).toFixed(2);
+    return $('.js-running-score').html(("Answered " + correct + " correctly out of " + answered + " attempted (score: " + score + "%; ") + ("unanswered: " + (SAMPLE_SIZE - answered) + ")"));
+  };
+  $('.js-scientific-name').keyup(function(event) {
+    var $this, slideIndex;
+    if (event.key === 'Enter') {
+      $this = $(this);
+      $this.removeClass('alert-success alert-error');
+      slideIndex = Reveal.getIndices().h;
+      if ($this.val() === $this.data('name')) {
+        $this.addClass('alert-success');
+        $this.blur();
+        if (!slideScores.hasOwnProperty(slideIndex)) {
+          slideScores[slideIndex] = true;
+        }
+        setTimeout(Reveal.right, 500);
+      } else {
+        $this.addClass('alert-error');
+        slideScores[slideIndex] = false;
+        setTimeout(Reveal.down, 500);
+        setTimeout(Reveal.right, 2000);
+      }
+      return calculateScore();
+    }
+  });
   refreshSlides = function(delay) {
     var delayCallback;
     if (delay == null) {

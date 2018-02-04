@@ -2,6 +2,9 @@
 @import '../node_modules/reveal.js/css/theme/night.css';
 @import '../common.css.tmp';
 
+@alert-error: #f2dede;
+@alert-success: #dff0d8;
+
 .reveal {
   background-color: #1E2225;
 }
@@ -39,6 +42,19 @@
   input {
     max-width: 80px;
     text-align: center;
+  }
+
+  input[type="text"] {
+    max-width: 100%;
+    min-width: 60%;
+
+    &.alert-error {
+      background-color: @alert-error;
+    }
+
+    &.alert-success {
+      background-color: @alert-success;
+    }
   }
 
   .scientific-name {

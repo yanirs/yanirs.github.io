@@ -4,7 +4,7 @@ require('reveal.js/lib/js/head.min.js')
 global.Reveal = require('reveal.js')
 util = require('../util.js.tmp')
 
-SAMPLE_SIZE = 100
+SAMPLE_SIZE = 25
 REVEAL_SETTINGS =
   width: 1000
   height: 760
@@ -20,6 +20,11 @@ if util.isCrossOriginFrame()
 headerTemplate = _.template($('#header-template').html())
 flashcardTemplate = _.template($('#flashcard-template').html())
 selectedEcoregion = null
+
+$('body').keyup((event) ->
+  if event.key == '\\'
+    $(Reveal.getCurrentSlide()).children('input').focus()
+)
 
 getSelectedSites = ->
   util.getQueryStringParams().siteCodes?.split(',') ? []
@@ -61,6 +66,35 @@ initSlides = (surveyData, minFreq = 0, selectedMethod = 'all') ->
   for item in _.sample(items, SAMPLE_SIZE)
     $slides.append(flashcardTemplate(item))
   Reveal.initialize(REVEAL_SETTINGS)
+
+  slideScores = {}
+  calculateScore = ->
+    answered = 0
+    correct = 0
+    for i in [1..SAMPLE_SIZE]
+      if slideScores.hasOwnProperty(i)
+        answered++
+        correct++ if slideScores[i]
+    score = (100 * correct / answered).toFixed(2)
+    $('.js-running-score').html("Answered #{correct} correctly out of #{answered} attempted (score: #{score}%; " +
+                                "unanswered: #{SAMPLE_SIZE - answered})")
+  $('.js-scientific-name').keyup((event) ->
+    if event.key == 'Enter'
+      $this = $(this)
+      $this.removeClass('alert-success alert-error')
+      slideIndex = Reveal.getIndices().h
+      if $this.val() == $this.data('name')
+        $this.addClass('alert-success')
+        $this.blur()
+        slideScores[slideIndex] = true if not slideScores.hasOwnProperty(slideIndex)
+        setTimeout(Reveal.right, 500)
+      else
+        $this.addClass('alert-error')
+        slideScores[slideIndex] = false
+        setTimeout(Reveal.down, 500)
+        setTimeout(Reveal.right, 2000)
+      calculateScore()
+  )
 
   refreshSlides = (delay = 250) ->
     minFreq = parseFloat($('.js-min-freq').val())

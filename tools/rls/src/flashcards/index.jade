@@ -41,6 +41,10 @@ html(lang='en')
               br
               | Frequency: <%= freq %>%
 
+            input.js-scientific-name(type='text', placeholder='Enter scientific name', data-name!='<%= name %>',
+                                     autocomplete='off')
+            .small.js-running-score
+
             p: a.small(href='#') Back to start
 
           section(data-transition-speed='fast')
