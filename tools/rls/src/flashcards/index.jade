@@ -18,8 +18,10 @@ html(lang='en')
           ul(class!="<%= numSelectedSites ? '' : 'hidden' %>")
             li Navigate using the arrows or swipe gestures.
             li.
-              Showing <%= shownPhotos %> out of the <%= totalPhotos %> photos of species that were recorded on at
-              least <input class="js-min-freq" type="number" min="0" max="100" step="1" value="<%= minFreq %>">% of
+              Showing
+              <%= numPhotosOptions ? '<select class="js-num-photos">' + numPhotosOptions + '</select> out of' : '' %>
+              the <%= totalPhotos %> photos of species that were recorded on at least
+              <input class="js-min-freq" type="number" min="0" max="100" step="1" value="<%= minFreq %>">% of
               <select class="js-method"><%= methodOptions %></select> surveys in the selected sites. Change the
               percentage or method, or <a href="#" class="js-resample">tap here</a> to see a different sample of photos.
           ul
