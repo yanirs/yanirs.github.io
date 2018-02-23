@@ -24,6 +24,7 @@ html(lang='en')
               <input class="js-min-freq" type="number" min="0" max="100" step="1" value="<%= minFreq %>">% of
               <select class="js-method"><%= methodOptions %></select> surveys in the selected sites. Change the
               percentage or method, or <a href="#" class="js-resample">tap here</a> to see a different sample of photos.
+            li To test your knowledge, write the exact scientific name in the box below each photo and press enter.
           ul
             li.
               To select sites, use the <a href="<%= frequencyExplorerUrl %>" target="_blank">Frequency
@@ -51,7 +52,7 @@ html(lang='en')
               | Frequency: <%= freq %>%
 
             input.js-scientific-name(type='text', placeholder='Enter scientific name', data-name!='<%= name %>',
-                                     autocomplete='off')
+                                     autocomplete='off', title='Press backslash to focus, enter to submit')
             .small.js-running-score
 
             p: a.small(href='#') Back to start
