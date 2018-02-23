@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var REVEAL_SETTINGS, SAMPLE_SIZE, flashcardTemplate, generateItems, getSelectedSites, headerTemplate, initSlides, selectedEcoregion, util;
+var REVEAL_SETTINGS, SAMPLE_SIZE, flashcardTemplate, footerTemplate, generateItems, getSelectedSites, headerTemplate, initSlides, selectedEcoregion, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -30,6 +30,8 @@ if (util.isCrossOriginFrame()) {
 }
 
 headerTemplate = _.template($('#header-template').html());
+
+footerTemplate = _.template($('#footer-template').html());
 
 flashcardTemplate = _.template($('#flashcard-template').html());
 
@@ -110,6 +112,7 @@ initSlides = function(surveyData, minFreq, selectedMethod) {
     item = ref3[l];
     $slides.append(flashcardTemplate(item));
   }
+  $slides.append(footerTemplate());
   Reveal.initialize(REVEAL_SETTINGS);
   slideScores = {};
   calculateScore = function() {
@@ -124,8 +127,8 @@ initSlides = function(surveyData, minFreq, selectedMethod) {
         }
       }
     }
-    score = (100 * correct / answered).toFixed(2);
-    return $('.js-running-score').html(("Answered " + correct + " correctly out of " + answered + " attempted (score: " + score + "%; ") + ("unanswered: " + (SAMPLE_SIZE - answered) + ")"));
+    score = (100 * correct / SAMPLE_SIZE).toFixed(2);
+    return $('.js-running-score').html("Score: " + score + "% (correct: " + correct + "; attempted: " + answered + "; unanswered: " + (SAMPLE_SIZE - answered) + ")");
   };
   $('.js-scientific-name').keyup(function(event) {
     var $this, slideIndex;
@@ -133,7 +136,7 @@ initSlides = function(surveyData, minFreq, selectedMethod) {
       $this = $(this);
       $this.removeClass('alert-success alert-error');
       slideIndex = Reveal.getIndices().h;
-      if ($this.val() === $this.data('name')) {
+      if ($this.val().trim() === $this.data('name')) {
         $this.addClass('alert-success');
         $this.blur();
         if (!slideScores.hasOwnProperty(slideIndex)) {

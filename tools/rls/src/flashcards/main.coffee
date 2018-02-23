@@ -18,6 +18,7 @@ if util.isCrossOriginFrame()
   delete REVEAL_SETTINGS.margin
 
 headerTemplate = _.template($('#header-template').html())
+footerTemplate = _.template($('#footer-template').html())
 flashcardTemplate = _.template($('#flashcard-template').html())
 selectedEcoregion = null
 
@@ -65,6 +66,7 @@ initSlides = (surveyData, minFreq = 0, selectedMethod = 'all') ->
   ))
   for item in _.sample(items, SAMPLE_SIZE)
     $slides.append(flashcardTemplate(item))
+  $slides.append(footerTemplate())
   Reveal.initialize(REVEAL_SETTINGS)
 
   slideScores = {}
@@ -75,15 +77,16 @@ initSlides = (surveyData, minFreq = 0, selectedMethod = 'all') ->
       if slideScores.hasOwnProperty(i)
         answered++
         correct++ if slideScores[i]
-    score = (100 * correct / answered).toFixed(2)
-    $('.js-running-score').html("Answered #{correct} correctly out of #{answered} attempted (score: #{score}%; " +
-                                "unanswered: #{SAMPLE_SIZE - answered})")
+    score = (100 * correct / SAMPLE_SIZE).toFixed(2)
+    $('.js-running-score').html(
+      "Score: #{score}% (correct: #{correct}; attempted: #{answered}; unanswered: #{SAMPLE_SIZE - answered})"
+    )
   $('.js-scientific-name').keyup((event) ->
     if event.key == 'Enter'
       $this = $(this)
       $this.removeClass('alert-success alert-error')
       slideIndex = Reveal.getIndices().h
-      if $this.val() == $this.data('name')
+      if $this.val().trim() == $this.data('name')
         $this.addClass('alert-success')
         $this.blur()
         slideScores[slideIndex] = true if not slideScores.hasOwnProperty(slideIndex)

@@ -29,6 +29,13 @@ html(lang='en')
               <a href="https://en.wikipedia.org/wiki/List_of_marine_ecoregions" target="_blank">marine ecoregion</a>:
               <select class="js-ecoregion"><%= ecoregionOptions %></select>
 
+      script#footer-template(type='text/template')
+        section
+          h2 The end
+          h4.js-running-score
+          h4 <a href="#">Go back to the first slide</a> to view a different set of images
+
+
       script#flashcard-template(type='text/template')
         section
           section
