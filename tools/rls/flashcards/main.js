@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var REVEAL_SETTINGS, SAMPLE_SIZE, flashcardTemplate, generateItems, getSelectedSites, headerTemplate, initSlides, selectedEcoregion, util;
+var DEFAULT_NUM_PHOTOS, REVEAL_SETTINGS, flashcardTemplate, footerTemplate, generateItems, generateOptions, getSelectedSites, headerTemplate, initSlides, selectedEcoregion, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -12,7 +12,7 @@ global.Reveal = require('reveal.js');
 
 util = require('../util.js.tmp');
 
-SAMPLE_SIZE = 100;
+DEFAULT_NUM_PHOTOS = 25;
 
 REVEAL_SETTINGS = {
   width: 1000,
@@ -31,9 +31,17 @@ if (util.isCrossOriginFrame()) {
 
 headerTemplate = _.template($('#header-template').html());
 
+footerTemplate = _.template($('#footer-template').html());
+
 flashcardTemplate = _.template($('#flashcard-template').html());
 
 selectedEcoregion = null;
+
+$('body').keyup(function(event) {
+  if (event.key === '\\') {
+    return $(Reveal.getCurrentSlide()).children('input').focus();
+  }
+});
 
 getSelectedSites = function() {
   var ref, ref1;
@@ -41,7 +49,7 @@ getSelectedSites = function() {
 };
 
 generateItems = function(surveyData, minFreq, selectedMethod) {
-  var count, i, id, image, item, items, len, minCount, numSurveys, ref, ref1, speciesCounts;
+  var count, id, image, item, items, j, len, minCount, numSurveys, ref, ref1, speciesCounts;
   ref = surveyData.sumSites(getSelectedSites()), numSurveys = ref[0], speciesCounts = ref[1];
   minCount = numSurveys * minFreq / 100;
   items = [];
@@ -55,8 +63,8 @@ generateItems = function(surveyData, minFreq, selectedMethod) {
       continue;
     }
     ref1 = item.images;
-    for (i = 0, len = ref1.length; i < len; i++) {
-      image = ref1[i];
+    for (j = 0, len = ref1.length; j < len; j++) {
+      image = ref1[j];
       items.push(_.extend({
         image: image,
         freq: (100 * count / numSurveys).toFixed(2)
@@ -66,58 +74,126 @@ generateItems = function(surveyData, minFreq, selectedMethod) {
   return items;
 };
 
-initSlides = function(surveyData, minFreq, selectedMethod) {
-  var $slides, ecoregion, ecoregionCodes, ecoregionOptions, i, item, items, j, k, len, len1, len2, method, methodOptions, ref, ref1, ref2, ref3, refreshSlides, selected;
+generateOptions = function(valueNamePairs, selectedValue, includeEmpty) {
+  var j, len, name, options, ref, selected, value, valueNamePair;
+  if (includeEmpty == null) {
+    includeEmpty = false;
+  }
+  options = includeEmpty ? ['<option></option>'] : [];
+  for (j = 0, len = valueNamePairs.length; j < len; j++) {
+    valueNamePair = valueNamePairs[j];
+    ref = valueNamePair instanceof Array ? valueNamePair : [valueNamePair, valueNamePair], value = ref[0], name = ref[1];
+    selected = value === selectedValue ? 'selected' : '';
+    options.push("<option value=\"" + value + "\" " + selected + ">" + name + "</option>");
+  }
+  return options.join('');
+};
+
+initSlides = function(surveyData, minFreq, selectedMethod, numPhotos) {
+  var $slides, calculateScore, ecoregionValueNamePairs, er, i, item, items, j, len, ref, refreshSlides, sc, slideScores;
   if (minFreq == null) {
     minFreq = 0;
   }
   if (selectedMethod == null) {
     selectedMethod = 'all';
   }
+  if (numPhotos == null) {
+    numPhotos = DEFAULT_NUM_PHOTOS;
+  }
   items = generateItems(surveyData, minFreq, selectedMethod);
-  ecoregionOptions = ["<option></option>"];
-  ref = _.pairs(surveyData.ecoregionToSiteCodes).sort();
-  for (i = 0, len = ref.length; i < len; i++) {
-    ref1 = ref[i], ecoregion = ref1[0], ecoregionCodes = ref1[1];
-    selected = ecoregion === selectedEcoregion ? 'selected' : '';
-    ecoregionOptions.push("<option value=\"" + ecoregion + "\" " + selected + ">" + ecoregion + " (" + ecoregionCodes.length + " sites)</option>");
-  }
-  methodOptions = [];
-  ref2 = ['all', 'M1', 'M2'];
-  for (j = 0, len1 = ref2.length; j < len1; j++) {
-    method = ref2[j];
-    selected = method === selectedMethod ? 'selected' : '';
-    methodOptions.push("<option " + selected + ">" + method + "</option>");
-  }
+  numPhotos = Math.min(numPhotos, items.length);
+  ecoregionValueNamePairs = ((function() {
+    var ref, results;
+    ref = surveyData.ecoregionToSiteCodes;
+    results = [];
+    for (er in ref) {
+      sc = ref[er];
+      results.push([er, er + " (" + sc.length + " sites)"]);
+    }
+    return results;
+  })()).sort();
   $slides = $('.slides');
   $slides.append(headerTemplate({
-    shownPhotos: Math.min(SAMPLE_SIZE, items.length),
+    numPhotosOptions: generateOptions((function() {
+      var j, len, ref, results;
+      ref = [25, 50, 100];
+      results = [];
+      for (j = 0, len = ref.length; j < len; j++) {
+        i = ref[j];
+        if (i <= items.length) {
+          results.push(i);
+        }
+      }
+      return results;
+    })(), numPhotos),
     totalPhotos: items.length,
     minFreq: minFreq,
-    ecoregionOptions: ecoregionOptions.join(''),
-    methodOptions: methodOptions.join(''),
+    ecoregionOptions: generateOptions(ecoregionValueNamePairs, selectedEcoregion, true),
+    methodOptions: generateOptions(['all', 'M1', 'M2'], selectedMethod),
     frequencyExplorerUrl: util.getFrequencyExplorerUrl(),
     numSelectedSites: getSelectedSites().length
   }));
-  ref3 = _.sample(items, SAMPLE_SIZE);
-  for (k = 0, len2 = ref3.length; k < len2; k++) {
-    item = ref3[k];
+  ref = _.sample(items, numPhotos);
+  for (j = 0, len = ref.length; j < len; j++) {
+    item = ref[j];
     $slides.append(flashcardTemplate(item));
   }
+  if (numPhotos > 0) {
+    $slides.append(footerTemplate());
+  }
   Reveal.initialize(REVEAL_SETTINGS);
+  slideScores = {};
+  calculateScore = function() {
+    var answered, correct, k, ref1, score;
+    answered = 0;
+    correct = 0;
+    for (i = k = 1, ref1 = numPhotos; 1 <= ref1 ? k <= ref1 : k >= ref1; i = 1 <= ref1 ? ++k : --k) {
+      if (slideScores.hasOwnProperty(i)) {
+        answered++;
+        if (slideScores[i]) {
+          correct++;
+        }
+      }
+    }
+    score = (100 * correct / numPhotos).toFixed(2);
+    return $('.js-running-score').html("Score: " + score + "% (correct: " + correct + "; attempted: " + answered + "; unanswered: " + (numPhotos - answered) + ")");
+  };
+  $('.js-scientific-name').keyup(function(event) {
+    var $this, slideIndex;
+    if (event.key === 'Enter') {
+      $this = $(this);
+      $this.removeClass('alert-success alert-error');
+      slideIndex = Reveal.getIndices().h;
+      if ($this.val().trim() === $this.data('name')) {
+        $this.addClass('alert-success');
+        $this.blur();
+        if (!slideScores.hasOwnProperty(slideIndex)) {
+          slideScores[slideIndex] = true;
+        }
+        setTimeout(Reveal.right, 500);
+      } else {
+        $this.addClass('alert-error');
+        slideScores[slideIndex] = false;
+        setTimeout(Reveal.down, 500);
+        setTimeout(Reveal.right, 2000);
+      }
+      return calculateScore();
+    }
+  });
   refreshSlides = function(delay) {
-    var delayCallback;
+    var delayCallback, ref1;
     if (delay == null) {
       delay = 250;
     }
     minFreq = parseFloat($('.js-min-freq').val());
     selectedMethod = $('.js-method').val();
+    numPhotos = parseInt((ref1 = $('.js-num-photos').val()) != null ? ref1 : DEFAULT_NUM_PHOTOS);
     $slides.html('');
     if (delay) {
       $('body').addClass('loading');
     }
     delayCallback = function() {
-      initSlides(surveyData, minFreq, selectedMethod);
+      initSlides(surveyData, minFreq, selectedMethod, numPhotos);
       if (delay) {
         $('body').removeClass('loading');
       }
@@ -126,7 +202,7 @@ initSlides = function(surveyData, minFreq, selectedMethod) {
     return setTimeout(delayCallback, delay);
   };
   $('.js-resample').click(refreshSlides);
-  $('.js-min-freq, .js-method').change(function() {
+  $('.js-min-freq, .js-method, .js-num-photos').change(function() {
     return refreshSlides(0);
   });
   return $('.js-ecoregion').change(function() {

@@ -18,16 +18,26 @@ html(lang='en')
           ul(class!="<%= numSelectedSites ? '' : 'hidden' %>")
             li Navigate using the arrows or swipe gestures.
             li.
-              Showing <%= shownPhotos %> out of the <%= totalPhotos %> photos of species that were recorded on at
-              least <input class="js-min-freq" type="number" min="0" max="100" step="1" value="<%= minFreq %>">% of
+              Showing
+              <%= numPhotosOptions ? '<select class="js-num-photos">' + numPhotosOptions + '</select> out of' : '' %>
+              the <%= totalPhotos %> photos of species that were recorded on at least
+              <input class="js-min-freq" type="number" min="0" max="100" step="1" value="<%= minFreq %>">% of
               <select class="js-method"><%= methodOptions %></select> surveys in the selected sites. Change the
               percentage or method, or <a href="#" class="js-resample">tap here</a> to see a different sample of photos.
+            li To test your knowledge, write the exact scientific name in the box below each photo and press enter.
           ul
             li.
               To select sites, use the <a href="<%= frequencyExplorerUrl %>" target="_blank">Frequency
               Explorer</a> or choose a
               <a href="https://en.wikipedia.org/wiki/List_of_marine_ecoregions" target="_blank">marine ecoregion</a>:
               <select class="js-ecoregion"><%= ecoregionOptions %></select>
+
+      script#footer-template(type='text/template')
+        section
+          h2 The end
+          h4.js-running-score
+          h4 <a href="#">Go back to the first slide</a> to view a different set of images
+
 
       script#flashcard-template(type='text/template')
         section
@@ -40,6 +50,10 @@ html(lang='en')
               a(href!='<%= url %>', target='_blank') Species page
               br
               | Frequency: <%= freq %>%
+
+            input.js-scientific-name(type='text', placeholder='Enter scientific name', data-name!='<%= name %>',
+                                     autocomplete='off', title='Press backslash to focus, enter to submit')
+            .small.js-running-score
 
             p: a.small(href='#') Back to start
 
