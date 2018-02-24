@@ -47,15 +47,12 @@ html(lang='en')
 
             a(href!='<%= image %>', target='_blank'): img.fish-img(src!='<%= image %>')
             .img-source-caption
-              a(href!='<%= url %>', target='_blank') Species page
-              br
-              | Frequency: <%= freq %>%
+              .start-link: a(href='#') Back to start
+              .species-link Frequency: <%= freq %>% | <a href="<%= url %>" target="_blank">Species page</a>
 
             input.js-scientific-name(type='text', placeholder='Enter scientific name', data-name!='<%= name %>',
                                      autocomplete='off', title='Press backslash to focus, enter to submit')
             .small.js-running-score
-
-            p: a.small(href='#') Back to start
 
           section(data-transition-speed='fast')
             .scientific-name: i <%= name %>
