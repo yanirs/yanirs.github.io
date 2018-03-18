@@ -6,6 +6,7 @@ util = require('../util.js.tmp')
 
 DEFAULT_NUM_PHOTOS = 25
 SLIDE_CHANGE_DELAY = 500
+TEST_SECONDS_PER_SLIDE = 10
 REVEAL_SETTINGS =
   width: 1000
   height: 760
@@ -63,6 +64,27 @@ updateDisplayedScore = (slideScores, numPhotos) ->
     "Score: #{score}% (correct: #{correct}; attempted: #{answered}; unanswered: #{numPhotos - answered})"
   )
 
+testTimerTimeoutId = null
+updateTestTimer = (testStartTime, timeLimitSeconds) ->
+  secondsLeft = timeLimitSeconds - Math.floor((Date.now() - testStartTime) / 1000)
+  if secondsLeft > 0
+    $('.js-test-timer').html(
+      "Time left: #{Math.floor(secondsLeft / 60)}:#{(secondsLeft % 60).toString().padStart(2, '0')}"
+    )
+    testTimerTimeoutId = setTimeout(
+      -> updateTestTimer(testStartTime, timeLimitSeconds),
+      1000
+    )
+  else
+    endTest()
+
+endTest = ->
+  clearTimeout(testTimerTimeoutId)
+  $('.js-test-info').html('Test over! You can now go through the slides to review your answers.')
+  $('.slides').removeClass('test-active')
+  $('.js-scientific-name').blur().prop('disabled', true)
+  Reveal.slide(Number.MAX_VALUE)
+
 checkAnswer = ($input, slideScores, testMode) ->
   $input.blur()
   correct = $input.val().trim() == $input.data('name')
@@ -106,21 +128,28 @@ initSlides = (surveyData, minFreq = 0, selectedMethod = 'all', numPhotos = DEFAU
     numSelectedSites: getSelectedSites().length
   ))
   for item in _.sample(items, numPhotos)
-    $slides.append(flashcardTemplate(_.extend({}, item, testMode: testMode)))
+    $slides.append(flashcardTemplate(item))
   $slides.append(footerTemplate()) if numPhotos > 0
   Reveal.initialize(REVEAL_SETTINGS)
 
   slideScores = {}
+  if testMode
+    $slides.addClass('test-active')
+    $('.js-test-info').html(
+      """<div class="js-test-timer"></div><a href="#/#{numPhotos + 1}" class="js-end-test">End test</a>"""
+    )
+    updateTestTimer(Date.now(), numPhotos * TEST_SECONDS_PER_SLIDE)
+    updateDisplayedScore(slideScores, numPhotos)
   $('.js-scientific-name').keyup((event) ->
     if event.key == 'Enter'
       checkAnswer($(this), slideScores, testMode)
       updateDisplayedScore(slideScores, numPhotos)
   )
-  updateDisplayedScore(slideScores, numPhotos) if testMode
 
   $('.js-resample').click(-> refreshSlides(surveyData))
   $('.js-min-freq, .js-method, .js-num-photos').change(-> refreshSlides(surveyData, 0))
   $('.js-start-test').click(-> refreshSlides(surveyData, 0, true))
+  $('.js-end-test').click(endTest)
   $('.js-ecoregion').change(->
     selectedEcoregion = $('.js-ecoregion').val()
     ecoregionSiteCodes = surveyData.ecoregionToSiteCodes[selectedEcoregion]

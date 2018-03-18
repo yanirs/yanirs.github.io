@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var DEFAULT_NUM_PHOTOS, REVEAL_SETTINGS, SLIDE_CHANGE_DELAY, checkAnswer, flashcardTemplate, footerTemplate, generateItems, generateOptions, getSelectedSites, headerTemplate, initSlides, refreshSlides, selectedEcoregion, updateDisplayedScore, util;
+var DEFAULT_NUM_PHOTOS, REVEAL_SETTINGS, SLIDE_CHANGE_DELAY, TEST_SECONDS_PER_SLIDE, checkAnswer, endTest, flashcardTemplate, footerTemplate, generateItems, generateOptions, getSelectedSites, headerTemplate, initSlides, refreshSlides, selectedEcoregion, testTimerTimeoutId, updateDisplayedScore, updateTestTimer, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -15,6 +15,8 @@ util = require('../util.js.tmp');
 DEFAULT_NUM_PHOTOS = 25;
 
 SLIDE_CHANGE_DELAY = 500;
+
+TEST_SECONDS_PER_SLIDE = 10;
 
 REVEAL_SETTINGS = {
   width: 1000,
@@ -105,6 +107,29 @@ updateDisplayedScore = function(slideScores, numPhotos) {
   }
   score = (100 * correct / numPhotos).toFixed(2);
   return $('.js-running-score').html("Score: " + score + "% (correct: " + correct + "; attempted: " + answered + "; unanswered: " + (numPhotos - answered) + ")");
+};
+
+testTimerTimeoutId = null;
+
+updateTestTimer = function(testStartTime, timeLimitSeconds) {
+  var secondsLeft;
+  secondsLeft = timeLimitSeconds - Math.floor((Date.now() - testStartTime) / 1000);
+  if (secondsLeft > 0) {
+    $('.js-test-timer').html("Time left: " + (Math.floor(secondsLeft / 60)) + ":" + ((secondsLeft % 60).toString().padStart(2, '0')));
+    return testTimerTimeoutId = setTimeout(function() {
+      return updateTestTimer(testStartTime, timeLimitSeconds);
+    }, 1000);
+  } else {
+    return endTest();
+  }
+};
+
+endTest = function() {
+  clearTimeout(testTimerTimeoutId);
+  $('.js-test-info').html('Test over! You can now go through the slides to review your answers.');
+  $('.slides').removeClass('test-active');
+  $('.js-scientific-name').blur().prop('disabled', true);
+  return Reveal.slide(Number.MAX_VALUE);
 };
 
 checkAnswer = function($input, slideScores, testMode) {
@@ -203,24 +228,25 @@ initSlides = function(surveyData, minFreq, selectedMethod, numPhotos, testMode) 
   ref = _.sample(items, numPhotos);
   for (j = 0, len = ref.length; j < len; j++) {
     item = ref[j];
-    $slides.append(flashcardTemplate(_.extend({}, item, {
-      testMode: testMode
-    })));
+    $slides.append(flashcardTemplate(item));
   }
   if (numPhotos > 0) {
     $slides.append(footerTemplate());
   }
   Reveal.initialize(REVEAL_SETTINGS);
   slideScores = {};
+  if (testMode) {
+    $slides.addClass('test-active');
+    $('.js-test-info').html("<div class=\"js-test-timer\"></div><a href=\"#/" + (numPhotos + 1) + "\" class=\"js-end-test\">End test</a>");
+    updateTestTimer(Date.now(), numPhotos * TEST_SECONDS_PER_SLIDE);
+    updateDisplayedScore(slideScores, numPhotos);
+  }
   $('.js-scientific-name').keyup(function(event) {
     if (event.key === 'Enter') {
       checkAnswer($(this), slideScores, testMode);
       return updateDisplayedScore(slideScores, numPhotos);
     }
   });
-  if (testMode) {
-    updateDisplayedScore(slideScores, numPhotos);
-  }
   $('.js-resample').click(function() {
     return refreshSlides(surveyData);
   });
@@ -230,6 +256,7 @@ initSlides = function(surveyData, minFreq, selectedMethod, numPhotos, testMode) 
   $('.js-start-test').click(function() {
     return refreshSlides(surveyData, 0, true);
   });
+  $('.js-end-test').click(endTest);
   return $('.js-ecoregion').change(function() {
     var ecoregionSiteCodes;
     selectedEcoregion = $('.js-ecoregion').val();

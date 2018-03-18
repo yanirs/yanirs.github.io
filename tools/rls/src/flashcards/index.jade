@@ -38,26 +38,28 @@ html(lang='en')
         section
           h2 The end
           h4.js-running-score
-          h4 <a href="#">Go back to the first slide</a> to view a different set of images
-
+          h4.js-test-info
+          h4.test-active-hidden <a href="#">Go back to the first slide</a> to view a different set of photos.
 
       script#flashcard-template(type='text/template')
-        section(class!="<%= testMode ? 'test-mode' : '' %>")
+        section
           section
             p.center Identify this animal
-            p.center.test-mode-hidden: small Go down to see its name
+            p.center.test-active-hidden: small Go down to see its name
 
             a(href!='<%= image %>', target='_blank'): img.fish-img(src!='<%= image %>')
-            .img-source-caption.test-mode-hidden
+            .img-source-caption.test-active-hidden
               .start-link: a(href='#') Back to start
               .species-link Frequency: <%= freq %>% | <a href="<%= url %>" target="_blank">Species page</a>
 
             input.js-scientific-name(type='text', placeholder='Enter scientific name', data-name!='<%= name %>',
                                      autocomplete='off', title='Press backslash to focus, enter to submit')
+            span.input-validation
             .small.js-running-score
+            .small.js-test-info
 
           section(data-transition-speed='fast')
-            .test-mode-hidden
+            .test-active-hidden
               .scientific-name: i <%= name %>
               | <%= commonName %>
 

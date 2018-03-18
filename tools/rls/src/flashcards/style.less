@@ -50,10 +50,18 @@
 
     &.alert-error {
       background-color: @alert-error;
+
+      &~ .input-validation::before {
+        content: "✗";
+      }
     }
 
     &.alert-success {
       background-color: @alert-success;
+
+      &~ .input-validation::before {
+        content: "✓";
+      }
     }
   }
 
@@ -98,7 +106,7 @@
     }
   }
 
-  .hidden, section.test-mode .test-mode-hidden {
+  .hidden, &.test-active .test-active-hidden {
     display: none;
   }
 }
