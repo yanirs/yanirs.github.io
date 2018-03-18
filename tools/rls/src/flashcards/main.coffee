@@ -5,6 +5,7 @@ global.Reveal = require('reveal.js')
 util = require('../util.js.tmp')
 
 DEFAULT_NUM_PHOTOS = 25
+SLIDE_CHANGE_DELAY = 500
 REVEAL_SETTINGS =
   width: 1000
   height: 760
@@ -50,7 +51,47 @@ generateOptions = (valueNamePairs, selectedValue, includeEmpty = false) ->
     options.push("""<option value="#{value}" #{selected}>#{name}</option>""")
   options.join('')
 
-initSlides = (surveyData, minFreq = 0, selectedMethod = 'all', numPhotos = DEFAULT_NUM_PHOTOS) ->
+updateDisplayedScore = (slideScores, numPhotos) ->
+  answered = 0
+  correct = 0
+  for i in [1..numPhotos]
+    if slideScores.hasOwnProperty(i)
+      answered++
+      correct++ if slideScores[i]
+  score = (100 * correct / numPhotos).toFixed(2)
+  $('.js-running-score').html(
+    "Score: #{score}% (correct: #{correct}; attempted: #{answered}; unanswered: #{numPhotos - answered})"
+  )
+
+checkAnswer = ($input, slideScores, testMode) ->
+  $input.blur()
+  correct = $input.val().trim() == $input.data('name')
+  $input.removeClass('alert-success alert-error')
+  $input.addClass("alert-#{if correct then 'success' else 'error'}")
+  # Only record the result on the first attempt.
+  slideIndex = Reveal.getIndices().h
+  slideScores[slideIndex] = correct if not slideScores.hasOwnProperty(slideIndex)
+  # Only show the answer slides if incorrect and out of test mode. Otherwise, just move to the next slide.
+  if correct or testMode
+    setTimeout(Reveal.right, SLIDE_CHANGE_DELAY)
+  else
+    setTimeout(Reveal.down, SLIDE_CHANGE_DELAY)
+    setTimeout(Reveal.right, SLIDE_CHANGE_DELAY * 4)
+
+refreshSlides = (surveyData, delay = 250, testMode = false) ->
+  minFreq = parseFloat($('.js-min-freq').val())
+  selectedMethod = $('.js-method').val()
+  numPhotos = parseInt($('.js-num-photos').val() ? DEFAULT_NUM_PHOTOS)
+  $('.slides').html('')
+  $('body').addClass('loading') if delay
+  delayCallback = ->
+    initSlides(surveyData, minFreq, selectedMethod, numPhotos, testMode)
+    $('body').removeClass('loading') if delay
+    Reveal.toggleOverview(false)
+    setTimeout(Reveal.right, SLIDE_CHANGE_DELAY) if testMode
+  setTimeout(delayCallback, delay)
+
+initSlides = (surveyData, minFreq = 0, selectedMethod = 'all', numPhotos = DEFAULT_NUM_PHOTOS, testMode = false) ->
   items = generateItems(surveyData, minFreq, selectedMethod)
   numPhotos = Math.min(numPhotos, items.length)
   ecoregionValueNamePairs = ([er, "#{er} (#{sc.length} sites)"] for er, sc of surveyData.ecoregionToSiteCodes).sort()
@@ -65,60 +106,27 @@ initSlides = (surveyData, minFreq = 0, selectedMethod = 'all', numPhotos = DEFAU
     numSelectedSites: getSelectedSites().length
   ))
   for item in _.sample(items, numPhotos)
-    $slides.append(flashcardTemplate(item))
+    $slides.append(flashcardTemplate(_.extend({}, item, testMode: testMode)))
   $slides.append(footerTemplate()) if numPhotos > 0
   Reveal.initialize(REVEAL_SETTINGS)
 
   slideScores = {}
-  calculateScore = ->
-    answered = 0
-    correct = 0
-    for i in [1..numPhotos]
-      if slideScores.hasOwnProperty(i)
-        answered++
-        correct++ if slideScores[i]
-    score = (100 * correct / numPhotos).toFixed(2)
-    $('.js-running-score').html(
-      "Score: #{score}% (correct: #{correct}; attempted: #{answered}; unanswered: #{numPhotos - answered})"
-    )
   $('.js-scientific-name').keyup((event) ->
     if event.key == 'Enter'
-      $this = $(this)
-      $this.removeClass('alert-success alert-error')
-      slideIndex = Reveal.getIndices().h
-      if $this.val().trim() == $this.data('name')
-        $this.addClass('alert-success')
-        $this.blur()
-        slideScores[slideIndex] = true if not slideScores.hasOwnProperty(slideIndex)
-        setTimeout(Reveal.right, 500)
-      else
-        $this.addClass('alert-error')
-        slideScores[slideIndex] = false
-        setTimeout(Reveal.down, 500)
-        setTimeout(Reveal.right, 2000)
-      calculateScore()
+      checkAnswer($(this), slideScores, testMode)
+      updateDisplayedScore(slideScores, numPhotos)
   )
+  updateDisplayedScore(slideScores, numPhotos) if testMode
 
-  refreshSlides = (delay = 250) ->
-    minFreq = parseFloat($('.js-min-freq').val())
-    selectedMethod = $('.js-method').val()
-    numPhotos = parseInt($('.js-num-photos').val() ? DEFAULT_NUM_PHOTOS)
-    $slides.html('')
-    $('body').addClass('loading') if delay
-    delayCallback = ->
-      initSlides(surveyData, minFreq, selectedMethod, numPhotos)
-      $('body').removeClass('loading') if delay
-      Reveal.toggleOverview(false)
-    setTimeout(delayCallback, delay)
-
-  $('.js-resample').click(refreshSlides)
-  $('.js-min-freq, .js-method, .js-num-photos').change(-> refreshSlides(0))
+  $('.js-resample').click(-> refreshSlides(surveyData))
+  $('.js-min-freq, .js-method, .js-num-photos').change(-> refreshSlides(surveyData, 0))
+  $('.js-start-test').click(-> refreshSlides(surveyData, 0, true))
   $('.js-ecoregion').change(->
     selectedEcoregion = $('.js-ecoregion').val()
     ecoregionSiteCodes = surveyData.ecoregionToSiteCodes[selectedEcoregion]
     if ecoregionSiteCodes
       history.pushState(null, null, '?' + $.param(siteCodes: ecoregionSiteCodes.join(',')))
-      refreshSlides()
+      refreshSlides(surveyData)
   )
 
 util.loadSurveyData(initSlides)

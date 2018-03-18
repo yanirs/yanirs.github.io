@@ -24,7 +24,9 @@ html(lang='en')
               <input class="js-min-freq" type="number" min="0" max="100" step="1" value="<%= minFreq %>">% of
               <select class="js-method"><%= methodOptions %></select> surveys in the selected sites. Change the
               percentage or method, or <a href="#" class="js-resample">tap here</a> to see a different sample of photos.
-            li To test your knowledge, write the exact scientific name in the box below each photo and press enter.
+            li.
+              To test your knowledge, write the exact scientific name in the box below each photo and press enter.
+              You can also <a href="#" class="js-start-test">start a timed test</a>.
           ul
             li.
               To select sites, use the <a href="<%= frequencyExplorerUrl %>" target="_blank">Frequency
@@ -40,13 +42,13 @@ html(lang='en')
 
 
       script#flashcard-template(type='text/template')
-        section
+        section(class!="<%= testMode ? 'test-mode' : '' %>")
           section
             p.center Identify this animal
-            p.center: small Go down to see its name
+            p.center.test-mode-hidden: small Go down to see its name
 
             a(href!='<%= image %>', target='_blank'): img.fish-img(src!='<%= image %>')
-            .img-source-caption
+            .img-source-caption.test-mode-hidden
               .start-link: a(href='#') Back to start
               .species-link Frequency: <%= freq %>% | <a href="<%= url %>" target="_blank">Species page</a>
 
@@ -55,9 +57,10 @@ html(lang='en')
             .small.js-running-score
 
           section(data-transition-speed='fast')
-            .scientific-name: i <%= name %>
-            | <%= commonName %>
+            .test-mode-hidden
+              .scientific-name: i <%= name %>
+              | <%= commonName %>
 
-            p: a.small(href='#') Back to start
+              p: a.small(href='#') Back to start
 
       script(src='main.min.js')
