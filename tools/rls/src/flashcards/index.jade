@@ -24,7 +24,9 @@ html(lang='en')
               <input class="js-min-freq" type="number" min="0" max="100" step="1" value="<%= minFreq %>">% of
               <select class="js-method"><%= methodOptions %></select> surveys in the selected sites. Change the
               percentage or method, or <a href="#" class="js-resample">tap here</a> to see a different sample of photos.
-            li To test your knowledge, write the exact scientific name in the box below each photo and press enter.
+            li.
+              To test your knowledge, write the exact scientific name in the box below each photo and press enter.
+              You can also <a href="#" class="js-start-test">start a timed test</a>.
           ul
             li.
               To select sites, use the <a href="<%= frequencyExplorerUrl %>" target="_blank">Frequency
@@ -36,28 +38,31 @@ html(lang='en')
         section
           h2 The end
           h4.js-running-score
-          h4 <a href="#">Go back to the first slide</a> to view a different set of images
-
+          h4.js-test-info
+          h4.test-active-hidden <a href="#">Go back to the first slide</a> to view a different set of photos.
 
       script#flashcard-template(type='text/template')
         section
           section
             p.center Identify this animal
-            p.center: small Go down to see its name
+            p.center.test-active-hidden: small Go down to see its name
 
             a(href!='<%= image %>', target='_blank'): img.fish-img(src!='<%= image %>')
-            .img-source-caption
+            .img-source-caption.test-active-hidden
               .start-link: a(href='#') Back to start
               .species-link Frequency: <%= freq %>% | <a href="<%= url %>" target="_blank">Species page</a>
 
             input.js-scientific-name(type='text', placeholder='Enter scientific name', data-name!='<%= name %>',
                                      autocomplete='off', title='Press backslash to focus, enter to submit')
+            span.input-validation
             .small.js-running-score
+            .small.js-test-info
 
           section(data-transition-speed='fast')
-            .scientific-name: i <%= name %>
-            | <%= commonName %>
+            .test-active-hidden
+              .scientific-name: i <%= name %>
+              | <%= commonName %>
 
-            p: a.small(href='#') Back to start
+              p: a.small(href='#') Back to start
 
       script(src='main.min.js')
