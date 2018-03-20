@@ -124,12 +124,17 @@ updateTestTimer = function(testStartTime, timeLimitSeconds) {
   }
 };
 
-endTest = function() {
+endTest = function(jumpToLastSlide) {
+  if (jumpToLastSlide == null) {
+    jumpToLastSlide = true;
+  }
   clearTimeout(testTimerTimeoutId);
   $('.js-test-info').html('Test over! You can now go through the slides to review your answers.');
   $('.slides').removeClass('test-active');
   $('.js-scientific-name').blur().prop('disabled', true);
-  return Reveal.slide(Number.MAX_VALUE);
+  if (jumpToLastSlide) {
+    return Reveal.slide(Number.MAX_VALUE);
+  }
 };
 
 checkAnswer = function($input, slideScores, testMode) {
@@ -157,6 +162,9 @@ refreshSlides = function(surveyData, delay, testMode) {
   }
   if (testMode == null) {
     testMode = false;
+  }
+  if (testTimerTimeoutId) {
+    endTest(false);
   }
   minFreq = parseFloat($('.js-min-freq').val());
   selectedMethod = $('.js-method').val();

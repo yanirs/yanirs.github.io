@@ -78,12 +78,12 @@ updateTestTimer = (testStartTime, timeLimitSeconds) ->
   else
     endTest()
 
-endTest = ->
+endTest = (jumpToLastSlide = true) ->
   clearTimeout(testTimerTimeoutId)
   $('.js-test-info').html('Test over! You can now go through the slides to review your answers.')
   $('.slides').removeClass('test-active')
   $('.js-scientific-name').blur().prop('disabled', true)
-  Reveal.slide(Number.MAX_VALUE)
+  Reveal.slide(Number.MAX_VALUE) if jumpToLastSlide
 
 checkAnswer = ($input, slideScores, testMode) ->
   $input.blur()
@@ -101,6 +101,7 @@ checkAnswer = ($input, slideScores, testMode) ->
     setTimeout(Reveal.right, SLIDE_CHANGE_DELAY * 4)
 
 refreshSlides = (surveyData, delay = 250, testMode = false) ->
+  endTest(false) if testTimerTimeoutId
   minFreq = parseFloat($('.js-min-freq').val())
   selectedMethod = $('.js-method').val()
   numPhotos = parseInt($('.js-num-photos').val() ? DEFAULT_NUM_PHOTOS)
