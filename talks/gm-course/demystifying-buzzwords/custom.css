@@ -1,0 +1,125 @@
+h1, h2, h3, h4, h5, h6 {
+  text-transform: none !important;
+}
+
+.reveal h1 {
+  font-size: 2.5em;
+}
+
+.reveal h2 {
+  font-size: 1.5em;
+}
+
+.reveal h3 {
+  font-size: 1.35em;
+}
+
+p, blockquote {
+  text-align: left;
+}
+
+.center {
+  text-align: center !important;
+}
+
+.left {
+  text-align: left !important;
+}
+
+.right {
+  text-align: right !important;
+}
+
+.indent {
+  padding-left: 30px !important;
+}
+
+.indent-2 {
+  padding-left: 60px !important;
+}
+
+.indent-3 {
+  padding-left: 90px !important;
+}
+
+.pad-top {
+  padding-top: 30px !important;
+}
+
+.margin-top {
+  margin-top: 30px !important;
+}
+
+.small {
+  font-size: .6em !important;
+  line-height: 1.2em !important;
+}
+
+.medium {
+  font-size: .8em !important;
+  line-height: 1.2em !important;
+}
+
+.reveal section img {
+  border: 0;
+  max-height: 500px;
+}
+
+.method-example {
+  max-height: 500px !important;
+}
+
+.reveal ul, .reveal ol {
+  display: block;
+  padding-left: 30px;
+}
+
+.reveal table td {
+  border-bottom: none;
+}
+
+.reveal .img-source-caption {
+  text-align: right;
+  font-size: 14px;
+  padding-bottom: 10px;
+  margin-top: -10px;
+}
+
+.no-margin {
+  margin: 0 !important;
+}
+
+.strikethrough {
+  text-decoration: line-through !important;
+}
+
+.full-width {
+  width: 100% !important;;
+}
+
+.reveal blockquote {
+  padding: 10px;
+}
+
+.reveal .flow-box {
+  border: 1px solid whitesmoke;
+  margin: 5px 25%;
+  padding: 5px;
+  width: 50%;
+}
+
+table.center-cell-text td {
+  text-align: center;
+}
+
+table.left-first-column td:first-child {
+  text-align: left;
+}
+
+.causal-assumptions p {
+  margin: 5px;
+}
+
+.muted {
+  color: #888;
+}
