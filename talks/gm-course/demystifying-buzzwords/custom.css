@@ -60,8 +60,9 @@ p, blockquote {
   line-height: 1.2em !important;
 }
 
-img {
-  border: 0 !important;
+.reveal section img {
+  border: 0;
+  max-height: 500px;
 }
 
 .method-example {
