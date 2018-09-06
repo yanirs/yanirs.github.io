@@ -1,0 +1,42 @@
+<!DOCTYPE html><html lang="en"><head><title>Problem Definition</title><meta name="description" content="On the importance of problem definition in machine learning."><meta name="author" content="Yanir Seroussi"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="stylesheet" href="css/reveal.css"><link rel="stylesheet" href="css/theme/night.css"><link rel="stylesheet" href="lib/css/zenburn.css"><link rel="stylesheet" href="custom.css"><!-- Print and PDF exports--><script>var link = document.createElement('link');
+link.rel = 'stylesheet';
+link.type = 'text/css';
+link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+document.getElementsByTagName('head')[0].appendChild(link);
+</script><!--[if lt IE 9]><script src="lib/js/html5shiv.js"></script><![endif]--></head><body><div class="reveal"><div class="slides"><section><h1>Problem Definition</h1></section><section><section><h2>Common data science problems</h2><p>"We have all this data, what can we do with it?"<br>
+"I want my big data thing to perform better"<br>
+"Give me actionable analytics about our customers"
+</p><a href="http://dilbert.com/strip/2013-01-09"><img src="img/dilbert-actionable-analytics.gif"></a></section><section><h2>Better-defined problems</h2><ul><li class="fragment">Build a model to predict sales of a marketing campaign</li><li class="fragment">Create a system that runs campaigns that automatically adapt to customer feedback</li><li class="fragment">Identify key objects in images</li><li class="fragment">Improve clickthrough rates on search engine results</li><li class="fragment">Detect whale calls from underwater recordings to prevent collisions</li></ul></section></section><section><section><h1>Steps to solving data science problems</h1></section><section><h2>Steps to solving data science problems</h2><h1>#1: Figure out what the problem is</h1></section><section><h2>Steps to solving data science problems</h2><h1>#2: Find out how the solution will be measured</h1></section><section><h2>Steps to solving data science problems</h2><h1>#3: "Solve" problem</h1></section><section><h2>Solve problem?</h2><a href="http://pn.ispirt.in/practical-mantras-for-lean-startup/"><img src="img/build-measure-learn.jpg"></a></section><section><h2>Solve problem with ML?</h2><a href="http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html"><img src="img/scikit-learn-map.png"></a></section></section><section><h2>Exploring the ML map</h2><ul><li>Base assumption: you have data and a rough idea what you want to find</li><li>All methods require <b>features</b> as input</li><li>Four main areas:<ul><li>Supervised classification</li><li>Supervised regression</li><li>Unsupervised clustering</li><li>Dimensionality reduction</li></ul></li></ul></section><section><section><h3>Supervised classification: Definition</h3><p><b>Supervised:</b> we have labelled data to train on</p><p><b>Classification:</b> need to predict/infer the class/category of each instance</p></section><section><h3>Supervised classification: Example #1</h3><p>Classifying iris species using k-nearest-neighbours</p><a href="http://scikit-learn.org/stable/auto_examples/neighbors/plot_classification.html"><img class="method-example" src="img/supervised-classification-iris-knn.png"></a></section><section><h3>Supervised classification: Example #2</h3><p>Classifying spam emails with support vector machines</p><a href="http://scikit-learn.org/stable/auto_examples/neighbors/plot_classification.html"><img class="method-example" src="img/supervised-classification-svm.png" style="background: white; padding: 5px"></a></section></section><section><section><h3>Supervised regression: Definition</h3><p><b>Supervised:</b> we have labelled data to train on</p><p><b>Regression:</b> need to predict/infer a numeric quantity for each instance</p></section><section><h3>Supervised regression: Example #1</h3><p>Linear regression to predict diabetes progression</p><a href="http://scikit-learn.org/stable/auto_examples/linear_model/plot_ols.html"><img class="method-example" src="img/supervised-regression-diabetes-linear.png"></a></section><section><h3>Supervised regression: Example #2</h3><p>Predicting rent with decision trees</p><a href="https://bigml.com/user/ashikiar/gallery/model/52dda1b90c0b5e2904000187/tree"><img class="method-example" src="img/supervised-regression-rent-decision-tree.png"></a></section></section><section><section><h3>Unsupervised clustering: Definition</h3><p><b>Unsupervised:</b> no labelled training data</p><p><b>Clustering:</b> group together similar instances, can be soft or hard</p></section><section><h3>Unsupervised clustering: Example #1</h3><p>Discovering topics in texts with latent Dirichlet allocation</p><a href="http://cacm.acm.org/magazines/2012/4/147361-probabilistic-topic-models/fulltext"><img class="method-example" src="img/unsupervised-clustering-lda.jpg"></a></section><section><h3>Unsupervised clustering: Example #2</h3><p>Segmenting images with spectral clustering</p><a href="http://scikit-learn.org/stable/auto_examples/cluster/plot_lena_segmentation.html"><img class="method-example" src="img/unsupervised-clustering-spectral.png"></a></section></section><section><section><h3>Dimensionality reduction: Definition</h3><p><b>Dimensionality:</b> number of different feature types</p><p><b>Reduction:</b> decreasing the feature number by selection or transformation</p></section><section><h3>Dimensionality reduction: Example #1</h3><p>Decomposing faces with principal component analysis</p><a href="http://scikit-learn.org/stable/auto_examples/decomposition/plot_faces_decomposition.html"><img src="img/dimensionality-reduction-original-faces.png" width="450">&nbsp;<img src="img/dimensionality-reduction-pca-faces.png" width="450"></a></section><section><h3>Dimensionality reduction: Example #2</h3><p>Discovering movie themes with matrix factorisation</p><a href="http://www2.research.att.com/~volinsky/papers/ieeespectrum.pdf"><img class="method-example" src="img/dimensionality-reduction-matrix-factorisation.png"></a></section></section><section><section><h2>Beyond the map...</h2><ul><li>Preprocessing</li><li>Visualisation</li><li>Language processing: parse trees, part-of-speech tagging</li><li>Generation: written language, speech, movement</li><li>Active learning</li><li>And much more...</li></ul></section><section><h2>Beyond the map...</h2><h1>Thinking and putting everything together</h1></section></section><section><h2>The human behind the machine</h2><p>Why are data scientists needed?</p><ul><li>Ask questions</li><li>Reduce and rephrase problems</li><li>Come up with reasonable metrics</li><li>Choose the right tools</li><li>Handle data drift</li><li>Understand business needs</li><li>Make it work in production</li></ul></section><section><h2>Questions?</h2></section></div></div><script src="lib/js/head.min.js"></script><script src="js/reveal.js"></script><script>Reveal.initialize({
+  controls: true,
+  progress: true,
+  history: true,
+  center: true,
+  transition: 'slide',
+  dependencies: [
+    {
+      src: 'lib/js/classList.js',
+      condition: function() { return !document.body.classList; }
+    },
+    {
+      src: 'plugin/markdown/marked.js',
+      condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+    },
+    {
+      src: 'plugin/markdown/markdown.js',
+      condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+    },
+    {
+      src: 'plugin/highlight/highlight.js',
+      async: true,
+      callback: function() { hljs.initHighlightingOnLoad(); }
+    },
+    {
+      src: 'plugin/zoom-js/zoom.js',
+      async: true
+    },
+    {
+      src: 'plugin/notes/notes.js',
+      async: true
+    }
+  ]
+});</script></body></html>
