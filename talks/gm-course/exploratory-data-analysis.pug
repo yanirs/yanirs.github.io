@@ -1,0 +1,194 @@
+doctype html
+html(lang="en")
+  head
+    title Exploratory Data Analysis
+
+    meta(name="description",
+         content="A brief overview of exploratory data analysis with Reef Life Survey data.")
+    meta(name="author", content="Yanir Seroussi")
+    meta(charset="utf-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
+    meta(name="apple-mobile-web-app-capable", content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style", content="black-translucent")
+
+    link(rel="stylesheet", href="css/reveal.css")
+    link(rel="stylesheet", href="css/theme/night.css")
+    link(rel="stylesheet", href="lib/css/zenburn.css")
+    link(rel="stylesheet", href="custom.css")
+
+    // Print and PDF exports
+    script.
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName('head')[0].appendChild(link);
+
+    <!--[if lt IE 9]><script src="lib/js/html5shiv.js"></script><![endif]-->
+
+  body
+    .reveal: .slides
+      section
+        h1 Exploratory Data Analysis
+
+      section
+        section
+          h1 Let's break it up...
+
+        section
+          h2 Exploratory
+
+          p Start with a question or a vague idea what you want to find -- don't be an aimless wanderer (explore versus wander dictionary definitions)
+          p But don't be too fixated on a goal -- be ready to formulate new hypotheses
+
+        section
+          h2 Data
+
+          p Relevant to the topic of exploration -- may need collection
+
+        section
+          h2 Analysis
+
+          p Comes last, after question and data
+
+      section
+        section
+          h1 Question!
+
+        section
+          h2 Me: How likely am I to see a wobbegong on my next dive?
+
+        section
+          h2 You: A wobbe-what?
+
+        section
+          h2 Me: A wobbegong!
+
+          p Image
+
+        section
+          h2 You: Let's check Wikipedia...
+
+          p Define wobbegong (Wiki)
+
+        section
+          h2 You: What kind of wobbegong?
+
+          p images with species names -- RLS?
+
+        section
+          h2 Me: Any kind will do, thanks!
+
+      section
+        section
+          h1 Reef Life Survey Data
+
+        section
+          h2 What is Reef Life Survey?
+
+          p In a sentence + image (mine?)
+          p Introduce Reef Life Survey
+          p How do I know about it (my involvement)
+
+        section
+          h2 How is RLS data collected?
+
+          p Methods manual snippet
+
+        section
+          h2 Getting the data
+
+          p Brief overview: three files, website, can just download everything (file sizes)
+
+      section
+        h1 Time for some analysis!
+
+      section
+        section
+          h2 Data format and semantics
+
+          p What the data looks like
+          p Columns &ndash; use to define variable types? (categorical, continuous, structured like coordinates)
+          p Show the data in Excel / head / pandas
+
+        section
+          h2 But what about the wobbies?
+
+          p No mapping from common name to scientific in the data
+          p Wikipedia to the rescue!
+          p Which files contain the wobbies
+
+        section
+          h2 Is this enough to answer my question?
+
+          ul Dataset limitations:
+            li Mostly 'straya, mate (show map, note it doesn't show frequency of surveys)
+            li Shallow waters, rocky reef (methods manual)
+          p It's good enough as a start, let's dig deeper
+
+      section
+        h2 Descriptive statistics
+
+        p Quick overview of slides from http://www.gs.washington.edu/academics/courses/akey/56008/lecture/lecture2.pdf
+        p Things to remember: beyond the mean, descriptive statistics, unlearning descriptive statistics
+        p Pandas: describe() -- good enough? https://en.wikipedia.org/wiki/Five-number_summary -- quick demo of the power of pandas
+        p Mention the need to aggregate data -- single data points
+        p Apply the above to the dataset
+
+      section
+        h2 Exploratory visualisation
+
+        p Silly example: The mean coordinate for a wobbegong -- median is better as it's actually somewhere where a wobbegong was seen
+        p Scatterplot of coordinates? Does it look like continents?
+        p Use relative frequency of species from RLS site? (here or in descriptive)
+        p Leading to the power of using maps
+        p Show frequency explorer?
+        p Show how frequency explorer uncovers the coordinate rounding?
+
+      section
+        h2 Where to from here?
+
+        p Tentative answer: Depends on where you go -- a predictive model can give a probability estimate with error bars
+        p Process chart from https://en.wikipedia.org/wiki/Exploratory_data_analysis
+        p connect to building a model, extracting features
+
+      section
+        h1 Questions?
+
+    script(src="lib/js/head.min.js")
+    script(src="js/reveal.js")
+    script.
+      Reveal.initialize({
+        controls: true,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'slide',
+        dependencies: [
+          {
+            src: 'lib/js/classList.js',
+            condition: function() { return !document.body.classList; }
+          },
+          {
+            src: 'plugin/markdown/marked.js',
+            condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+          },
+          {
+            src: 'plugin/markdown/markdown.js',
+            condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+          },
+          {
+            src: 'plugin/highlight/highlight.js',
+            async: true,
+            callback: function() { hljs.initHighlightingOnLoad(); }
+          },
+          {
+            src: 'plugin/zoom-js/zoom.js',
+            async: true
+          },
+          {
+            src: 'plugin/notes/notes.js',
+            async: true
+          }
+        ]
+      });
