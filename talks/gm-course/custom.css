@@ -89,6 +89,11 @@ p, blockquote {
   margin-top: -10px;
 }
 
+.reveal section img.pad-white {
+  background: white;
+  padding: 5px;
+}
+
 .no-margin {
   margin: 0 !important;
 }
