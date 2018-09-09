@@ -38,18 +38,33 @@ html(lang="en")
         section
           h2 Exploratory
 
-          p Start with a question or a vague idea what you want to find -- don't be an aimless wanderer (explore versus wander dictionary definitions)
-          p But don't be too fixated on a goal -- be ready to formulate new hypotheses
+          p.fragment
+            a(href="https://en.oxforddictionaries.com/definition/explore") explore
+            br
+            i.indent travel through (an unfamiliar area) in order to learn about it
+
+          p.fragment
+            a(href="https://en.oxforddictionaries.com/definition/wander") wander
+            br
+            i.indent walk or move in a leisurely or aimless way
+
+          aside.notes
+            ul
+              li Start with questions or a rough plan
+              li Be open to learning new things
 
         section
           h2 Data
 
-          p Relevant to the topic of exploration -- may need collection
+          p Relevant to the topic of exploration
+          p May require collection
+          p Size doesn't matter
 
         section
           h2 Analysis
 
-          p Comes last, after question and data
+          p Last but not least
+          p Tools don't matter
 
       section
         section
@@ -64,17 +79,23 @@ html(lang="en")
         section
           h2 Me: A wobbegong!
 
-          p Image
+          a(href="https://flic.kr/p/pW6u4A")
+            img(src="img/wobbegong.jpg")
 
         section
           h2 You: Let's check Wikipedia...
 
-          p Define wobbegong (Wiki)
+          blockquote: p.
+            Wobbegong is the common name given to the 12 species of carpet sharks in the family Orectolobidae. They are
+            found in shallow temperate and tropical waters of the western Pacific Ocean and eastern Indian Ocean,
+            chiefly around Australia and Indonesia, although one species [...] occurs as far north as Japan. The word
+            wobbegong is believed to come from an Australian Aboriginal language, meaning "shaggy beard".
 
         section
           h2 You: What kind of wobbegong?
 
-          p images with species names -- RLS?
+          a(href="https://reeflifesurvey.com/species/search.php")
+            img(src="img/wobbegong-species.png")
 
         section
           h2 Me: Any kind will do, thanks!
@@ -86,19 +107,28 @@ html(lang="en")
         section
           h2 What is Reef Life Survey?
 
-          p In a sentence + image (mine?)
-          p Introduce Reef Life Survey
-          p How do I know about it (my involvement)
+          a(href="https://reeflifesurvey.com/volunteer-spotlight-yanir-seroussi/")
+            img(src="img/reef-life-survey-me.jpg")
+
+          aside.notes
+            p Introduce Reef Life Survey (RLS) in a sentence
+            p How do I know about it (my involvement)
 
         section
           h2 How is RLS data collected?
 
-          p Methods manual snippet
+          a(href="https://reeflifesurvey.com/reef-life-survey/about-rls/methods/")
+            img(src="img/reef-life-survey-methods.png")
 
         section
           h2 Getting the data
 
-          p Brief overview: three files, website, can just download everything (file sizes)
+          a(href="https://reeflifesurvey.com/reef-life-survey/survey-data/")
+            img(src="img/reef-life-survey-getting-data.png")
+
+          aside.notes
+            p Five files: M1, M2 cryptic/inverts, PQs, sites
+            p Can just download everything &ndash; not a huge dataset
 
       section
         h1 Time for some analysis!
@@ -160,6 +190,7 @@ html(lang="en")
     script.
       Reveal.initialize({
         controls: true,
+        controlsTutorial: false,
         progress: true,
         history: true,
         center: true,
