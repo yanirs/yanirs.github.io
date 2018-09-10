@@ -1,0 +1,273 @@
+doctype html
+html(lang="en")
+  head
+    title Surviving the Titanic with Machine Learning
+
+    meta(name="description",
+         content="Surviving the Titanic with Machine Learning.")
+    meta(name="author", content="Yanir Seroussi")
+    meta(charset="utf-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
+    meta(name="apple-mobile-web-app-capable", content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style", content="black-translucent")
+
+    link(rel="stylesheet", href="css/reveal.css")
+    link(rel="stylesheet", href="css/theme/night.css")
+    link(rel="stylesheet", href="lib/css/zenburn.css")
+    link(rel="stylesheet", href="custom.css")
+
+    // Print and PDF exports
+    script.
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName('head')[0].appendChild(link);
+
+    <!--[if lt IE 9]><script src="lib/js/html5shiv.js"></script><![endif]-->
+
+  body
+    .reveal: .slides
+      section
+        h1 Surviving the Titanic
+        h2 machine learning with a spreadsheet
+
+      section
+        section
+          h2 Surviving the Titanic
+
+          ul
+            li Goal: "predict" who would survive the Titanic
+            li Good toy problem for beginners
+            li Hosted on Kaggle
+
+        section
+          h2 What is Kaggle?
+
+          a(href="http://jessireel.wordpress.com/design/kaggle-monster2/")
+            img(src="img/kaggle-monster2.png")
+
+          aside.notes
+            p Mention my history up to 2014 &ndash; just competitions
+            p Recent past: expanded to include parts of this course, e.g., kernels
+            p Owned by the Google monster now
+
+        section
+          h2 ML with a spreadsheet?!
+
+          p.fragment Principles are more important than tools
+
+          .fragment
+            blockquote: p.
+              As to methods, there may be a million and then some, but principles are few. The [person] who grasps
+              principles can successfully select [their] own methods. The [person] who tries methods, ignoring
+              principles, is sure to have trouble.
+
+            .img-source-caption &ndash; <a href="https://quoteinvestigator.com/2015/07/17/methods/">Harrington Emerson (1911)</a>
+
+          p.fragment Based on <a href="https://www.kaggle.com/c/titanic/discussion/28323">Kaggle's tutorial</a>
+
+        section
+          h2 Kaggle competition steps
+
+          ol
+            li: strike Define the problem
+            li: a(href="https://www.kaggle.com/c/titanic/data") Get the data
+            li: a(href="https://www.kaggle.com/c/titanic#evaluation") Understand the evaluation metric
+            li: a(href="https://www.kaggle.com/c/titanic/kernels") Find patterns in the data
+            li Model useful patterns
+            li: a(href="https://www.kaggle.com/c/titanic/submit") Evaluate model &ndash; make a submission
+            li Repeat steps 4-6
+
+      section
+        section
+          h1 Get the data
+
+        section
+          h2 train.csv
+
+          blockquote: p.
+            The training set should be used to build your machine learning models. For the training set, we provide the
+            outcome (also known as the "ground truth") for each passenger. Your model will be based on "features" like
+            passengers' gender and class. You can also use feature engineering to create new features.
+
+        section
+          h2 test.csv
+
+          blockquote: p.
+            The test set should be used to see how well your model performs on unseen data. For the test set, we do not
+            provide the ground truth for each passenger. It is your job to predict these outcomes. For each passenger in
+            the test set, use the model you trained to predict whether or not they survived the sinking of the Titanic.
+
+        section
+          h2 Data notes
+
+          table.small
+            thead: tr
+              td: b Variable
+              td: b Definition
+              td: b Notes
+            tbody
+              tr
+                td: b Survived
+                td Survival
+                td 0 = No, 1 = Yes
+              tr
+                td: b Pclass
+                td Ticket class
+                td A proxy for socio-economic status (SES):<br>1 = Upper, 2 = Middle, 3 = Lower
+              //tr
+              //  td: b Name
+              //  td Passenger name
+              //tr
+              //  td: b Sex
+              //  td Sex
+              tr
+                td: b Age
+                td Age in years
+                td Age is fractional if less than 1. If the age is estimated, is it in the form of xx.5
+              tr
+                td: b SibSp
+                td # of<br>siblings / spouses aboard the Titanic
+                td.
+                  Sibling = brother, sister, stepbrother, stepsister;
+                  Spouse = husband, wife (mistresses and fiancés were ignored)
+              tr
+                td: b Parch
+                td # of<br>parents / children aboard the Titanic
+                td.
+                  Parent = mother, father; Child = daughter, son, stepdaughter, stepson<br>
+                  Some children travelled only with a nanny, therefore parch=0 for them.
+              //tr
+              //  td: b Ticket
+              //  td Ticket number
+              //tr
+              //  td: b Fare
+              //  td Passenger fare
+              //tr
+              //  td: b Cabin
+              //  td Cabin number
+              tr
+                td: b Embarked
+                td Port of embarkation
+                td C = Cherbourg, Q = Queenstown, S = Southampton
+
+        section
+          h2.
+            Let's take a
+            <a href="https://docs.google.com/spreadsheets/d/1ohmesZ03G_yoXpT-9hM8yEiT_7eO5FeMCbqE3EDrPi8/edit">closer
+            look</a>...
+
+      section
+        section
+          h1 Understand the evaluation metric
+
+        section
+          h2 Goal
+
+          blockquote: p.
+            It is your job to predict if a passenger survived the sinking of the Titanic or not.
+            For each PassengerId in the test set, you must predict a 0 or 1 value for the Survived variable.
+
+        section
+          h2 Metric
+
+          blockquote: p.
+            Your score is the percentage of passengers you correctly predict. This is known simply as "accuracy”.
+
+        section
+          h2 Submission file format
+
+          blockquote.full-width
+            p.
+              You should submit a csv file with exactly 418 entries plus a header row. Your submission will show an
+              error if you have extra columns (beyond PassengerId and Survived) or rows.
+            p The file should have exactly 2 columns:
+            ul
+              li PassengerId (sorted in any order)
+              li Survived (contains your binary predictions: 1 for survived, 0 for deceased)
+
+        section
+          h2 Submission file example
+
+          blockquote: pre(style="border: solid").
+            PassengerId,Survived
+            892,0
+            893,1
+            894,0
+            Etc.
+
+      section
+        section
+          h1 Find patterns in the data
+
+        section
+          img(src="img/intermission.jpg")
+
+          aside.notes
+            p 10-15 minutes for people to work with the data
+            p Discuss patterns and ideas
+
+      section
+        h1 Model useful patterns
+
+        aside.notes
+          p Separate spreadsheet: Simple submissions
+          p Emphasise that even a simple rule can be seen as ML (one-node decision tree)
+
+      section
+        h1 Evaluate model &ndash; make a submission
+
+        aside.notes
+          p: a(href="https://docs.google.com/spreadsheets/d/1as5o3g2YIJCejpo-lbtX0thrquoeVEGXSfFztMPfypM/edit?usp=sharing") Spreadsheet with analysis
+          p Create the submission CSV
+          p Make an actual submission if there's time
+
+      section
+        h2 Beyond the spreadsheet
+
+        p.fragment Understand the principles
+        p.fragment Learn Python!
+        p.fragment Get your hands dirty
+
+      section
+        h1 Questions?
+
+    script(src="lib/js/head.min.js")
+    script(src="js/reveal.js")
+    script.
+      Reveal.initialize({
+        controls: true,
+        controlsTutorial: false,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'slide',
+        dependencies: [
+          {
+            src: 'lib/js/classList.js',
+            condition: function() { return !document.body.classList; }
+          },
+          {
+            src: 'plugin/markdown/marked.js',
+            condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+          },
+          {
+            src: 'plugin/markdown/markdown.js',
+            condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+          },
+          {
+            src: 'plugin/highlight/highlight.js',
+            async: true,
+            callback: function() { hljs.initHighlightingOnLoad(); }
+          },
+          {
+            src: 'plugin/zoom-js/zoom.js',
+            async: true
+          },
+          {
+            src: 'plugin/notes/notes.js',
+            async: true
+          }
+        ]
+      });
