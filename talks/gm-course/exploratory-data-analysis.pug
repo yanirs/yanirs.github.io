@@ -129,6 +129,7 @@ html(lang="en")
           aside.notes
             p Five files: M1, M2 cryptic/inverts, PQs, sites
             p Can just download everything &ndash; not a huge dataset
+            p Note big gaps around Africa and South America &ndash; originally an Australian project
 
       section
         h1 Time for some analysis!
@@ -137,50 +138,350 @@ html(lang="en")
         section
           h2 Data format and semantics
 
-          p What the data looks like
-          p Columns &ndash; use to define variable types? (categorical, continuous, structured like coordinates)
-          p Show the data in Excel / head / pandas
+          p.fragment.small.
+            Requires digging to find <a href="https://www.nature.com/articles/sdata20147">the Nature article</a>,
+            but some metadata is better than none
+
+          table.fragment.small
+            thead: tr
+              th Field
+              th Description
+
+            tbody
+              tr
+                td SiteCode
+                td Identifier of unique geographical coordinates (usually 2–3 letters followed by numeric string)
+              tr
+                td Site
+                td Descriptive name of the site
+              tr
+                td SiteLat
+                td Latitude of site (WGS84) in Decimal degrees
+              tr
+                td SiteLong
+                td Longitude of site (WGS84) in Decimal degrees
+              tr
+                td Country
+                td Country (or largely-autonomous state)
+              tr
+                td Ecoregion
+                td Location within the Marine Ecoregions of the World provided in Spalding et al.
+              tr
+                td Realm
+                td Biogeographic realm as classified in the Marine Ecoregions of the World
+              tr
+                td SurveyID
+                td Identifier of individual 50m transects (numeric string)
+
+        section
+          h2 Data format and semantics (cont.)
+
+          table.small
+            thead: tr
+              th Field
+              th Description
+
+            tbody
+              tr
+                td Depth
+                td.
+                  Mean depth in metres of transect line as recorded on dive computer (note: this does not account for
+                  tide or deviations from the mean value as a consequence of imperfect tracking of the depth contour
+                  along the bottom)
+              tr
+                td SurveyDate
+                td Date of survey (format: dd-month-yy)
+              tr
+                td Diver
+                td Initials of the diver who collected the datum (two to four letter unique identifier)
+              tr
+                td Taxon
+                td Species name, corrected for recent taxonomic changes and grouping of records not at species level
+              tr
+                td Family
+                td Taxonomic family
+              tr
+                td Block
+                td.
+                  Identifies which 5m wide block (of two) within each complete transect (<i>SurveyID</i>):
+                  1 (block on deeper/offshore side of transect line), 2 (block on shallower/inshore side)
+              tr
+                td Total
+                td Total abundance for record on that block, transect, site, date combination (numeric string)
+
+        section
+          h2 Or more generally...
+
+          a(href="http://www.gs.washington.edu/academics/courses/akey/56008/lecture/lecture2.pdf")
+            img(src="img/data-types.png")
+
+          p.fragment.right.no-margin &plus; structure and constraints
 
         section
           h2 But what about the wobbies?
 
-          p No mapping from common name to scientific in the data
-          p Wikipedia to the rescue!
-          p Which files contain the wobbies
+          p.fragment No mapping from common name to scientific in the data
+          p.fragment ...but we have the family (Orectolobidae)
+          p.fragment Let's have a quick look...
+
+        section
+          h2 First look at the data
+
+          img(src="img/rls-m1-head.png")
+
+          aside.notes
+            ul
+              li Note importance of actually <i>looking</i> &ndash; date is actually in ISO format, undocumented fields
+              li Size of the data
+              li Just looking at M1 (there's M2)
+              li Using pandas, but the same can be done with a spreadsheet or any other language
+
+        section
+          h2 Yep, there are some wobbies there!
+
+          img(src="img/rls-m1-wobbies.png")
+
+          aside.notes
+            ul
+              li Number of wobbies compared to the size of the dataset
+              li There should also be some in M2 cryptic, but leaving them out of this analysis
 
         section
           h2 Is this enough to answer my question?
 
-          ul Dataset limitations:
-            li Mostly 'straya, mate (show map, note it doesn't show frequency of surveys)
-            li Shallow waters, rocky reef (methods manual)
-          p It's good enough as a start, let's dig deeper
+          .fragment
+            p Dataset limitations:
+            ul
+              li Mostly 'straya, mate
+              li Shallow waters
+              li Rocky reef
+              li Frequency? Coverage? Quality?
+          p.fragment It's good enough as a start, let's dig deeper
 
       section
-        h2 Descriptive statistics
+        section
+          h2 Descriptive statistics
 
-        p Quick overview of slides from http://www.gs.washington.edu/academics/courses/akey/56008/lecture/lecture2.pdf
-        p Things to remember: beyond the mean, descriptive statistics, unlearning descriptive statistics
-        p Pandas: describe() -- good enough? https://en.wikipedia.org/wiki/Five-number_summary -- quick demo of the power of pandas
-        p Mention the need to aggregate data -- single data points
-        p Apply the above to the dataset
+          a(href="http://www.gs.washington.edu/academics/courses/akey/56008/lecture/lecture2.pdf")
+            img(src="img/central-dogma-of-statistics.png")
+
+          aside.notes
+            ul
+              li Descriptive &ne; inferential, despite people's tendency to jump to conclusions
+              li But if you don't do the descriptive part, inferential will suffer
+              li The best value for description may not be the best for inference
+
+        section
+          h2 Examples of descriptive statistics
+
+          p.fragment <b>Location</b>: mean/median/mode/percentile rank
+          p.fragment <b>Spread</b>: standard deviation/median absolute deviation/interquartile range
+          p.fragment <b>Shape</b>: skewness/kurtosis
+          p.fragment <b>Dependence</b>: Pearson/Spearman correlation coefficient
+
+          p.small.center.fragment.
+            Recommended reading:<br><i><a href="http://debrouwere.org/2017/02/01/unlearning-descriptive-statistics/">
+            Unlearning descriptive statistics</a></i>
+
+          aside.notes
+            ul
+              li Location/central tendency/average
+              li Spread/variation/variability/dispersion
+              li Shape: hard to interpret, better use an image
+              li Dependence: danger zone! (association/causation) again, a scatterplot may do a better job
+
+        section
+          h2 Describing our dataset with pandas
+
+          img(src="img/rls-m1-describe.png")
+
+          aside.notes
+            ul
+              li pandas is just a tool, but it's very convenient and powerful
+              li Can be nonsensical: Key and SurveyID &ndash; but count is useful for missing values
+              li Good sanity checks: Block has no missing values, but is between 0 (??) and 2
+              li Latitude/longitude: Nice, but they often make sense together
+              li Depth/Total are informative (more on that soon)
+              li What about non-numerical columns? Worth running sanity checks on date range, missing values, value counts
+
+        section
+          h2 Diving deeper...
+
+          img(src="img/rls-m1-depth-unique.png")
+
+          aside.notes
+            ul
+              li Remember the dataset contains one row per observation (species/survey/block)
+              li Quartiles remain the same when look at unique survey-depth pairs
+              li But count is down (11,890 versus 486,745)
+              li Mean and stddev are barely affected (7.2, 3.9 to 4.0)
+
+        section
+          h2 Outliers: Zero depth?
+
+          img(src="img/rls-m1-depth-outliers.png")
+
+          aside.notes
+            ul
+              li Only two surveys are affected
+              li Missing data?
+              li Ignore these surveys?
+              li Ask RLS! Always a good idea to ask the owner
+              li Note: Min/max may miss almost-outliers
+
+        section
+          h2 Outliers: 32,000 fish?!
+
+          img(src="img/rls-m1-total-outliers.png")
+
+          aside.notes
+            ul
+              li <i>Sardina pilchardus</i> sounds like a type of sardine, so probably legit
+              li Highlights a limitation of the method: Not counting large groups (priorities are species-count-size)
+
+        section
+          h2 Let's not forget the wobbies!
+
+          img(src="img/rls-m1-wobbies-describe.png")
+
+          aside.notes
+            ul
+              li Limited range in this dataset: Southern hemisphere around Australia
+              li Deeper than the rest of the data: Median 8.5m versus 6m
+              li Aggregations are rare: 75% at most one
+
+        section
+          img(src="img/numbers-everywhere.jpg")
+
+          aside.notes
+            ul
+              li Apologise for throwing so many numbers on slides
+              li Staring at numbers is useful, but tiring...
 
       section
-        h2 Exploratory visualisation
+        section
+          h2 Let's make the numbers more visual!
 
-        p Silly example: The mean coordinate for a wobbegong -- median is better as it's actually somewhere where a wobbegong was seen
-        p Scatterplot of coordinates? Does it look like continents?
-        p Use relative frequency of species from RLS site? (here or in descriptive)
-        p Leading to the power of using maps
-        p Show frequency explorer?
-        p Show how frequency explorer uncovers the coordinate rounding?
+          img(src="img/rls-m1-wobbies-box-plot.png")
+
+          aside.notes
+            ul
+              li Similar effort to describe() with pandas
+              li Note the different y-ranges!
+              li Classic box plots give us the five number summary: min, max, Q1, median, Q3
+              li Box: Q1 to Q3 with a line at Q2 (median)
+              li The whiskers extend from the edges of box to show the range of the data
+              li The position of the whiskers is set by default to 1.5 * IQR (IQR = Q3 - Q1) from the edges of the box
+              li Outlier points are those past the end of the whiskers
+
+        section
+          h2 The classic box plot alternative
+
+          img(src="img/rls-m1-wobbies-box-plot-depth.png", width="45%")
+          | &nbsp;
+          img(src="img/rls-m1-wobbies-box-plot-depth-classic.png", width="45%")
+
+        section
+          h2 Exploratory data visualisation
+
+          p.fragment Doesn't need to be pretty
+          p.fragment Doesn't need to be accessible to others
+          p.fragment Should be useful and accurate <i>enough</i>
+
+          aside.notes
+            p Danger zone: A bad visualisation can lead you astray
+
+        section
+          h2 Simple visualisations can uncover interesting patterns
+
+          img(src="img/rls-m1-decimal-bias.png")
+
+          aside.notes
+            ul
+              li Decimal bias: we have ten fingers!
+              li Total numbers are best treated as estimates
+
+        section
+          h2 Knowing the data's meaning can help
+
+          img(src="img/rls-m1-coordinate-scatter-plot.png")
+
+          aside.notes
+            ul
+              li Scatter-plotting lat/long makes sense for coordinates, but not necessarily for other pairs
+              li The Australian bias shows up again
+              li This would be nicer as a map overlay &ndash; not the projection we're used to
+
+        section
+          h2 And the wobbies?
+
+          img(src="img/rls-m1-wobbies-scatter-global.png")
+
+        section
+          h2 Zooming in...
+
+          img(src="img/rls-m1-wobbies-scatter-aussie.png")
+
+          aside.notes
+            ul
+              li Mean and median &ndash; silly but shows the difference
+              li Median method: Order (long, lat) coordindates, take middle one &ndash; an actual site
+
+        section
+          h2 External data can help uncover issues
+
+          a(href="https://reeflifesurvey.com/frequency-explorer/")
+            img(src="img/rls-coordinate-rounding.png")
+
+          aside.notes
+            ul
+              li Say that the map comes from frequency explorer
+              li Explain that this is due to intentional coordinate rounding
+              li Actual coordinates available separately, but should be a part of the dataset
+
+        section
+          h2 Aggregations may yield useful insights
+
+          img(src="img/rls-m1-diversity-by-latitude.png")
+
+          aside.notes
+            ul
+              li Explain diversity: Unique species count at a site
+              li As expected, higher diversity in the tropics and Southern Hemisphere bias
+              li Tools like pandas make aggregations easy
+              li May lead to ideas for features (next talk)
 
       section
-        h2 Where to from here?
+        section
+          h1 Conclusion
 
-        p Tentative answer: Depends on where you go -- a predictive model can give a probability estimate with error bars
-        p Process chart from https://en.wikipedia.org/wiki/Exploratory_data_analysis
-        p connect to building a model, extracting features
+        section
+          h2 Main takeaway: Be the data
+
+          img(src="img/zen-corgi.jpg")
+
+        section
+          h1 Be the data
+
+          p.fragment The better you know your data, the better your models will be
+          p.fragment Can explore forever
+          p.indent.fragment ...but know when to move to other tasks
+          p.indent.fragment ...and when to find better data
+
+          aside.notes
+            p.
+              Example: If the data didn't contain wobbies, or if my next dive isn't around Australia, the answer won't
+              be there.
+
+        section
+          h2 Where to from here?
+
+          a(href="https://en.wikipedia.org/wiki/Exploratory_data_analysis")
+            img(src="img/data-science-process.png")
+
+          aside.notes
+            p EDA gives us an idea what makes sense to use as features for a predictive model
+            p The predictive model can give a probability estimate to answer my question
 
       section
         h1 Questions?
