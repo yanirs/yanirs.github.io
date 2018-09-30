@@ -31,17 +31,26 @@ html(lang="en")
       section
         h1 Problem Definition
 
+        aside.notes: ul
+          li One of the key challenges
+          li What sort of problems can we handle?
+
       section
         section
           h2 Common data science problems
 
-          p.
-            "We have all this data, what can we do with it?"<br>
-            "I want my big data thing to perform better"<br>
-            "Give me actionable analytics about our customers"
+          p.fragment "We have all this data, what can we do with it?"
+          p.fragment "I want my big data cluster to perform better"
+          .fragment
+            p "Give me actionable analytics about our customers"
 
-          a(href="http://dilbert.com/strip/2013-01-09")
-            img.pad-white(src="img/dilbert-actionable-analytics.gif")
+            a(href="http://dilbert.com/strip/2013-01-09")
+              img.pad-white(src="img/dilbert-actionable-analytics.gif")
+
+          aside.notes: ol
+            li Business problem, not solved by data scientists
+            li Data engineering, vague
+            li More specific, but hype-driven, requires domain expertise
 
         section
           h2 Better-defined problems
@@ -53,6 +62,9 @@ html(lang="en")
             li.fragment Improve clickthrough rates on search engine results
             li.fragment Detect whale calls from underwater recordings to prevent collisions
 
+          aside.notes
+            p Common theme: clear measurable goal, can be addressed by ML
+
       section
         section
           h1 Steps to solving data science problems
@@ -62,15 +74,26 @@ html(lang="en")
 
           h1 #1: Figure out what the problem is
 
+          aside.notes: ul
+            li Get as specific as possible
+            li Requires domain knowledge and stakeholder consultation
+
         section
           h2 Steps to solving data science problems
 
           h1 #2: Find out how the solution will be measured
 
+          aside.notes: ul
+            li Important, challenging, critical, political
+            li Separate talk
+
         section
           h2 Steps to solving data science problems
 
           h1 #3: "Solve" problem
+
+          aside.notes
+            p Two previous steps are required
 
         section
           h2 Solve problem?
@@ -78,11 +101,20 @@ html(lang="en")
           a(href="http://pn.ispirt.in/practical-mantras-for-lean-startup/")
             img(src="img/build-measure-learn.jpg")
 
+          aside.notes: ul
+            li Never solved, always be iterating
+            li Ingrid: we only address problems, job security
+            li Build-measure-learn: data-driven way of building products, also applies to ML
+
         section
           h2 Solve problem with ML?
 
           a(href="http://scikit-learn.org/stable/tutorial/machine_learning_map/index.html")
             img(src="img/scikit-learn-map.png")
+
+          aside.notes: ul
+            li ML isn't always needed: better data? heuristic?
+            li When needed, the map can help decide on algorithm
 
       section
         h2 Exploring the ML map
@@ -97,12 +129,20 @@ html(lang="en")
               li Unsupervised clustering
               li Dimensionality reduction
 
+        aside.notes: ul
+          li Features: numeric representation, more details later
+          li Four areas: rest of this talk
+
       section
         section
           h3 Supervised classification: Definition
 
           p <b>Supervised:</b> we have labelled data to train on
           p <b>Classification:</b> need to predict/infer the class/category of each instance
+
+          aside.notes: ul
+            li Supervisor/teacher knows the correct answer
+            li Predict means infer, not necessarily forecast
 
         section
           h3 Supervised classification: Example #1
@@ -112,6 +152,11 @@ html(lang="en")
           a(href="http://scikit-learn.org/stable/auto_examples/neighbors/plot_classification.html")
             img.method-example(src="img/supervised-classification-iris-knn.png")
 
+          aside.notes: ul
+            li Iris: Fisher 1936, three species, four features (length/width of sepals/petals)
+            li KNN: distance in feature space, majority of K closest (tunable/1/3)
+            li Example: x = 5, y = 3 &rarr; red species
+
         section
           h3 Supervised classification: Example #2
 
@@ -119,6 +164,12 @@ html(lang="en")
 
           a(href="http://scikit-learn.org/stable/auto_examples/neighbors/plot_classification.html")
             img.method-example.pad-white(src="img/supervised-classification-svm.png")
+
+          aside.notes: ul
+            li Features: word frequency, potentially thousands
+            li Classes: spam / not spam (e.g., from users)
+            li SVM: find the hyperplane that best separates data
+            li Image: only two dimensions, line is the two dimensional hyperplane, hard to visualise thousands
 
       section
         section
@@ -135,6 +186,11 @@ html(lang="en")
           a(href="http://scikit-learn.org/stable/auto_examples/linear_model/plot_ols.html")
             img.method-example(src="img/supervised-regression-diabetes-linear.png")
 
+          aside.notes: ul
+            li Very basic, very useful
+            li Linear: It's just a line
+            li Multiple dimensions/features: Hyperplane, hard to visualise
+
         section
           h3 Supervised regression: Example #2
 
@@ -142,6 +198,11 @@ html(lang="en")
 
           a(href="https://bigml.com/user/ashikiar/gallery/model/52dda1b90c0b5e2904000187/tree")
             img.method-example(src="img/supervised-regression-rent-decision-tree.png")
+
+          aside.notes: ul
+            li Many tree-based techniques
+            li General idea: split by feature at each node
+            li Go through prediction path
 
       section
         section
@@ -158,13 +219,24 @@ html(lang="en")
           a(href="http://cacm.acm.org/magazines/2012/4/147361-probabilistic-topic-models/fulltext")
             img.method-example(src="img/unsupervised-clustering-lda.jpg")
 
+          aside.notes: ul
+            li Features: words in documents
+            li Generative story: Document has distribution over topics; topic &rarr; word
+            li Distribution = frequency list
+            li Mathematical tricks give us soft clusters
+            li Example: Science articles, yellow genetics, green neuroscience
+
         section
           h3 Unsupervised clustering: Example #2
 
           p Segmenting images with spectral clustering
 
-          a(href="http://scikit-learn.org/stable/auto_examples/cluster/plot_lena_segmentation.html")
+          a(href="http://scikit-learn.org/0.15/auto_examples/cluster/plot_lena_segmentation.html")
             img.method-example(src="img/unsupervised-clustering-spectral.png")
+
+          aside.notes: ul
+            li Hard clustering of pixels
+            li Uncover different areas of the picture
 
       section
         section
@@ -172,6 +244,10 @@ html(lang="en")
 
           p <b>Dimensionality:</b> number of different feature types
           p <b>Reduction:</b> decreasing the feature number by selection or transformation
+
+          aside.notes: ul
+            li Often used as a preprocessing step
+            li Can be used for exploration
 
         section
           h3 Dimensionality reduction: Example #1
@@ -183,6 +259,12 @@ html(lang="en")
             | &nbsp;
             img(src="img/dimensionality-reduction-pca-faces.png", width="450")
 
+          aside.notes: ul
+            li PCA: going strong since 1901
+            li Denoise the data
+            li Transform features to account for most of the variability
+            li Right hand side: fuzzy, face-like images (eyes, nose, lips)
+
         section
           h3 Dimensionality reduction: Example #2
 
@@ -190,6 +272,13 @@ html(lang="en")
 
           a(href="http://www2.research.att.com/~volinsky/papers/ieeespectrum.pdf")
             img.method-example(src="img/dimensionality-reduction-matrix-factorisation.png")
+
+          aside.notes: ul
+            li Matrix factorisation: similar to LDA and PCA
+            li Features: ratings users gave to movies
+            li Output: a vector with millions of ratings &ndash; handful of features that correspond to theme
+            li Example: Movie is serious or light
+            li More details in recsys talk
 
       section
         section
@@ -221,6 +310,9 @@ html(lang="en")
           li Handle data drift
           li Understand business needs
           li Make it work in production
+
+        aside.notes: ul
+          li More details later
 
       section
         h1 Questions?
