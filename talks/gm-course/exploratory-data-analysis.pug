@@ -60,11 +60,20 @@ html(lang="en")
           p May require collection
           p Size doesn't matter
 
+          aside.notes: ul
+            li Not physical territory
+            li Size: subsample, size &ne; value
+
         section
           h2 Analysis
 
           p Last but not least
           p Tools don't matter
+
+          aside.notes: ul
+            li Inform modelling decisions
+            li Not shipping to production yet
+            li Use the best tool for you
 
       section
         section
@@ -100,6 +109,10 @@ html(lang="en")
         section
           h2 Me: Any kind will do, thanks!
 
+          aside.notes: ul
+            li We have question &ndash; something to explore
+            li What about the data?
+
       section
         section
           h1 Reef Life Survey Data
@@ -110,9 +123,10 @@ html(lang="en")
           a(href="https://reeflifesurvey.com/volunteer-spotlight-yanir-seroussi/")
             img(src="img/reef-life-survey-me.jpg")
 
-          aside.notes
-            p Introduce Reef Life Survey (RLS) in a sentence
-            p How do I know about it (my involvement)
+          aside.notes: ul
+            li Introduce Reef Life Survey (RLS) in a sentence: citizen science, data on marine species in reefs
+            li Tassie uni originally
+            li How do I know about it (my involvement): 2015, strange hobby, awesome destinations
 
         section
           h2 How is RLS data collected?
@@ -120,16 +134,23 @@ html(lang="en")
           a(href="https://reeflifesurvey.com/reef-life-survey/about-rls/methods/")
             img(src="img/reef-life-survey-methods.png")
 
+          aside.notes: ol
+            li Lay 50m tape
+            li Photo quadrats
+            li Method 1
+            li Method 2
+
         section
           h2 Getting the data
 
           a(href="https://reeflifesurvey.com/reef-life-survey/survey-data/")
             img(src="img/reef-life-survey-getting-data.png")
 
-          aside.notes
-            p Five files: M1, M2 cryptic/inverts, PQs, sites
-            p Can just download everything &ndash; not a huge dataset
-            p Note big gaps around Africa and South America &ndash; originally an Australian project
+          aside.notes: ul
+            li Quality checks
+            li Five files: M1, M2 cryptic/inverts, PQs, sites
+            li Can just download everything &ndash; not a huge dataset
+            li Note big gaps around Africa and South America &ndash; originally an Australian project
 
       section
         h1 Time for some analysis!
@@ -217,6 +238,11 @@ html(lang="en")
 
           p.fragment.right.no-margin &plus; structure and constraints
 
+          aside.notes: ul
+            li Categorical: discrete, binary/nominal/ordinal
+            li Quantitative: discrete/continuous
+            li Structure/constraints: geographic coordinates
+
         section
           h2 But what about the wobbies?
 
@@ -229,22 +255,20 @@ html(lang="en")
 
           img(src="img/rls-m1-head.png")
 
-          aside.notes
-            ul
-              li Note importance of actually <i>looking</i> &ndash; date is actually in ISO format, undocumented fields
-              li Size of the data
-              li Just looking at M1 (there's M2)
-              li Using pandas, but the same can be done with a spreadsheet or any other language
+          aside.notes: ul
+            li Jupyter and pandas, but Excel/PHP are fine
+            li Note importance of actually <i>looking</i> &ndash; date in ISO format, undocumented fields like geom
+            li Just looking at M1 (there's M2)
+            li Size of the data
 
         section
           h2 Yep, there are some wobbies there!
 
           img(src="img/rls-m1-wobbies.png")
 
-          aside.notes
-            ul
-              li Number of wobbies compared to the size of the dataset
-              li There should also be some in M2 cryptic, but leaving them out of this analysis
+          aside.notes: ul
+            li Number of wobbies compared to the size of the dataset
+            li Orectolobidae, 538 observations
 
         section
           h2 Is this enough to answer my question?
@@ -254,7 +278,7 @@ html(lang="en")
             ul
               li Mostly 'straya, mate
               li Shallow waters
-              li Rocky reef
+              li Reefs
               li Frequency? Coverage? Quality?
           p.fragment It's good enough as a start, let's dig deeper
 
@@ -267,7 +291,8 @@ html(lang="en")
 
           aside.notes
             ul
-              li Descriptive &ne; inferential, despite people's tendency to jump to conclusions
+              li Descriptive &ne; inferential, despite human tendency to jump to conclusions
+              li RLS: tiny snapshot of the world
               li But if you don't do the descriptive part, inferential will suffer
               li The best value for description may not be the best for inference
 
@@ -287,7 +312,7 @@ html(lang="en")
             ul
               li Location/central tendency/average
               li Spread/variation/variability/dispersion
-              li Shape: hard to interpret, better use an image
+              li Shape: exotic, hard to interpret, better use an image
               li Dependence: danger zone! (association/causation) again, a scatterplot may do a better job
 
         section
@@ -315,6 +340,7 @@ html(lang="en")
               li Quartiles remain the same when look at unique survey-depth pairs
               li But count is down (11,890 versus 486,745)
               li Mean and stddev are barely affected (7.2, 3.9 to 4.0)
+              li Minimum zero?!
 
         section
           h2 Outliers: Zero depth?
@@ -346,9 +372,9 @@ html(lang="en")
 
           aside.notes
             ul
-              li Limited range in this dataset: Southern hemisphere around Australia
+              li Limited range in this dataset: Southern hemisphere around Australia (none in Japan)
               li Deeper than the rest of the data: Median 8.5m versus 6m
-              li Aggregations are rare: 75% at most one
+              li Aggregations are rare: 75% at most one, max 5
 
         section
           img(src="img/numbers-everywhere.jpg")
@@ -368,11 +394,11 @@ html(lang="en")
             ul
               li Similar effort to describe() with pandas
               li Note the different y-ranges!
-              li Classic box plots give us the five number summary: min, max, Q1, median, Q3
               li Box: Q1 to Q3 with a line at Q2 (median)
               li The whiskers extend from the edges of box to show the range of the data
               li The position of the whiskers is set by default to 1.5 * IQR (IQR = Q3 - Q1) from the edges of the box
               li Outlier points are those past the end of the whiskers
+              li Classic box plots give us the five number summary: min, max, Q1, median, Q3
 
         section
           h2 The classic box plot alternative
@@ -390,6 +416,7 @@ html(lang="en")
 
           aside.notes
             p Danger zone: A bad visualisation can lead you astray
+            p Let's look at more examples!
 
         section
           h2 Simple visualisations can uncover interesting patterns
@@ -410,6 +437,7 @@ html(lang="en")
             ul
               li Scatter-plotting lat/long makes sense for coordinates, but not necessarily for other pairs
               li The Australian bias shows up again
+              li Spain, but no Africa/Asia
               li This would be nicer as a map overlay &ndash; not the projection we're used to
 
         section
@@ -479,9 +507,11 @@ html(lang="en")
           a(href="https://en.wikipedia.org/wiki/Exploratory_data_analysis")
             img(src="img/data-science-process.png")
 
-          aside.notes
-            p EDA gives us an idea what makes sense to use as features for a predictive model
-            p The predictive model can give a probability estimate to answer my question
+          aside.notes: ul
+            li Reality &rarr; collect/process/clean data &rarr; EDA &rarr; ML &rarr; communicate/build
+            li There are loops: keep iterating (model &rarr; more cleaning)
+            li EDA gives us an idea what makes sense to use as features for a predictive model
+            li The predictive model can give a probability estimate to answer my question
 
       section
         h1 Questions?
