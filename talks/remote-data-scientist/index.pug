@@ -1,0 +1,308 @@
+doctype html
+html(lang="en")
+  head
+    title A Day in the Life of a Remote Data Scientist
+
+    meta(name="description",
+         content="Working remotely as a data scientist is fairly uncommon. This talk discusses what a day in the life of a remote data scientist looks like.")
+    meta(name="author", content="Yanir Seroussi")
+    meta(charset="utf-8")
+    meta(name="viewport", content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no")
+    meta(name="apple-mobile-web-app-capable", content="yes")
+    meta(name="apple-mobile-web-app-status-bar-style", content="black-translucent")
+
+    link(rel="stylesheet", href="css/reveal.css")
+    link(rel="stylesheet", href="css/theme/night.css")
+    link(rel="stylesheet", href="lib/css/zenburn.css")
+    link(rel="stylesheet", href="custom.css")
+
+    // Print and PDF exports
+    script.
+      var link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.type = 'text/css';
+      link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+      document.getElementsByTagName('head')[0].appendChild(link);
+
+    <!--[if lt IE 9]><script src="lib/js/html5shiv.js"></script><![endif]-->
+
+  body
+    .reveal: .slides
+      section
+        h1 A Day in the Life of a Remote Data Scientist
+        h4 Yanir Seroussi
+        h6.
+          <a href="https://yanirseroussi.com" target="_blank">yanirseroussi.com</a>
+          |
+          <a href="https://twitter.com/yanirseroussi" target="_blank">@yanirseroussi</a>
+          |
+          <a href="https://linkedin.com/in/yanirseroussi" target="_blank">linkedin.com/in/yanirseroussi</a>
+
+      section
+        h2 Motivation
+
+        .fragment
+          blockquote
+              img(src="img/barnaby-joyce.jpg", style="height: 150px; float: right; margin: 20px;")
+
+              | What people have got to realise is that houses are much cheaper in Tamworth, houses are much cheaper in
+              | Armidale, houses are much cheaper in Toowoomba.
+
+          .img-source-caption.
+            - <a href="https://www.abc.net.au/news/2017-01-24/barnarby-joyce-urges-aspiring-home-owners-to-look-beyond-sydney/8209496">Barnaby
+            Joyce urges aspiring home owners to look beyond Sydney following dire housing survey</a> (2017)
+
+        aside.notes: ul
+          li Starting with some inspiration from a great motivational speaker...
+          li Even though home prices in Sydney have dropped, it's still overpriced
+          li Question: How can a data scientist follow Joyce's advice and make a living in Tamworth?
+          li Answer: Go remote!
+
+      section
+        h2 Outline
+        ul
+          li Preliminaries
+          li A day in the life
+          li Pros and cons
+
+      section
+        section
+          h1 Preliminaries
+
+        section
+          h2 Defining data science (again)
+
+          blockquote.
+            ...we can define data science as a field that deals with description, prediction, and causal inference from
+            data in a manner that is both domain-independent and domain-aware, with the ultimate goal of supporting
+            decisions.
+
+          .img-source-caption.
+            - Me,
+            <a href="https://yanirseroussi.com/2018/07/22/defining-data-science-in-2018/">Defining Data Science in 2018</a>
+
+          aside.notes: ul
+            li Again: every talk I give, I feel like data science needs to be clearly defined
+            li Self-cited definition based on a few sources, including Eugene, John Hawkins, and Miguel Hernan
+            li Read it out: this is what I actually do
+
+        section
+          h2 My path so far
+
+          ul
+            li.fragment Haifa, Israel: Technion BSc, Intel, Qualcomm
+            li.fragment Melbourne/Sydney: Monash PhD, Google, Giveable
+            li.fragment Sydney: Next Commerce, consulting, own projects, Car Next Door
+            li.fragment Ballina: Automattic
+
+        section
+          h2 Ballina?
+
+          img.no-margin(src="img/ballina-flat-rock.jpg", height="250")
+          img.no-margin(src="img/ballina-shark-allergy.jpg", height="250")
+          br
+          img.neg-margin-top(src="img/ballina-backyard-sunset.jpg", height="250")
+          img.neg-margin-top(src="img/ballina-ocean-sunset.jpg", height="250")
+
+          aside.notes: ul
+            li Ballina is known for its big prawn, surfing, and shark attacks
+            li It is a cheaper/nicer/quieter alternative to Bondi-like Byron Bay
+            li Been there for almost two years and not planning on leaving anytime soon
+
+        section
+          h2 Automattic?
+
+          ul
+            li.fragment Main products: WordPress.com, Jetpack, WooCommerce
+            li.fragment Fully distributed: 800+ employees, no central office
+            li.fragment One of the few companies that hire remote data scientists
+            li.fragment Longest held position since 2012
+
+          p.fragment.small.
+            Further reading:
+            <a href="https://yanirseroussi.com/2017/07/29/my-10-step-path-to-becoming-a-remote-data-scientist-with-automattic/">My
+            10-step path to becoming a remote data scientist with Automattic</a>
+
+          aside.notes: ul
+            li Mention that it wasn't easy to get in &ndash; details on my site
+
+      section
+        section
+          h1 A day in the life
+
+        section
+          h2 Morning boxland
+
+          img(src="img/boxes-falling.gif")
+
+          aside.notes: ul
+            li Most of my colleagues work while I sleep (Americans and Europeans)
+            li Boxland: Can be an overwhelming number of boxes to tick and messages to respond to
+            li No emails! P2s, GitHub, and Slack (doesn't mean it's better)
+            li Meetings: Only 1-2 synchronous meetings per week
+
+        section
+          h2 Epic break time
+
+          img(src="img/ballina-angels-surfers.jpg")
+
+          aside.notes: ul
+            li Can relax after handling correspondence and getting an idea of what I want to do
+            li Rarely work eight consecutive hours
+            li Typical break activities: Surfing, cycling, errands, chores, Seabird
+            li Used to feel guilty/weird, but realised no one cares and most people do the same
+
+        section
+          h2 Afternoon quiet work
+
+          img(src="img/quiet-work.gif")
+
+          aside.notes: ul
+            li Extremely quiet and distraction-free
+            li Good time to write code, run analyses, and think
+            li Sometimes comment on deeper discussions and code reviews &ndash; the magic of async
+            li Usually finish early, with the rare exception of Euro meetings
+            li Actual work depends on project
+
+        section
+          h2 Actual work examples
+
+          ul.fragment
+            li Recent: pipe and RR++
+            li Previously: Elfbot and CEMAP
+            li Others: data requests and products
+
+          p.fragment.small Further reading: <a href="https://data.blog">data.blog</a>
+
+        section
+          h2 True flextime: YMMV
+
+          ul
+            li My chronotype: morning person
+            li Not a team lead = fewer meetings
+            li Easy to work too little or too much
+
+        section
+          h2 The joy of meetups
+
+          img.no-margin(src="img/meetup-playa-sunrise.jpg", height="250")
+          img.no-margin(src="img/meetup-whistler-marmot.jpg", height="250")
+          br
+          img.neg-margin-top(src="img/meetup-florida-gators.jpg", height="250")
+          img.neg-margin-top(src="img/meetup-bali-waterfall.jpg", height="250")
+
+          aside.notes: ul
+            li Not all work is from home &ndash; Meetups happen a few times a year
+            li Get to travel on the back of meetups: Playa/Whistler/Florida/Bali pics
+            li Great for humanising co-workers
+
+      section
+        section
+          h1 Pros and cons
+
+        section
+          h2 For employees
+
+          .fragment
+            p.no-margin Pros:
+            ul
+              li True flextime
+              li Quiet time for deep asynchronous work
+              li Free meetup trips
+              li Learn from people with diverse backgrounds
+
+          .fragment.pad-top
+            p.no-margin Cons:
+            ul
+              li Hard to maintain work/life boundaries
+              li Potential isolation
+              li Long flights and jetlag
+              li More cultural differences and sensitivities
+
+          p.small.fragment.
+            Further reading: <a href="https://yanirseroussi.com/2018/11/03/reflections-on-remote-data-science-work/">
+            Reflections on remote data science work</a>
+
+        section
+          h2 For employers
+
+          .fragment
+            p.no-margin Pros (if done well):
+            ul
+              li Happier employees
+              li Calmer work
+              li Hire anywhere
+              li Spend less on offices and on-site perks
+
+          .fragment.pad-top
+            p.no-margin Cons (if done badly):
+            ul
+              li Isolated employees
+              li Communication breakdowns
+              li Less sense of control
+              li Spend more on meetups and home-based perks
+
+      section
+        section
+          h1 Conclusion
+
+        section
+          h2 The future is distributed
+
+          p You don't have to...
+
+          p.indent.fragment ...work for a bank
+          p.indent.fragment ...pay millions to live in "Sydney"
+          p.indent.fragment ...move to Tamworth
+
+        section
+          h2 The future is up to us
+
+          p.fragment Ask recruiters and employers for remote options
+          p.fragment Let your teams work remotely, at least part-time
+          p.fragment Strive for asynchronous calm conditions
+
+        section
+          a(href="https://basecamp.com/books/calm"): img(src="img/it-doesnt-have-to-be-crazy-at-work.jpg")
+
+      section
+        h1 Questions?
+
+    script(src="lib/js/head.min.js")
+    script(src="js/reveal.js")
+    script.
+      Reveal.initialize({
+        controls: true,
+        controlsTutorial: false,
+        progress: true,
+        history: true,
+        center: true,
+        transition: 'slide',
+        dependencies: [
+          {
+            src: 'lib/js/classList.js',
+            condition: function() { return !document.body.classList; }
+          },
+          {
+            src: 'plugin/markdown/marked.js',
+            condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+          },
+          {
+            src: 'plugin/markdown/markdown.js',
+            condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+          },
+          {
+            src: 'plugin/highlight/highlight.js',
+            async: true,
+            callback: function() { hljs.initHighlightingOnLoad(); }
+          },
+          {
+            src: 'plugin/zoom-js/zoom.js',
+            async: true
+          },
+          {
+            src: 'plugin/notes/notes.js',
+            async: true
+          }
+        ]
+      });
