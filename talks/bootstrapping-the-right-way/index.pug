@@ -74,87 +74,194 @@ html(lang="en")
           h1 conversion rates
 
         section
-          h2 Sample &ndash; show some data
+          h2 Example: Testing titles for this talk
 
-          p Green button / red button?
+          table.medium
+            thead
+              tr
+                th Variant
+                th A
+                th B
+            tbody
+              tr.fragment
+                td Title
+                td Rambling about bootstrapping, confidence intervals, and the reliability of online sources
+                td Bootstrapping the right way
+              tr.fragment
+                td Visitors
+                td 2500
+                td 2500
+              tr.fragment
+                td Ticket sales
+                td 350
+                td 410
+              tr.fragment
+                td Conversion&nbsp;rate
+                td 14%
+                td 16.4%
 
         section
-          h2 Reminder #1: The central dogma
+          h2 Why are we doing this?
 
-          a(href="https://www.gs.washington.edu/academics/courses/akey/56008/lecture/lecture1.pdf")
-            img(src="img/central-dogma-of-statistics.png")
+          img(src="img/central-dogma-of-statistics.png")
+
+          .img-source-caption.
+            &ndash; Joshua Akey,
+            <a href="https://www.gs.washington.edu/academics/courses/akey/56008/lecture/lecture1.pdf">Introduction to statistical genomics</a>
 
           aside.notes: ul
             li We have a population
             li We take a smaller sample from that population with probability
             li We use statistical inference to say something about the population
             li We care about the variability of our estimate for that population
+            li We make some assumptions on experiments: random assignment, no selection bias, etc.
+
+        //section
+        //  h2 Reminder #2: Experiments and other out-of-scope issues
+        //
+        //  p Stuff from Hernan about when they do or do not work
 
         section
-          h2 Reminder #2: Experiments and other out-of-scope issues
+          h2 Back to our problem: Ask the internet?
 
-          p Stuff from Hernan about when they do or do not work
+          blockquote
+            p.
+              Let's look at a type of dataset that I often work on: conversions [...]
+              the formula for the confidence interval [...]
+            pre.
+              n, k = 100, 3
+              scipy.stats.beta.ppf([0.025, 0.975], k, n-k)
 
-        section
-          h2 Back to our problem: Let's ask the internet...
-
-          p Screenshot of the hacker guide
-
-        section
-          h2 Using a known distribution to get sample confidence intervals
-
-          p Show resultant CIs from post
-
-        section
-          h2 But we care about the difference!
-
-          p Show difference distribution from post
-          p Note it came from bootstrapping
+          .img-source-caption.
+            &ndash; Erik Bernhardsson,
+            <a href="https://erikbern.com/2018/10/08/the-hackers-guide-to-uncertainty-estimates.html">The hacker's guide to uncertainty estimates</a>
 
         section
-          h2 What if we care about the ratio?
+          h2 Applying the formula to our case...
 
-          p extend the example, find a case where the ratio isn't significant but the difference is
+          img(src="img/overlapping-confidence-intervals.png")
+
+          aside.notes: ul
+            li Show of hands: What does this tell us?
+            li Option 1: Difference isn't statistically significant &ndash; go with prior knowledge / easiest path / gut feeling
+            li Option 2: This doesn't tell us much about the difference
 
         section
-          h2 Side notes on conversions
+          h2 ...but the difference CI can't be obtained from single-sample CIs!
 
-          ul
-            li Closed formula solutions exist for difference and ratios
-            li If you're happy to make assumptions, the Bayesian parametric calculator is the way to go
-            li Things get hairy if you care about more than the mean (e.g., comparing variances)
+          img(src="img/overlapping-confidence-intervals-significant-difference.png")
+
+          aside.notes: ul
+            li Emphasise that the confidence interval for the difference isn't simply a subtraction of the confidence intervals
+            li Mention that we can also get the ratio or uplift if that's deemed more interesting, but the difference is more stable
+
+        //section
+        //  h2 Side notes on conversions
+        //
+        //  ul
+        //    li Closed formula solutions exist for difference and ratios???
+        //    li If you're happy to make assumptions, the Bayesian parametric calculator is the way to go
+        //    li Things get hairy if you care about more than the mean (e.g., comparing variances)
 
       section
         section
           h2 Detour:
-          h1 On bootstrapping and confidence intervals
+          h1 On bootstrapping confidence intervals
 
         section
-          h2 What do confidence intervals even mean?
+          h2 What do CIs even mean?
 
-          p Formal definition
-          p Discuss common misconceptions
-          p Mention frequentist/Bayesian divide?
+          blockquote: p.small.
+            In statistics, a confidence interval (CI) is a type of interval estimate, computed from the statistics of
+            the observed data, that might contain the true value of an unknown population parameter. The interval has an
+            associated confidence level that, loosely speaking, quantifies the level of confidence that the parameter
+            lies in the interval. More strictly speaking, the confidence level represents the frequency (i.e. the
+            proportion) of possible confidence intervals that contain the true value of the unknown population
+            parameter. In other words, if confidence intervals are constructed using a given confidence level from an
+            infinite number of independent sample statistics, the proportion of those intervals that contain the true
+            value of the parameter will be equal to the confidence level.
+
+          .img-source-caption.
+            &ndash; Wikipedia,
+            <a href="https://en.wikipedia.org/wiki/Confidence_interval">Confidence interval</a>
 
         section
-          h2 The basic bootstrap example
+          img(src="img/jackie-chan-confused.png")
 
-          p Show a code snippet for percentile method + small number of resamples
-          p You see this everywhere
-          p Why should this work? A quick explanation of the theory
+        section
+          h2 Let's try again...
+
+          ul
+            li.fragment Interval: Not a single point, a range
+            li.fragment Confidence: Yet another confusing frequentist concept
+            li.fragment Confidence level: Higher is wider, lower is narrower
+            //li.fragment Gelman: Call them uncertainty intervals
+            li.fragment Key insight: We can test the correctness of CI algorithms!
+
+          aside.notes: ul
+            li Yet another: like statistical significance &ndash; misused and misunderstood
+            //li.
+            //  <a href="https://statmodeling.stat.columbia.edu/2010/12/21/lets_say_uncert/">Gelman</a>: confidence
+            //  intervals are big in noisy situations where you have less confidence, and confidence intervals are small
+            //  when you have more confidence
+            li However, it gives us a general idea where the parameter is
+            li Importantly, being a range, it doesn't hide uncertainty (unlike statistical significance)
+
+        section
+          h2 The basic bootstrap idea
+
+          ol
+            li Simulate the population by sampling with replacement <i>from your sample(s)</i>
+            li Calculate interesting stats based on the <i>re</i>samples
+
+          img(src="img/bootstrap-cartoon.jpg", height=300)
+
+          //p You see this everywhere
+          //p Why should this work? A quick explanation of the theory
+
+        section
+          h2 Bootstrapping by example: CI for mean
+
+          table
+            thead
+              tr
+                td: b Sample
+                td: b Data
+                td: b Mean
+            tbody
+              tr(style="border-bottom: 1px solid #fff")
+                td Original
+                td 10, 12, 20, 30, 45
+                td 23.4
+              tr.fragment
+                td Resample 1
+                td 30, 20, 12, 12, 45
+                td 23.8
+              tr.fragment
+                td Resample 2
+                td 20, 20, 30, 30, 30
+                td 26
+              tr.fragment
+                td ...
+
+          pre.fragment.
+            resample_means = [np.random.choice(sample, size=len(sample)).mean()
+                              for _ in range(num_resamples)]
+            np.percentile(resample_means, [2.5, 97.5])
 
         section
           h2 What's wrong with the example?
 
           p Small number of resamples (quote JVP, Erik -- too small!)
-          p Percentile method
+          p Show how the number of resamples matter
+          p Percentile method -- show how it fails, small sample size
           p Quote Hesterberg
 
         section
           h2 Why accept anything as a given when we can simulate?
 
           p The main reason for the popularity of bootstrapping is that it's easy to generate simulations
-          p It's just as easy to
+          p It's just as easy to test their validity
           p Simulation as the way to test that bootstrapping gives you the correct CI
           p Not all CIs are created equal (show Hesterberg results? or my own plots)
 
@@ -203,10 +310,12 @@ html(lang="en")
           h2 Conclusion
 
           ul
-            li Bootstrapping is a powerful tool
+            li Bootstrapping is a powerful tool, and it isn't as simple as it seems
             li Testing powerful tools is a good idea
-            li Reliable resources can be hard to find, but they're out there
+            li Implementing from scratch is often a bad idea
+            li Reliable resources can be hard to find, but they're out there (usually peer reviewed papers -- better go back to the originals)
             li Deeper understanding can come from Bayesian approaches
+            li Further reading: https://yanirseroussi.com/2019/01/08/hackers-beware-bootstrap-sampling-may-be-harmful/
 
       // Abstract: Bootstrap sampling is being touted as a simple technique that any hacker can easily employ to
       // quantify the uncertainty of statistical estimates. However, despite its apparent simplicity, there are many
