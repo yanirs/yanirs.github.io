@@ -182,8 +182,8 @@ html(lang="en")
           h2 Let's try again...
 
           p.fragment <b>Interval:</b> Not a single point, a range
-          p.fragment <b>Confidence:</b> Yet another confusing frequentist concept
           p.fragment <b>Confidence level:</b> Higher is wider, lower is narrower
+          p.fragment <b>Confidence interval:</b> Yet another confusing frequentist concept
           p.fragment <b>Key insight:</b> We can test the correctness of CI algorithms!
 
           aside.notes: ul
@@ -357,48 +357,25 @@ html(lang="en")
         section
           h2 Testing different CI methods with ARCH
 
-          p.center: i How often is the true difference in means in the<br>"95%" CI for sample size 100?
+          p.center: i How often is the true difference in means in the "95%" CI?
 
-          b TODO: plot?
+          img(src="img/revenue-confidence-intervals-sample-size-100.png")
 
-          table
-            thead
-              tr
-                th
-                th Percentile
-                th BCa
-                th Studentized
-            tbody
-              tr
-                td.small: i resamples
-              tr
-                td 10
-                td.center 83.4%
-                td.center 82.9%
-                td.center 95.4%
-              tr
-                td 100
-                td.center 86.9%
-                td.center 85.9%
-                td.center 94.0%
-              tr
-                td 1000
-                td.center 87.6%
-                td.center 87.5%
-                td.center 94.4%
-              tr
-                td 10000
-                td
-                td
-                td
+          p.center: i Sample size: 100
 
           aside.notes: ul
-            li Say it's 1,000 simulations, sample size for A and B is 100
+            li Say it's 1,000 simulations
 
         section
           h2 Testing different CI methods with ARCH
 
-          b TODO: sample size = 1000?
+          p.center: i How often is the true difference in means in the "95%" CI?
+
+          img(src="img/revenue-confidence-intervals-sample-size-1000.png")
+
+          p.center: i Sample size: 1000
+
+          b TODO: combine to single plot? add 10^4
 
         section
           h2 What about revenue over time?
@@ -413,7 +390,7 @@ html(lang="en")
 
           ul
             li Don't compare single-sample CIs
-            li Use enough resamples (15K+)
+            li Use enough resamples (15K?)
             li Use a solid bootstrapping package
             li Use the right bootstrap for the job
             li Consider going parametric Bayesian
@@ -436,10 +413,12 @@ html(lang="en")
 
           img(src="img/dont-believe-everything-you-read-on-the-internet-lincoln.jpg")
 
-          p.fragment.
-            Further reading:
-            <a href="https://yanirseroussi.com/2019/01/08/hackers-beware-bootstrap-sampling-may-be-harmful/">Hackers
-            beware: Bootstrap sampling may be harmful</a> on yanirseroussi.com
+          .fragment
+            img(src="img/profile-pic.jpg", style="height: 50px; float: left; margin-right: 20px;")
+            p.
+              Further reading:
+              <a href="https://yanirseroussi.com/2019/01/08/hackers-beware-bootstrap-sampling-may-be-harmful/">Hackers
+              beware: Bootstrap sampling may be harmful</a> on yanirseroussi.com
 
           aside.notes: ul
             li Don't believe blog posts
