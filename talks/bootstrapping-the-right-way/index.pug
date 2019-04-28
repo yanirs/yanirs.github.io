@@ -39,17 +39,6 @@ html(lang="en")
           <a href="https://linkedin.com/in/yanirseroussi" target="_blank">linkedin.com/in/yanirseroussi</a>
 
       section
-        h2 Main takeaway
-
-        img(src="img/dont-believe-everything-you-read-on-the-internet-lincoln.jpg")
-
-        aside.notes: ul
-          li Don't believe blog posts
-          li Don't believe conference talks
-          li Trust, but verify
-          li When needed, go back to primary sources
-
-      section
         h2 Running example: A/B testing
 
         .fragment
@@ -128,9 +117,10 @@ html(lang="en")
             p.
               Let's look at a type of dataset that I often work on: conversions [...]
               the formula for the confidence interval [...]
-            pre.
-              n, k = 100, 3
-              scipy.stats.beta.ppf([0.025, 0.975], k, n-k)
+            pre: code.hljs.python.
+              scipy.stats.beta.ppf([0.025, 0.975],
+                                   k,
+                                   n - k)
 
           .img-source-caption.
             &ndash; Erik Bernhardsson,
@@ -191,21 +181,16 @@ html(lang="en")
         section
           h2 Let's try again...
 
-          ul
-            li.fragment Interval: Not a single point, a range
-            li.fragment Confidence: Yet another confusing frequentist concept
-            li.fragment Confidence level: Higher is wider, lower is narrower
-            //li.fragment Gelman: Call them uncertainty intervals
-            li.fragment Key insight: We can test the correctness of CI algorithms!
+          p.fragment <b>Interval:</b> Not a single point, a range
+          p.fragment <b>Confidence:</b> Yet another confusing frequentist concept
+          p.fragment <b>Confidence level:</b> Higher is wider, lower is narrower
+          p.fragment <b>Key insight:</b> We can test the correctness of CI algorithms!
 
           aside.notes: ul
             li Yet another: like statistical significance &ndash; misused and misunderstood
-            //li.
-            //  <a href="https://statmodeling.stat.columbia.edu/2010/12/21/lets_say_uncert/">Gelman</a>: confidence
-            //  intervals are big in noisy situations where you have less confidence, and confidence intervals are small
-            //  when you have more confidence
             li However, it gives us a general idea where the parameter is
             li Importantly, being a range, it doesn't hide uncertainty (unlike statistical significance)
+            li Not the best approach, but preferable to pretending uncertainty doesn't exist
 
         section
           h2 The basic bootstrap idea
@@ -242,40 +227,70 @@ html(lang="en")
                 td 20, 20, 30, 30, 30
                 td 26
               tr.fragment
-                td ...
+                td: i ...
+                td: i many more resamples
+                td: i ...
 
-          pre.fragment.
-            resample_means = [np.random.choice(sample, size=len(sample)).mean()
-                              for _ in range(num_resamples)]
-            np.percentile(resample_means, [2.5, 97.5])
+          pre.fragment: code.hljs.python.
+            means = [np.random.choice(sample, size=len(sample)).mean()
+                     for _ in range(num_resamples)]
+            np.percentile(means, [2.5, 97.5])
 
         section
-          h2 What's wrong with the example?
+          h1 What's wrong with the example?
 
-          p Small number of resamples (quote JVP, Erik -- too small!)
-          p Show how the number of resamples matter
-          p Percentile method -- show how it fails, small sample size
-          p Quote Hesterberg
+          //p Small number of resamples (quote JVP, Erik -- too small!)
+          //p Show how the number of resamples matter
+          //p Percentile method -- show how it fails, small sample size
+          //p Quote Hesterberg
+
+          aside.notes: ul
+            li Ask the audience
+
+        section
+          h2 What's wrong? <i>"many more resamples"</i>
+
+          blockquote
+            p.
+              [...] the number of resamples needs to be 15,000 or more, for 95% probability that simulation-based
+              one-sided levels fall within 10% of the true values, for 95% intervals [...]
+
+            p.
+              We want decisions to depend on the data, not random variation in the Monte Carlo implementation.
+              We used r = 500,000 in the Verizon project.
+
+          .img-source-caption.
+            &ndash; Tim Hesterberg,
+            <a href="https://arxiv.org/abs/1411.5279">What Teachers Should Know about the Bootstrap: Resampling in the Undergraduate Statistics Curriculum</a>
+
+        section
+          h2 What's wrong? <i>Percentile method</i>
+
+          blockquote: p.
+            The sample sizes needed for different intervals to satisfy the "reasonably accurate" (off by no more than
+            10% on each side) criterion are: n ≥ 101 for the bootstrap t, 220 for the skewness-adjusted t statistic,
+            2,235 for expanded percentile, 2,383 for percentile, 4,815 for ordinary t (which I have rounded up to 5,000
+            above), 5,063 for t with bootstrap standard errors and something over 8,000 for the reverse percentile
+            method.
+
+          .img-source-caption.
+            &ndash; Tim Hesterberg,
+            <a href="https://arxiv.org/abs/1411.5279">What Teachers Should Know about the Bootstrap: Resampling in the Undergraduate Statistics Curriculum</a>
 
         section
           h2 Why accept anything as a given when we can simulate?
 
-          p The main reason for the popularity of bootstrapping is that it's easy to generate simulations
-          p It's just as easy to test their validity
-          p Simulation as the way to test that bootstrapping gives you the correct CI
-          p Not all CIs are created equal (show Hesterberg results? or my own plots)
-
-        section
-          h2 A word of caution: Blog posts and talks < peer reviewed papers
-
-          p Pros of posts and talks: Easy to digest, straight to the point
-          p Cons of posts and talks: Can mislead, usually not critiqued
-          p Pros of papers: Peer review, higher bar for acceptance (for some)
-          p Cons of papers: Can be hard to digest and mislead; peer review is only as good as the peers
-          p Best approach: Cross-check multiple resources and test test test
-          p Cite a few papers
-          p Something about laziness -- myself included
-          p Note the irony of me giving a talk on the topic?
+          p.fragment Bootstrapping is promoted because <i>"it's just for loops"</i> *
+          p.fragment We should also use for loops to validate bootstrapping code!
+          .fragment
+            p * It's actually not that simple:
+            blockquote: p In practice, implementing some of the more accurate bootstrap methods is difficult, and people should use a package rather than attempt this themselves.
+            .img-source-caption.
+              &ndash; Tim Hesterberg,
+              <a href="https://storage.googleapis.com/pub-tools-public-publication-data/pdf/44859.pdf">What Teachers Should Know about the Bootstrap:<br>Resampling in the Undergraduate Statistics Curriculum</a>
+              (shorter version)
+          //p Simulation as the way to test that bootstrapping gives you the correct CI
+          //p Not all CIs are created equal (show Hesterberg results? or my own plots)
 
       section
         section
@@ -283,39 +298,166 @@ html(lang="en")
           h1 Comparing revenue
 
         section
-          h2 Data data data
+          h2 Example: Testing different price tiers
 
-          p Simulation study: mixture of products with prices that vary geographically and people can purchase multiple products from each distribution
-          p In general: can we learn about CI accuracy with real data? (e.g., population is purchases from 2018 &ndash; take different samples and see how well the CI works)
+          table.medium
+            thead
+              tr
+                th Variant
+                th A
+                th B
+            tbody
+              tr.fragment
+                td Free
+                td 40% @ $0
+                td 60% @ $0
+              tr.fragment
+                td Tier 1
+                td 30% @ $25
+                td 25% @ $50
+              tr.fragment
+                td Tier 2
+                td 20% @ $50
+                td 10% @ $100
+              tr.fragment
+                td Tier 3
+                td 10% @ $100
+                td 5% @ $200
+              tr.fragment
+                td True mean
+                td $27.5
+                td $32.5
 
         section
-          h2 Messier than conversions
+          h2 However, observed revenue varies
 
-          p Bootstrap is better motivated
-          p Show an example where we changed the price of a few products (or just one)
+          p Factors: different taxes, exchange rates, discount vouchers, etc.
+
+          .fragment
+            p.center (and our friend, randomness)
+
+            img(src="img/revenue-samples.png")
+
+            p TODO: Better labels
 
         section
-          h2 Different methods, different CIs
+          h2 Let's simulate!
 
-          p Use ARCH to get estimates (even sample size &ndash; 100, 1000, 10000)
-          p Get true CI
+          pre: code.hljs.python.
+            rnd = np.random.RandomState(0)
+            weights = [0.4, 0.3, 0.2, 0.1]
+            prices = [0, 25, 50, 100]
+            sample = []
+            for price, size in zip(prices, rnd.multinomial(100, weights)):
+                if price:
+                    sample.extend(rnd.poisson(price, size))
+                else:
+                    sample.extend([0] * size)
+
+        section
+          h2 Testing different CI methods with ARCH
+
+          p.center: i How often is the true difference in means in the<br>"95%" CI for sample size 100?
+
+          b TODO: plot?
+
+          table
+            thead
+              tr
+                th
+                th Percentile
+                th BCa
+                th Studentized
+            tbody
+              tr
+                td.small: i resamples
+              tr
+                td 10
+                td.center 83.4%
+                td.center 82.9%
+                td.center 95.4%
+              tr
+                td 100
+                td.center 86.9%
+                td.center 85.9%
+                td.center 94.0%
+              tr
+                td 1000
+                td.center 87.6%
+                td.center 87.5%
+                td.center 94.4%
+              tr
+                td 10000
+                td
+                td
+                td
+
+          aside.notes: ul
+            li Say it's 1,000 simulations, sample size for A and B is 100
+
+        section
+          h2 Testing different CI methods with ARCH
+
+          b TODO: sample size = 1000?
 
         section
           h2 What about revenue over time?
 
-          p Bootstrap is IID! Add this if there's time
+          p.fragment Out of scope, but remember the IID assumption
+
+          img.fragment(src="img/iid-vs-circular-block.png")
 
       section
         section
-          h2 Conclusion
+          h2 Summary
 
           ul
-            li Bootstrapping is a powerful tool, and it isn't as simple as it seems
-            li Testing powerful tools is a good idea
-            li Implementing from scratch is often a bad idea
-            li Reliable resources can be hard to find, but they're out there (usually peer reviewed papers -- better go back to the originals)
-            li Deeper understanding can come from Bayesian approaches
-            li Further reading: https://yanirseroussi.com/2019/01/08/hackers-beware-bootstrap-sampling-may-be-harmful/
+            li Don't compare single-sample CIs
+            li Use enough resamples (15K+)
+            li Use a solid bootstrapping package
+            li Use the right bootstrap for the job
+            li Consider going parametric Bayesian
+            li Test all the things
+
+        //section
+        //  h2 Conclusion
+        //
+        //  ul
+        //    li Bootstrapping is a powerful tool, and it isn't as simple as it seems
+        //    li Testing powerful tools is a good idea
+        //    li Implementing from scratch is often a bad idea
+        //    li Reliable resources can be hard to find, but they're out there (usually peer reviewed papers -- better go back to the originals)
+        //    li Deeper understanding can come from Bayesian approaches
+        //    li Summarise main points?
+        //    li Further reading:
+
+        section
+          h2 Main takeaway
+
+          img(src="img/dont-believe-everything-you-read-on-the-internet-lincoln.jpg")
+
+          p.fragment.
+            Further reading:
+            <a href="https://yanirseroussi.com/2019/01/08/hackers-beware-bootstrap-sampling-may-be-harmful/">Hackers
+            beware: Bootstrap sampling may be harmful</a> on yanirseroussi.com
+
+          aside.notes: ul
+            li Don't believe blog posts
+            li Don't believe conference talks
+            li Trust, but verify
+            li When needed, go back to primary sources
+
+      //section
+      //  h2 A word of caution: Blog posts and talks < peer reviewed papers
+      //
+      //  p Pros of posts and talks: Easy to digest, straight to the point
+      //  p Cons of posts and talks: Can mislead, usually not critiqued
+      //  p Pros of papers: Peer review, higher bar for acceptance (for some)
+      //  p Cons of papers: Can be hard to digest and mislead; peer review is only as good as the peers
+      //  p Best approach: Cross-check multiple resources and test test test
+      //  p Cite a few papers
+      //  p Something about laziness -- myself included
+      //  p Note the irony of me giving a talk on the topic?
 
       // Abstract: Bootstrap sampling is being touted as a simple technique that any hacker can easily employ to
       // quantify the uncertainty of statistical estimates. However, despite its apparent simplicity, there are many
