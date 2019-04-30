@@ -105,11 +105,6 @@ html(lang="en")
             li We care about the variability of our estimate for that population
             li We make some assumptions on experiments: random assignment, no selection bias, etc.
 
-        //section
-        //  h2 Reminder #2: Experiments and other out-of-scope issues
-        //
-        //  p Stuff from Hernan about when they do or do not work
-
         section
           h2 Back to our problem: Ask the internet?
 
@@ -144,14 +139,6 @@ html(lang="en")
           aside.notes: ul
             li Emphasise that the confidence interval for the difference isn't simply a subtraction of the confidence intervals
             li Mention that we can also get the ratio or uplift if that's deemed more interesting, but the difference is more stable
-
-        //section
-        //  h2 Side notes on conversions
-        //
-        //  ul
-        //    li Closed formula solutions exist for difference and ratios???
-        //    li If you're happy to make assumptions, the Bayesian parametric calculator is the way to go
-        //    li Things get hairy if you care about more than the mean (e.g., comparing variances)
 
       section
         section
@@ -201,9 +188,6 @@ html(lang="en")
 
           img(src="img/bootstrap-cartoon.jpg", height=300)
 
-          //p You see this everywhere
-          //p Why should this work? A quick explanation of the theory
-
         section
           h2 Bootstrapping by example: CI for mean
 
@@ -238,11 +222,6 @@ html(lang="en")
 
         section
           h1 What's wrong with the example?
-
-          //p Small number of resamples (quote JVP, Erik -- too small!)
-          //p Show how the number of resamples matter
-          //p Percentile method -- show how it fails, small sample size
-          //p Quote Hesterberg
 
           aside.notes: ul
             li Ask the audience
@@ -289,8 +268,6 @@ html(lang="en")
               &ndash; Tim Hesterberg,
               <a href="https://storage.googleapis.com/pub-tools-public-publication-data/pdf/44859.pdf">What Teachers Should Know about the Bootstrap:<br>Resampling in the Undergraduate Statistics Curriculum</a>
               (shorter version)
-          //p Simulation as the way to test that bootstrapping gives you the correct CI
-          //p Not all CIs are created equal (show Hesterberg results? or my own plots)
 
       section
         section
@@ -306,20 +283,20 @@ html(lang="en")
                 th Variant
                 th A
                 th B
-            tbody
-              tr.fragment
+            tbody.fragment
+              tr
                 td Free
                 td 40% @ $0
                 td 60% @ $0
-              tr.fragment
+              tr
                 td Tier 1
                 td 30% @ $25
                 td 25% @ $50
-              tr.fragment
+              tr
                 td Tier 2
                 td 20% @ $50
                 td 10% @ $100
-              tr.fragment
+              tr
                 td Tier 3
                 td 10% @ $100
                 td 5% @ $200
@@ -337,8 +314,6 @@ html(lang="en")
             p.center (and our friend, randomness)
 
             img(src="img/revenue-samples.png")
-
-            p TODO: Better labels
 
         section
           h2 Let's simulate!
@@ -359,28 +334,15 @@ html(lang="en")
 
           p.center: i How often is the true difference in means in the "95%" CI?
 
-          img(src="img/revenue-confidence-intervals-sample-size-100.png")
-
-          p.center: i Sample size: 100
+          img.fragment(src="img/revenue-confidence-intervals.png")
 
           aside.notes: ul
             li Say it's 1,000 simulations
 
         section
-          h2 Testing different CI methods with ARCH
-
-          p.center: i How often is the true difference in means in the "95%" CI?
-
-          img(src="img/revenue-confidence-intervals-sample-size-1000.png")
-
-          p.center: i Sample size: 1000
-
-          b TODO: combine to single plot? add 10^4
-
-        section
           h2 What about revenue over time?
 
-          p.fragment Out of scope, but remember the IID assumption
+          p.fragment Out of scope, but remember the IID (independent and identically distributed) assumption
 
           img.fragment(src="img/iid-vs-circular-block.png")
 
@@ -391,22 +353,10 @@ html(lang="en")
           ul
             li Don't compare single-sample CIs
             li Use enough resamples (15K?)
-            li Use a solid bootstrapping package
+            li Use a solid bootstrapping package (Python ARCH)
             li Use the right bootstrap for the job
             li Consider going parametric Bayesian
             li Test all the things
-
-        //section
-        //  h2 Conclusion
-        //
-        //  ul
-        //    li Bootstrapping is a powerful tool, and it isn't as simple as it seems
-        //    li Testing powerful tools is a good idea
-        //    li Implementing from scratch is often a bad idea
-        //    li Reliable resources can be hard to find, but they're out there (usually peer reviewed papers -- better go back to the originals)
-        //    li Deeper understanding can come from Bayesian approaches
-        //    li Summarise main points?
-        //    li Further reading:
 
         section
           h2 Main takeaway
@@ -425,34 +375,6 @@ html(lang="en")
             li Don't believe conference talks
             li Trust, but verify
             li When needed, go back to primary sources
-
-      //section
-      //  h2 A word of caution: Blog posts and talks < peer reviewed papers
-      //
-      //  p Pros of posts and talks: Easy to digest, straight to the point
-      //  p Cons of posts and talks: Can mislead, usually not critiqued
-      //  p Pros of papers: Peer review, higher bar for acceptance (for some)
-      //  p Cons of papers: Can be hard to digest and mislead; peer review is only as good as the peers
-      //  p Best approach: Cross-check multiple resources and test test test
-      //  p Cite a few papers
-      //  p Something about laziness -- myself included
-      //  p Note the irony of me giving a talk on the topic?
-
-      // Abstract: Bootstrap sampling is being touted as a simple technique that any hacker can easily employ to
-      // quantify the uncertainty of statistical estimates. However, despite its apparent simplicity, there are many
-      // ways to misuse bootstrapping and thereby draw wrong conclusions about your data and the world. This talk gives
-      // a brief overview of bootstrap sampling and discusses ways to avoid common pitfalls when bootstrapping your data.
-      //
-      // Proposal outline:
-      // - An overview of bootstrap sampling, including how and why it works
-      // - When one should and shouldn't use bootstrapping, including warnings about general issues like not drawing enough resamples
-      // - A brief overview of confidence intervals, including the general definition, common misconceptions, and how to use them correctly
-      // - Common bootstrapping methods to obtain confidence intervals
-      // - How to make a decision whether the obtained confidence intervals are trustworthy
-      // - Issues with bootstrapped confidence intervals and how to avoid them
-
-      // TODO: 30 minutes including introductions and questions -- aim for 25 minutes?
-      // TODO: stuff from https://yanirseroussi.com/2019/01/08/hackers-beware-bootstrap-sampling-may-be-harmful/
 
       section
         h1 Questions?
