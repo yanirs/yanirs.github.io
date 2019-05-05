@@ -54,8 +54,7 @@ html(lang="en")
         aside.notes: ul
           li Explain A/B testing where we care about both conversion rates and revenue
           li Uncertainty: We want a range for the effect size, not just a yes/no answer
-          li Modelling assumptions: We need something that we can justify to ourselves and others
-          li The rest of the talk basically follows this outline
+          li Few modelling assumptions: Use case for bootstrapping
 
       section
         section
@@ -99,8 +98,8 @@ html(lang="en")
             <a href="https://www.gs.washington.edu/academics/courses/akey/56008/lecture/lecture1.pdf">Introduction to statistical genomics</a>
 
           aside.notes: ul
-            li We have a population
-            li We take a smaller sample from that population with probability
+            li We have a population of visitors
+            li We take a random sample from that population
             li We use statistical inference to say something about the population
             li We care about the variability of our estimate for that population
             li We make some assumptions on experiments: random assignment, no selection bias, etc.
@@ -127,9 +126,9 @@ html(lang="en")
           img(src="img/overlapping-confidence-intervals.png")
 
           aside.notes: ul
-            li Show of hands: What does this tell us?
+            li Show of hands: What does this tell us about the difference?
             li Option 1: Difference isn't statistically significant &ndash; go with prior knowledge / easiest path / gut feeling
-            li Option 2: This doesn't tell us much about the difference
+            li Option 2: This doesn't tell us enough about the difference
 
         section
           h2 ...but the difference CI can't be obtained from single-sample CIs!
@@ -137,8 +136,8 @@ html(lang="en")
           img(src="img/overlapping-confidence-intervals-significant-difference.png")
 
           aside.notes: ul
-            li Emphasise that the confidence interval for the difference isn't simply a subtraction of the confidence intervals
-            li Mention that we can also get the ratio or uplift if that's deemed more interesting, but the difference is more stable
+            li The confidence interval for the difference isn't simply a subtraction of the confidence intervals
+            li Need other techniques from interval arithmetic for the difference CI, like bootstrapping
 
       section
         section
@@ -174,7 +173,7 @@ html(lang="en")
           p.fragment <b>Key insight:</b> We can test the correctness of CI algorithms!
 
           aside.notes: ul
-            li Yet another: like statistical significance &ndash; misused and misunderstood
+            li Yet another: like statistical significance &ndash; misused and misunderstood; Bayesian is more intuitive
             li However, it gives us a general idea where the parameter is
             li Importantly, being a range, it doesn't hide uncertainty (unlike statistical significance)
             li Not the best approach, but preferable to pretending uncertainty doesn't exist
@@ -187,6 +186,10 @@ html(lang="en")
             li Calculate interesting stats based on the <i>re</i>samples
 
           img(src="img/bootstrap-cartoon.jpg", height=300)
+
+          aside.notes: ul
+            li Bootstrapping has been around since the 1970s
+            li Promoted as statistics for hackers
 
         section
           h2 Bootstrapping by example: CI for mean
@@ -257,7 +260,7 @@ html(lang="en")
             <a href="https://arxiv.org/abs/1411.5279">What Teachers Should Know about the Bootstrap: Resampling in the Undergraduate Statistics Curriculum</a>
 
         section
-          h2 Why accept anything as a given when we can simulate?
+          h2 Why not simulate to test the CIs?
 
           p.fragment Bootstrapping is promoted because <i>"it's just for loops"</i> *
           p.fragment We should also use for loops to validate bootstrapping code!
@@ -268,6 +271,9 @@ html(lang="en")
               &ndash; Tim Hesterberg,
               <a href="https://storage.googleapis.com/pub-tools-public-publication-data/pdf/44859.pdf">What Teachers Should Know about the Bootstrap:<br>Resampling in the Undergraduate Statistics Curriculum</a>
               (shorter version)
+
+          aside.notes: ul
+            li Mention Hesterberg's two papers and the unfortunate title
 
       section
         section
@@ -305,15 +311,17 @@ html(lang="en")
                 td $27.5
                 td $32.5
 
+          aside.notes: ul
+            li Ticket pricing offers (give examples: free - online only)
+            li The true ratios are unknown!
+
         section
           h2 However, observed revenue varies
 
           p Factors: different taxes, exchange rates, discount vouchers, etc.
+          p.center (and our friend, randomness)
 
-          .fragment
-            p.center (and our friend, randomness)
-
-            img(src="img/revenue-samples.png")
+          img.fragment(src="img/revenue-samples.png")
 
         section
           h2 Let's simulate!
@@ -329,6 +337,9 @@ html(lang="en")
                 else:
                     sample.extend([0] * size)
 
+          aside.notes: ul
+            li Highlight the beauty and importance of thinking about the process that generated the data
+
         section
           h2 Testing different CI methods with ARCH
 
@@ -337,7 +348,8 @@ html(lang="en")
           img.fragment(src="img/revenue-confidence-intervals.png")
 
           aside.notes: ul
-            li Say it's 1,000 simulations
+            li 1,000 simulations
+            li Important point: If we think about the structure of the data, we can test bootstrapping CI methods
 
         section
           h2 What about revenue over time?
@@ -357,6 +369,9 @@ html(lang="en")
             li Use the right bootstrap for the job
             li Consider going parametric Bayesian
             li Test all the things
+
+          aside.notes: ul
+            li Bayesian point: better than a black box
 
         section
           h2 Main takeaway
