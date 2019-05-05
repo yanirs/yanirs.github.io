@@ -1,0 +1,94 @@
+<!DOCTYPE html><html lang="en"><head><title>Bootstrapping the right way</title><meta name="description" content="A brief overview of bootstrap sampling and ways to avoid common pitfalls when bootstrapping your data."><meta name="author" content="Yanir Seroussi"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><link rel="stylesheet" href="css/reveal.css"><link rel="stylesheet" href="css/theme/night.css"><link rel="stylesheet" href="lib/css/zenburn.css"><link rel="stylesheet" href="custom.css"><!-- Print and PDF exports--><script>var link = document.createElement('link');
+link.rel = 'stylesheet';
+link.type = 'text/css';
+link.href = window.location.search.match( /print-pdf/gi ) ? 'css/print/pdf.css' : 'css/print/paper.css';
+document.getElementsByTagName('head')[0].appendChild(link);
+</script><!--[if lt IE 9]><script src="lib/js/html5shiv.js"></script><![endif]--></head><body><div class="reveal"><div class="slides"><section><h1>Bootstrapping the right way</h1><h4>Yanir Seroussi</h4><h6><a href="https://yanirseroussi.com" target="_blank">yanirseroussi.com</a>
+|
+<a href="https://twitter.com/yanirseroussi" target="_blank">@yanirseroussi</a>
+|
+<a href="https://linkedin.com/in/yanirseroussi" target="_blank">linkedin.com/in/yanirseroussi</a>
+</h6></section><section><h2>Running example: A/B testing</h2><div class="fragment"><p>We want to...</p><p class="indent no-margin neg-margin-top">...compare conversion rates and revenue</p><p class="indent no-margin">...estimate uncertainty of metrics</p></div><div class="fragment"><p>We don't want...</p><p class="indent no-margin neg-margin-top">...binary answers</p><p class="indent no-margin">...too many modelling assumptions</p></div><aside class="notes"><ul><li>Explain A/B testing where we care about both conversion rates and revenue</li><li>Uncertainty: We want a range for the effect size, not just a yes/no answer</li><li>Few modelling assumptions: Use case for bootstrapping</li></ul></aside></section><section><section><h2>We want to compare...</h2><h1>conversion rates</h1></section><section><h2>Example: Testing titles for this talk</h2><table class="medium"><thead><tr><th>Variant</th><th>A</th><th>B</th></tr></thead><tbody><tr class="fragment"><td>Title</td><td>Rambling about bootstrapping, confidence intervals, and the reliability of online sources</td><td>Bootstrapping the right way</td></tr><tr class="fragment"><td>Visitors</td><td>2500</td><td>2500</td></tr><tr class="fragment"><td>Ticket sales</td><td>350</td><td>410</td></tr><tr class="fragment"><td>Conversion&nbsp;rate</td><td>14%</td><td>16.4%</td></tr></tbody></table></section><section><h2>Why are we doing this?</h2><img src="img/central-dogma-of-statistics.png"><div class="img-source-caption">&ndash; Joshua Akey,
+<a href="https://www.gs.washington.edu/academics/courses/akey/56008/lecture/lecture1.pdf">Introduction to statistical genomics</a>
+</div><aside class="notes"><ul><li>We have a population of visitors</li><li>We take a random sample from that population</li><li>We use statistical inference to say something about the population</li><li>We care about the variability of our estimate for that population</li><li>We make some assumptions on experiments: random assignment, no selection bias, etc.</li></ul></aside></section><section><h2>Back to our problem: Ask the internet?</h2><blockquote><p>Let's look at a type of dataset that I often work on: conversions [...]
+the formula for the confidence interval [...]</p><pre><code class="hljs python">scipy.stats.beta.ppf([0.025, 0.975],
+                     k,
+                     n - k)
+</code></pre></blockquote><div class="img-source-caption">&ndash; Erik Bernhardsson,
+<a href="https://erikbern.com/2018/10/08/the-hackers-guide-to-uncertainty-estimates.html">The hacker's guide to uncertainty estimates</a>
+</div></section><section><h2>Applying the formula to our case...</h2><img src="img/overlapping-confidence-intervals.png"><aside class="notes"><ul><li>Show of hands: What does this tell us about the difference?</li><li>Option 1: Difference isn't statistically significant &ndash; go with prior knowledge / easiest path / gut feeling</li><li>Option 2: This doesn't tell us enough about the difference</li></ul></aside></section><section><h2>...but the difference CI can't be obtained from single-sample CIs!</h2><img src="img/overlapping-confidence-intervals-significant-difference.png"><aside class="notes"><ul><li>The confidence interval for the difference isn't simply a subtraction of the confidence intervals</li><li>Need other techniques from interval arithmetic for the difference CI, like bootstrapping</li></ul></aside></section></section><section><section><h2>Detour:</h2><h1>On bootstrapping confidence intervals</h1></section><section><h2>What do CIs even mean?</h2><blockquote><p class="small">In statistics, a confidence interval (CI) is a type of interval estimate, computed from the statistics of
+the observed data, that might contain the true value of an unknown population parameter. The interval has an
+associated confidence level that, loosely speaking, quantifies the level of confidence that the parameter
+lies in the interval. More strictly speaking, the confidence level represents the frequency (i.e. the
+proportion) of possible confidence intervals that contain the true value of the unknown population
+parameter. In other words, if confidence intervals are constructed using a given confidence level from an
+infinite number of independent sample statistics, the proportion of those intervals that contain the true
+value of the parameter will be equal to the confidence level.
+</p></blockquote><div class="img-source-caption">&ndash; Wikipedia,
+<a href="https://en.wikipedia.org/wiki/Confidence_interval">Confidence interval</a>
+</div></section><section><img src="img/jackie-chan-confused.png"></section><section><h2>Let's try again...</h2><p class="fragment"><b>Interval:</b> Not a single point, a range</p><p class="fragment"><b>Confidence level:</b> Higher is wider, lower is narrower</p><p class="fragment"><b>Confidence interval:</b> Yet another confusing frequentist concept</p><p class="fragment"><b>Key insight:</b> We can test the correctness of CI algorithms!</p><aside class="notes"><ul><li>Yet another: like statistical significance &ndash; misused and misunderstood; Bayesian is more intuitive</li><li>However, it gives us a general idea where the parameter is</li><li>Importantly, being a range, it doesn't hide uncertainty (unlike statistical significance)</li><li>Not the best approach, but preferable to pretending uncertainty doesn't exist</li></ul></aside></section><section><h2>The basic bootstrap idea</h2><ol><li>Simulate the population by sampling with replacement <i>from your sample(s)</i></li><li>Calculate interesting stats based on the <i>re</i>samples</li></ol><img src="img/bootstrap-cartoon.jpg" height="300"><aside class="notes"><ul><li>Bootstrapping has been around since the 1970s</li><li>Promoted as statistics for hackers</li></ul></aside></section><section><h2>Bootstrapping by example: CI for mean</h2><table><thead><tr><td><b>Sample</b></td><td><b>Data</b></td><td><b>Mean</b></td></tr></thead><tbody><tr style="border-bottom: 1px solid #fff"><td>Original</td><td>10, 12, 20, 30, 45</td><td>23.4</td></tr><tr class="fragment"><td>Resample 1</td><td>30, 20, 12, 12, 45</td><td>23.8</td></tr><tr class="fragment"><td>Resample 2</td><td>20, 20, 30, 30, 30</td><td>26</td></tr><tr class="fragment"><td><i>...</i></td><td><i>many more resamples</i></td><td><i>...</i></td></tr></tbody></table><pre class="fragment"><code class="hljs python">means = [np.random.choice(sample, size=len(sample)).mean()
+         for _ in range(num_resamples)]
+np.percentile(means, [2.5, 97.5])
+</code></pre></section><section><h1>What's wrong with the example?</h1><aside class="notes"><ul><li>Ask the audience</li></ul></aside></section><section><h2>What's wrong? <i>"many more resamples"</i></h2><blockquote><p>[...] the number of resamples needs to be 15,000 or more, for 95% probability that simulation-based
+one-sided levels fall within 10% of the true values, for 95% intervals [...]
+</p><p>We want decisions to depend on the data, not random variation in the Monte Carlo implementation.
+We used r = 500,000 in the Verizon project.
+</p></blockquote><div class="img-source-caption">&ndash; Tim Hesterberg,
+<a href="https://arxiv.org/abs/1411.5279">What Teachers Should Know about the Bootstrap: Resampling in the Undergraduate Statistics Curriculum</a>
+</div></section><section><h2>What's wrong? <i>Percentile method</i></h2><blockquote><p>The sample sizes needed for different intervals to satisfy the "reasonably accurate" (off by no more than
+10% on each side) criterion are: n ≥ 101 for the bootstrap t, 220 for the skewness-adjusted t statistic,
+2,235 for expanded percentile, 2,383 for percentile, 4,815 for ordinary t (which I have rounded up to 5,000
+above), 5,063 for t with bootstrap standard errors and something over 8,000 for the reverse percentile
+method.
+</p></blockquote><div class="img-source-caption">&ndash; Tim Hesterberg,
+<a href="https://arxiv.org/abs/1411.5279">What Teachers Should Know about the Bootstrap: Resampling in the Undergraduate Statistics Curriculum</a>
+</div></section><section><h2>Why not simulate to test the CIs?</h2><p class="fragment">Bootstrapping is promoted because <i>"it's just for loops"</i> *</p><p class="fragment">We should also use for loops to validate bootstrapping code!</p><div class="fragment"><p>* It's actually not that simple:</p><blockquote><p>In practice, implementing some of the more accurate bootstrap methods is difficult, and people should use a package rather than attempt this themselves.</p></blockquote><div class="img-source-caption">&ndash; Tim Hesterberg,
+<a href="https://storage.googleapis.com/pub-tools-public-publication-data/pdf/44859.pdf">What Teachers Should Know about the Bootstrap:<br>Resampling in the Undergraduate Statistics Curriculum</a>
+(shorter version)
+</div></div><aside class="notes"><ul><li>Mention Hesterberg's two papers and the unfortunate title</li></ul></aside></section></section><section><section><h2>Back on course...</h2><h1>Comparing revenue</h1></section><section><h2>Example: Testing different price tiers</h2><table class="medium"><thead><tr><th>Variant</th><th>A</th><th>B</th></tr></thead><tbody class="fragment"><tr><td>Free</td><td>40% @ $0</td><td>60% @ $0</td></tr><tr><td>Tier 1</td><td>30% @ $25</td><td>25% @ $50</td></tr><tr><td>Tier 2</td><td>20% @ $50</td><td>10% @ $100</td></tr><tr><td>Tier 3</td><td>10% @ $100</td><td>5% @ $200</td></tr><tr class="fragment"><td>True mean</td><td>$27.5</td><td>$32.5</td></tr></tbody></table><aside class="notes"><ul><li>Ticket pricing offers (give examples: free - online only)</li><li>The true ratios are unknown!</li></ul></aside></section><section><h2>However, observed revenue varies</h2><p>Factors: different taxes, exchange rates, discount vouchers, etc.</p><p class="center">(and our friend, randomness)</p><img class="fragment" src="img/revenue-samples.png"></section><section><h2>Let's simulate!</h2><pre><code class="hljs python">rnd = np.random.RandomState(0)
+weights = [0.4, 0.3, 0.2, 0.1]
+prices = [0, 25, 50, 100]
+sample = []
+for price, size in zip(prices, rnd.multinomial(100, weights)):
+    if price:
+        sample.extend(rnd.poisson(price, size))
+    else:
+        sample.extend([0] * size)
+</code></pre><aside class="notes"><ul><li>Highlight the beauty and importance of thinking about the process that generated the data</li></ul></aside></section><section><h2>Testing different CI methods with ARCH</h2><p class="center"><i>How often is the true difference in means in the "95%" CI?</i></p><img class="fragment" src="img/revenue-confidence-intervals.png"><aside class="notes"><ul><li>1,000 simulations</li><li>Important point: If we think about the structure of the data, we can test bootstrapping CI methods</li></ul></aside></section><section><h2>What about revenue over time?</h2><p class="fragment">Out of scope, but remember the IID (independent and identically distributed) assumption</p><img class="fragment" src="img/iid-vs-circular-block.png"></section></section><section><section><h2>Summary</h2><ul><li>Don't compare single-sample CIs</li><li>Use enough resamples (15K?)</li><li>Use a solid bootstrapping package (Python ARCH)</li><li>Use the right bootstrap for the job</li><li>Consider going parametric Bayesian</li><li>Test all the things</li></ul><aside class="notes"><ul><li>Bayesian point: better than a black box</li></ul></aside></section><section><h2>Main takeaway</h2><img src="img/dont-believe-everything-you-read-on-the-internet-lincoln.jpg"><div class="fragment"><img src="img/profile-pic.jpg" style="height: 50px; float: left; margin-right: 20px;"><p>Further reading:
+<a href="https://yanirseroussi.com/2019/01/08/hackers-beware-bootstrap-sampling-may-be-harmful/">Hackers
+beware: Bootstrap sampling may be harmful</a> on yanirseroussi.com
+</p></div><aside class="notes"><ul><li>Don't believe blog posts</li><li>Don't believe conference talks</li><li>Trust, but verify</li><li>When needed, go back to primary sources</li></ul></aside></section></section><section><h1>Questions?</h1></section></div></div><script src="lib/js/head.min.js"></script><script src="js/reveal.js"></script><script>Reveal.initialize({
+  controls: true,
+  controlsTutorial: false,
+  progress: true,
+  history: true,
+  center: true,
+  transition: 'slide',
+  dependencies: [
+    {
+      src: 'lib/js/classList.js',
+      condition: function() { return !document.body.classList; }
+    },
+    {
+      src: 'plugin/markdown/marked.js',
+      condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+    },
+    {
+      src: 'plugin/markdown/markdown.js',
+      condition: function() { return !!document.querySelector( '[data-markdown]' ); }
+    },
+    {
+      src: 'plugin/highlight/highlight.js',
+      async: true,
+      callback: function() { hljs.initHighlightingOnLoad(); }
+    },
+    {
+      src: 'plugin/zoom-js/zoom.js',
+      async: true
+    },
+    {
+      src: 'plugin/notes/notes.js',
+      async: true
+    }
+  ]
+});</script></body></html>
