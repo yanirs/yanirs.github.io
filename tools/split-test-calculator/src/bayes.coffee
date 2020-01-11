@@ -165,7 +165,7 @@ class Plots
         the ROPE width (#{precision} &times; 2 &times; #{roundPct(@ropeMax)}% = #{roundPct(precision * 2 * @ropeMax)}%).
         Collecting more data is likely to decrease the HDI width and increase confidence #{seeKruschke}.
       """
-      ["End exepriment (confidence: #{confidence}).<br>Implement #{variant} variant.", explanation]
+      ["End experiment (confidence: #{confidence}).<br>Implement #{variant} variant.", explanation]
     else
       explanation += " keep testing #{seeKruschke}."
       ['Keep testing.', explanation]

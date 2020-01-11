@@ -224,7 +224,7 @@ Plots = (function() {
     if (variant) {
       confidence = hdiMax - hdiMin < precision * 2 * this.ropeMax ? 'high' : 'low';
       explanation += " implement " + variant + " variant.\nThe " + confidence + " confidence level is derived from the preset precision: The HDI width of\n" + (roundPct(hdiMax - hdiMin)) + "% is " + (confidence === 'high' ? 'narrower' : 'wider') + " than precision times\nthe ROPE width (" + precision + " &times; 2 &times; " + (roundPct(this.ropeMax)) + "% = " + (roundPct(precision * 2 * this.ropeMax)) + "%).\nCollecting more data is likely to decrease the HDI width and increase confidence " + seeKruschke + ".";
-      return ["End exepriment (confidence: " + confidence + ").<br>Implement " + variant + " variant.", explanation];
+      return ["End experiment (confidence: " + confidence + ").<br>Implement " + variant + " variant.", explanation];
     } else {
       explanation += " keep testing " + seeKruschke + ".";
       return ['Keep testing.', explanation];
