@@ -27,6 +27,8 @@ html(lang='en')
             li.
               To test your knowledge, write the exact scientific name in the box below each photo and press enter.
               You can also <a href="#" class="js-start-test">start a timed test</a>.
+            li.
+              Tips: Press \ while on an image slide to focus on the text box. Press ? for other keyboard shortcuts.
           ul
             li.
               To select sites, use the <a href="<%= frequencyExplorerUrl %>" target="_blank">Frequency
@@ -40,6 +42,7 @@ html(lang='en')
           h4.js-running-score
           h4.js-test-info
           h4.test-active-hidden <a href="#">Go back to the first slide</a> to view a different set of photos.
+          p.small.js-review-mistakes
 
       script#flashcard-template(type='text/template')
         section
@@ -55,6 +58,7 @@ html(lang='en')
             input.js-scientific-name(type='text', placeholder='Enter scientific name', data-name!='<%= name %>',
                                      autocomplete='off', title='Press backslash to focus, enter to submit')
             span.input-validation
+            .js-correct-answer.small.test-active-hidden.hidden <b>Correct answer:</b> <i><%= name %></i><br>&mdash;
             .small.js-running-score
             .small.js-test-info
 

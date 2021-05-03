@@ -1,6 +1,6 @@
 (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(require,module,exports){
 (function (global){
-var DEFAULT_NUM_PHOTOS, REVEAL_SETTINGS, SLIDE_CHANGE_DELAY, TEST_SECONDS_PER_SLIDE, checkAnswer, endTest, flashcardTemplate, footerTemplate, generateItems, generateOptions, getSelectedSites, headerTemplate, initSlides, refreshSlides, selectedEcoregion, testTimerTimeoutId, updateDisplayedScore, updateTestTimer, util;
+var DEFAULT_NUM_PHOTOS, REVEAL_SETTINGS, SLIDE_CHANGE_DELAY, TEST_SECONDS_PER_SLIDE, calculateLevenshteinDistance, checkAnswer, endTest, flashcardTemplate, footerTemplate, generateItems, generateOptions, getSelectedSites, headerTemplate, initSlides, refreshSlides, selectedEcoregion, testTimerTimeoutId, updateDisplayedScore, updateTestTimer, util;
 
 global.jQuery = global.$ = require('jquery');
 
@@ -53,7 +53,7 @@ getSelectedSites = function() {
 };
 
 generateItems = function(surveyData, minFreq, selectedMethod) {
-  var count, id, image, item, items, j, len, minCount, numSurveys, ref, ref1, speciesCounts;
+  var count, id, image, item, items, k, len, minCount, numSurveys, ref, ref1, speciesCounts;
   ref = surveyData.sumSites(getSelectedSites()), numSurveys = ref[0], speciesCounts = ref[1];
   minCount = numSurveys * minFreq / 100;
   items = [];
@@ -67,8 +67,8 @@ generateItems = function(surveyData, minFreq, selectedMethod) {
       continue;
     }
     ref1 = item.images;
-    for (j = 0, len = ref1.length; j < len; j++) {
-      image = ref1[j];
+    for (k = 0, len = ref1.length; k < len; k++) {
+      image = ref1[k];
       items.push(_.extend({
         image: image,
         freq: (100 * count / numSurveys).toFixed(2)
@@ -79,13 +79,13 @@ generateItems = function(surveyData, minFreq, selectedMethod) {
 };
 
 generateOptions = function(valueNamePairs, selectedValue, includeEmpty) {
-  var j, len, name, options, ref, selected, value, valueNamePair;
+  var k, len, name, options, ref, selected, value, valueNamePair;
   if (includeEmpty == null) {
     includeEmpty = false;
   }
   options = includeEmpty ? ['<option></option>'] : [];
-  for (j = 0, len = valueNamePairs.length; j < len; j++) {
-    valueNamePair = valueNamePairs[j];
+  for (k = 0, len = valueNamePairs.length; k < len; k++) {
+    valueNamePair = valueNamePairs[k];
     ref = valueNamePair instanceof Array ? valueNamePair : [valueNamePair, valueNamePair], value = ref[0], name = ref[1];
     selected = value === selectedValue ? 'selected' : '';
     options.push("<option value=\"" + value + "\" " + selected + ">" + name + "</option>");
@@ -94,19 +94,29 @@ generateOptions = function(valueNamePairs, selectedValue, includeEmpty) {
 };
 
 updateDisplayedScore = function(slideScores, numPhotos) {
-  var answered, correct, i, j, ref, score;
+  var almostCorrect, answered, correct, i, k, mistakes, partialMistakes, ref, score, slideLink;
   answered = 0;
   correct = 0;
-  for (i = j = 1, ref = numPhotos; 1 <= ref ? j <= ref : j >= ref; i = 1 <= ref ? ++j : --j) {
+  almostCorrect = 0;
+  mistakes = '';
+  partialMistakes = '';
+  for (i = k = 1, ref = numPhotos; 1 <= ref ? k <= ref : k >= ref; i = 1 <= ref ? ++k : --k) {
     if (slideScores.hasOwnProperty(i)) {
       answered++;
-      if (slideScores[i]) {
+      slideLink = " <a href=\"#/" + i + "\">(" + i + ") <i>" + slideScores[i].name + "</i></a>";
+      if (slideScores[i].correct) {
         correct++;
+      } else if (slideScores[i].almostCorrect) {
+        almostCorrect++;
+        partialMistakes += " " + slideLink;
+      } else {
+        mistakes += " " + slideLink;
       }
     }
   }
-  score = (100 * correct / numPhotos).toFixed(2);
-  return $('.js-running-score').html("Score: " + score + "% (correct: " + correct + "; attempted: " + answered + "; unanswered: " + (numPhotos - answered) + ")");
+  score = ((100 * correct + 50 * almostCorrect) / numPhotos).toFixed(2);
+  $('.js-running-score').html("<b>Score:</b> " + score + "% (correct: " + correct + "; almost correct: " + almostCorrect + "; attempted: " + answered + "; unanswered: " + (numPhotos - answered) + ")");
+  return $('.js-review-mistakes').html("<b>Mistakes:</b> " + (mistakes ? mistakes : '<i>None</i>') + "<br>\n<b>Almost correct:</b> " + (partialMistakes ? partialMistakes : '<i>None</i>'));
 };
 
 testTimerTimeoutId = null;
@@ -115,7 +125,7 @@ updateTestTimer = function(testStartTime, timeLimitSeconds) {
   var secondsLeft;
   secondsLeft = timeLimitSeconds - Math.floor((Date.now() - testStartTime) / 1000);
   if (secondsLeft > 0) {
-    $('.js-test-timer').html("Time left: " + (Math.floor(secondsLeft / 60)) + ":" + ((secondsLeft % 60).toString().padStart(2, '0')));
+    $('.js-test-timer').html("<b>Time left:</b> " + (Math.floor(secondsLeft / 60)) + ":" + ((secondsLeft % 60).toString().padStart(2, '0')));
     return testTimerTimeoutId = setTimeout(function() {
       return updateTestTimer(testStartTime, timeLimitSeconds);
     }, 1000);
@@ -132,20 +142,62 @@ endTest = function(jumpToLastSlide) {
   $('.js-test-info').html('Test over! You can now go through the slides to review your answers.');
   $('.slides').removeClass('test-active');
   $('.js-scientific-name').blur().prop('disabled', true);
+  $('.js-correct-answer').removeClass('hidden');
   if (jumpToLastSlide) {
     return Reveal.slide(Number.MAX_VALUE);
   }
 };
 
-checkAnswer = function($input, slideScores, testMode) {
-  var correct, slideIndex;
+calculateLevenshteinDistance = function(source, target) {
+  var deletionCost, distances, i, insertionCost, j, k, l, m, n, o, ref, ref1, ref2, ref3, ref4, substitutionCost;
+  if (source.length === 0) {
+    return target.length;
+  }
+  if (target.length === 0) {
+    return source.length;
+  }
+  distances = [];
+  for (i = k = 0, ref = source.length; 0 <= ref ? k <= ref : k >= ref; i = 0 <= ref ? ++k : --k) {
+    distances[i] = [];
+  }
+  for (i = l = 0, ref1 = source.length; 0 <= ref1 ? l <= ref1 : l >= ref1; i = 0 <= ref1 ? ++l : --l) {
+    distances[i][0] = i;
+  }
+  for (j = m = 0, ref2 = target.length; 0 <= ref2 ? m <= ref2 : m >= ref2; j = 0 <= ref2 ? ++m : --m) {
+    distances[0][j] = j;
+  }
+  for (i = n = 0, ref3 = source.length; 0 <= ref3 ? n < ref3 : n > ref3; i = 0 <= ref3 ? ++n : --n) {
+    for (j = o = 0, ref4 = target.length; 0 <= ref4 ? o < ref4 : o > ref4; j = 0 <= ref4 ? ++o : --o) {
+      deletionCost = distances[i][j + 1] + 1;
+      insertionCost = distances[i + 1][j] + 1;
+      substitutionCost = distances[i][j] + (source[i] === target[j] ? 0 : 1);
+      distances[i + 1][j + 1] = Math.min(deletionCost, insertionCost, substitutionCost);
+    }
+  }
+  return distances[source.length][target.length];
+};
+
+checkAnswer = function($input, slideScores, testMode, almostCorrectMaxDistance) {
+  var alertType, almostCorrect, correct, editDistance, name, slideIndex;
+  if (almostCorrectMaxDistance == null) {
+    almostCorrectMaxDistance = 3;
+  }
   $input.blur();
-  correct = $input.val().trim() === $input.data('name');
-  $input.removeClass('alert-success alert-error');
-  $input.addClass("alert-" + (correct ? 'success' : 'error'));
+  name = $input.data('name');
+  editDistance = calculateLevenshteinDistance($input.val().trim().toLowerCase(), name.toLowerCase());
+  correct = editDistance === 0;
+  almostCorrect = !correct && editDistance <= almostCorrectMaxDistance;
+  alertType = correct ? 'success' : almostCorrect ? 'warning' : 'error';
+  $input.removeClass('alert-success alert-error alert-warning');
+  $input.addClass("alert-" + alertType);
+  $input.siblings('.js-correct-answer').removeClass('hidden');
   slideIndex = Reveal.getIndices().h;
   if (!slideScores.hasOwnProperty(slideIndex)) {
-    slideScores[slideIndex] = correct;
+    slideScores[slideIndex] = {
+      correct: correct,
+      almostCorrect: almostCorrect,
+      name: name
+    };
   }
   if (correct || testMode) {
     return setTimeout(Reveal.right, SLIDE_CHANGE_DELAY);
@@ -187,7 +239,7 @@ refreshSlides = function(surveyData, delay, testMode) {
 };
 
 initSlides = function(surveyData, minFreq, selectedMethod, numPhotos, testMode) {
-  var $slides, ecoregionValueNamePairs, er, i, item, items, j, len, ref, sc, slideScores;
+  var $slides, ecoregionValueNamePairs, er, i, item, items, k, len, ref, sc, slideScores;
   if (minFreq == null) {
     minFreq = 0;
   }
@@ -215,11 +267,11 @@ initSlides = function(surveyData, minFreq, selectedMethod, numPhotos, testMode) 
   $slides = $('.slides');
   $slides.append(headerTemplate({
     numPhotosOptions: generateOptions((function() {
-      var j, len, ref, results;
+      var k, len, ref, results;
       ref = [25, 50, 100];
       results = [];
-      for (j = 0, len = ref.length; j < len; j++) {
-        i = ref[j];
+      for (k = 0, len = ref.length; k < len; k++) {
+        i = ref[k];
         if (i <= items.length) {
           results.push(i);
         }
@@ -234,8 +286,8 @@ initSlides = function(surveyData, minFreq, selectedMethod, numPhotos, testMode) 
     numSelectedSites: getSelectedSites().length
   }));
   ref = _.sample(items, numPhotos);
-  for (j = 0, len = ref.length; j < len; j++) {
-    item = ref[j];
+  for (k = 0, len = ref.length; k < len; k++) {
+    item = ref[k];
     $slides.append(flashcardTemplate(item));
   }
   if (numPhotos > 0) {
@@ -17360,4 +17412,4 @@ exports.getFlashcardsUrl = function() {
   }
 };
 
-},{}]},{},[1]);
+},{}]},{},[1])

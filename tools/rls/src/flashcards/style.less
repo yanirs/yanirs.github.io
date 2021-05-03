@@ -2,8 +2,9 @@
 @import '../node_modules/reveal.js/css/theme/night.css';
 @import '../common.css.tmp';
 
-@alert-error: #f2dede;
-@alert-success: #dff0d8;
+@alert-error: #ee9292;
+@alert-warning: #fcf8e3;
+@alert-success: #b5ecaf;
 
 .reveal {
   background-color: #1E2225;
@@ -53,6 +54,14 @@
 
       &~ .input-validation::before {
         content: "✗";
+      }
+    }
+
+    &.alert-warning {
+      background-color: @alert-warning;
+
+      &~ .input-validation::before {
+        content: "⚠";
       }
     }
 

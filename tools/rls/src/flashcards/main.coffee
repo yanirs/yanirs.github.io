@@ -55,21 +55,35 @@ generateOptions = (valueNamePairs, selectedValue, includeEmpty = false) ->
 updateDisplayedScore = (slideScores, numPhotos) ->
   answered = 0
   correct = 0
+  almostCorrect = 0
+  mistakes = ''
+  partialMistakes = ''
   for i in [1..numPhotos]
     if slideScores.hasOwnProperty(i)
       answered++
-      correct++ if slideScores[i]
-  score = (100 * correct / numPhotos).toFixed(2)
+      slideLink = """ <a href="#/#{i}">(#{i}) <i>#{slideScores[i].name}</i></a>"""
+      if slideScores[i].correct
+        correct++
+      else if slideScores[i].almostCorrect
+        almostCorrect++
+        partialMistakes += " #{slideLink}"
+      else
+        mistakes += " #{slideLink}"
+  score = ((100 * correct + 50 * almostCorrect) / numPhotos).toFixed(2)
   $('.js-running-score').html(
-    "Score: #{score}% (correct: #{correct}; attempted: #{answered}; unanswered: #{numPhotos - answered})"
+    "<b>Score:</b> #{score}% (correct: #{correct}; almost correct: #{almostCorrect}; attempted: #{answered}; unanswered: #{numPhotos - answered})"
   )
+  $('.js-review-mistakes').html("""
+    <b>Mistakes:</b> #{if mistakes then mistakes else '<i>None</i>'}<br>
+    <b>Almost correct:</b> #{if partialMistakes then partialMistakes else '<i>None</i>'}
+  """)
 
 testTimerTimeoutId = null
 updateTestTimer = (testStartTime, timeLimitSeconds) ->
   secondsLeft = timeLimitSeconds - Math.floor((Date.now() - testStartTime) / 1000)
   if secondsLeft > 0
     $('.js-test-timer').html(
-      "Time left: #{Math.floor(secondsLeft / 60)}:#{(secondsLeft % 60).toString().padStart(2, '0')}"
+      "<b>Time left:</b> #{Math.floor(secondsLeft / 60)}:#{(secondsLeft % 60).toString().padStart(2, '0')}"
     )
     testTimerTimeoutId = setTimeout(
       -> updateTestTimer(testStartTime, timeLimitSeconds),
@@ -83,16 +97,50 @@ endTest = (jumpToLastSlide = true) ->
   $('.js-test-info').html('Test over! You can now go through the slides to review your answers.')
   $('.slides').removeClass('test-active')
   $('.js-scientific-name').blur().prop('disabled', true)
+  $('.js-correct-answer').removeClass('hidden')
   Reveal.slide(Number.MAX_VALUE) if jumpToLastSlide
 
-checkAnswer = ($input, slideScores, testMode) ->
+calculateLevenshteinDistance = (source, target) ->
+  return target.length if source.length == 0
+  return source.length if target.length == 0
+
+  distances = []
+  distances[i] = [] for i in [0..source.length]
+  distances[i][0] = i for i in [0..source.length]
+  distances[0][j] = j for j in [0..target.length]
+
+  for i in [0...source.length]
+    for j in [0...target.length]
+      deletionCost = distances[i][j + 1] + 1
+      insertionCost = distances[i + 1][j] + 1
+      substitutionCost = distances[i][j] + (if source[i] == target[j] then 0 else 1)
+      distances[i + 1][j + 1] = Math.min(deletionCost, insertionCost, substitutionCost)
+
+  distances[source.length][target.length]
+
+checkAnswer = ($input, slideScores, testMode, almostCorrectMaxDistance = 3) ->
   $input.blur()
-  correct = $input.val().trim() == $input.data('name')
-  $input.removeClass('alert-success alert-error')
-  $input.addClass("alert-#{if correct then 'success' else 'error'}")
+  name = $input.data('name')
+  editDistance = calculateLevenshteinDistance($input.val().trim().toLowerCase(), name.toLowerCase())
+  correct = editDistance == 0
+  almostCorrect = not correct and editDistance <= almostCorrectMaxDistance
+  alertType =
+    if correct
+      'success'
+    else if almostCorrect
+      'warning'
+    else
+      'error'
+  $input.removeClass('alert-success alert-error alert-warning')
+  $input.addClass("alert-#{alertType}")
+  $input.siblings('.js-correct-answer').removeClass('hidden')
   # Only record the result on the first attempt.
   slideIndex = Reveal.getIndices().h
-  slideScores[slideIndex] = correct if not slideScores.hasOwnProperty(slideIndex)
+  if not slideScores.hasOwnProperty(slideIndex)
+    slideScores[slideIndex] =
+      correct: correct
+      almostCorrect: almostCorrect
+      name: name
   # Only show the answer slides if incorrect and out of test mode. Otherwise, just move to the next slide.
   if correct or testMode
     setTimeout(Reveal.right, SLIDE_CHANGE_DELAY)
