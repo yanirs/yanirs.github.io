@@ -2,3 +2,7 @@
 node_modules/
 .sass-cache/
 *.tmp
+
+# Hugo files
+/public/
+/resources/_gen/
