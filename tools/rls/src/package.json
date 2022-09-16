@@ -2,7 +2,7 @@
   "name": "rls-frequency-explorer",
   "description": "A simple tool to explore the species frequencies reported in Reef Life Surveys",
   "dependencies": {
-    "bootstrap": "^3.3.7",
+    "bootstrap": "^3.4.1",
     "jquery": "^3.2.1",
     "reveal.js": "^3.5.0",
     "select2": "^4.0.3",
