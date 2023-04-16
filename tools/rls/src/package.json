@@ -3,7 +3,7 @@
   "description": "A simple tool to explore the species frequencies reported in Reef Life Surveys",
   "dependencies": {
     "bootstrap": "^3.3.7",
-    "jquery": "^3.2.1",
+    "jquery": "^3.5.0",
     "reveal.js": "^3.5.0",
     "select2": "^4.0.3",
     "underscore": "^1.8.3",
